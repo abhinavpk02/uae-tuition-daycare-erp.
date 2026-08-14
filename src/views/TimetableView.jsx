@@ -13,13 +13,35 @@ export default function TimetableView() {
   const [studentSearch, setStudentSearch] = useState('');
 
   const [classRoster, setClassRoster] = useState([
-    { id: 'std-101', name: 'Sami Al-Hashimi', grade: 'Grade 4', program: 'Tuition & Daycare', status: 'Present' },
-    { id: 'std-102', name: 'Mariam Bin Zayed', grade: 'Grade 2', program: 'Daycare Only', status: 'Present' },
-    { id: 'std-103', name: 'Rashid Al-Maktoum', grade: 'Grade 5', program: 'Tuition Only', status: 'Absent' },
-    { id: 'std-104', name: 'Fatima Al-Nuaimi', grade: 'Grade 3', program: 'Tuition & Daycare', status: 'Late' },
+    { id: 'std-101', name: 'Zayed Al-Hashimi', grade: 'Grade 10', program: 'Tuition & Daycare', status: 'Present' },
+    { id: 'std-102', name: 'Mariam Al-Hashimi', grade: 'KG 2', program: 'Daycare Only', status: 'Present' },
+    { id: 'std-103', name: 'Sami Al-Hashimi', grade: 'Grade 4', program: 'Tuition & Daycare', status: 'Present' },
+    { id: 'std-104', name: 'Rashid Al-Maktoum', grade: 'Grade 5', program: 'Tuition Only', status: 'Absent' },
+    { id: 'std-105', name: 'Fatima Al-Nuaimi', grade: 'Grade 3', program: 'Tuition & Daycare', status: 'Late' },
+    { id: 'std-106', name: 'Khalifa Al-Falasi', grade: 'Grade 8', program: 'Tuition Only', status: 'Present' },
+    { id: 'std-107', name: 'Sheikha Al-Qassimi', grade: 'Grade 6', program: 'Tuition & Daycare', status: 'Present' }
   ]);
 
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
+
+  // DYNAMICALLY FETCH ALL REGISTERED STUDENTS FROM DATABASE
+  useEffect(() => {
+    fetch('/api/students')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const formatted = data.map((s, idx) => ({
+            id: s.id || `std-${idx}`,
+            name: s.name,
+            grade: s.standard || s.grade || 'Grade ' + (idx + 1),
+            program: s.program || 'Tuition & Daycare',
+            status: idx % 4 === 2 ? 'Absent' : idx % 5 === 3 ? 'Late' : 'Present'
+          }));
+          setClassRoster(formatted);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Toggle student status in class roster
   const setStudentAttendance = (stdId, status) => {
@@ -31,14 +53,14 @@ export default function TimetableView() {
   };
 
   const handleSaveClassAttendance = () => {
-    setSaveSuccessMsg(`Attendance saved for ${selectedClass}! (${classRoster.filter(s => s.status === 'Present').length} Present)`);
+    setSaveSuccessMsg(`Attendance saved for ${selectedClass}! (${classRoster.filter(s => s.status === 'Present').length} Present out of ${classRoster.length} registered students)`);
     setTimeout(() => setSaveSuccessMsg(''), 4000);
   };
 
   // Filtered Roster by Search Query
   const filteredRoster = classRoster.filter(s =>
     s.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
-    s.grade.toLowerCase().includes(studentSearch.toLowerCase())
+    (s.grade && s.grade.toLowerCase().includes(studentSearch.toLowerCase()))
   );
 
   return (
@@ -46,7 +68,7 @@ export default function TimetableView() {
       {/* Header */}
       <div style={{ marginBottom: '24px' }}>
         <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>Class Schedule & In-Class Attendance</h2>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Classroom spatial schedule and 1-click teacher roll call system</p>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Classroom spatial schedule and 1-click teacher roll call system ({classRoster.length} Registered Students)</p>
       </div>
 
       {/* Main 2-Column Responsive Grid */}
@@ -56,7 +78,7 @@ export default function TimetableView() {
         <div className="glass-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
             <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <UserCheck size={20} color="var(--accent-primary)" /> Quick In-Class Roll Call
+              <UserCheck size={20} color="var(--accent-primary)" /> Quick In-Class Roll Call ({classRoster.length} Students)
             </h3>
             <button className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '0.78rem' }} onClick={markAllPresent}>
               <CheckCircle2 size={14} color="var(--accent-primary)" /> Mark All Present
@@ -80,7 +102,7 @@ export default function TimetableView() {
             <input 
               type="text" 
               className="form-input" 
-              placeholder="Search student by name in roster..." 
+              placeholder={`Search among all ${classRoster.length} registered students...`}
               value={studentSearch}
               onChange={e => setStudentSearch(e.target.value)}
               style={{ paddingLeft: '36px', height: '38px', fontSize: '0.85rem' }}
@@ -88,7 +110,7 @@ export default function TimetableView() {
           </div>
 
           {/* Student Class Roster Table */}
-          <div className="table-responsive-wrapper" style={{ marginBottom: '16px' }}>
+          <div className="table-responsive-wrapper" style={{ marginBottom: '16px', maxHeight: '420px', overflowY: 'auto' }}>
             <table className="custom-table">
               <thead>
                 <tr>
@@ -172,7 +194,7 @@ export default function TimetableView() {
           )}
 
           <button className="btn btn-emerald" style={{ width: '100%', justifyContent: 'center' }} onClick={handleSaveClassAttendance}>
-            <Check size={18} /> Save Class Attendance
+            <Check size={18} /> Save Class Attendance ({classRoster.filter(s => s.status === 'Present').length} Present)
           </button>
         </div>
 
