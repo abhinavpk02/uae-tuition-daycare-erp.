@@ -1,36 +1,59 @@
 import React, { useEffect, useState } from 'react';
-import { UserCheck, BookOpen, Plus, ShieldAlert } from 'lucide-react';
+import { UserCheck, BookOpen, Plus, ShieldAlert, UserPlus } from 'lucide-react';
+import AddStudentModal from '../components/AddStudentModal';
+import AddStaffModal from '../components/AddStaffModal';
 
 export default function StudentsView() {
   const [students, setStudents] = useState([]);
   const [staff, setStaff] = useState([]);
-  const [subjects, setSubjects] = useState([
+  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+  const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
+
+  const [subjects] = useState([
     { id: '1', name: 'Advanced Mathematics', tier: 'HSS', monthly_fee: 1200 },
     { id: '2', name: 'Physics & Chemistry Lab', tier: 'HS', monthly_fee: 950 },
     { id: '3', name: 'English Literature', tier: 'HS', monthly_fee: 800 }
   ]);
 
-  useEffect(() => {
+  const fetchStudents = () => {
     fetch('/api/students')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setStudents(data);
       })
       .catch(() => {});
+  };
 
+  const fetchStaff = () => {
     fetch('/api/staff')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setStaff(data);
       })
       .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchStudents();
+    fetchStaff();
   }, []);
 
   return (
     <div className="view-container">
-      <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem' }}>Academic & Student Directory</h2>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Registered students, daycare enrollment programs, and teaching staff</p>
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem' }}>Academic & Student Directory</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Registered students, daycare enrollment programs, and teaching staff</p>
+        </div>
+
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button className="btn btn-emerald" onClick={() => setIsStudentModalOpen(true)}>
+            <Plus size={18} /> Register Student
+          </button>
+          <button className="btn btn-gold" onClick={() => setIsStaffModalOpen(true)}>
+            <UserPlus size={18} /> Onboard Staff
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
@@ -64,7 +87,7 @@ export default function StudentsView() {
           </table>
         </div>
 
-        {/* Subjects Matrix */}
+        {/* Subjects & Staff Directory */}
         <div className="glass-card">
           <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px' }}>Tuition Pricing Matrix</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -95,6 +118,19 @@ export default function StudentsView() {
         </div>
 
       </div>
+
+      {/* Modals */}
+      <AddStudentModal 
+        isOpen={isStudentModalOpen} 
+        onClose={() => setIsStudentModalOpen(false)} 
+        onSuccess={() => fetchStudents()} 
+      />
+
+      <AddStaffModal 
+        isOpen={isStaffModalOpen} 
+        onClose={() => setIsStaffModalOpen(false)} 
+        onSuccess={() => fetchStaff()} 
+      />
     </div>
   );
 }
