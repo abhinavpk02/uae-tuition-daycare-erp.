@@ -297,8 +297,11 @@ export default function App() {
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="main-content">
+      {/* Main Content Area - HIDE WHEN MOBILE MENU DRAWER IS OPEN TO PREVENT OVERLAP WHILE SCROLLING */}
+      <main 
+        className="main-content"
+        style={{ display: (mobileMenuOpen && typeof window !== 'undefined' && window.innerWidth <= 768) ? 'none' : 'block' }}
+      >
         {/* Sleek Minimalist Top Header Bar */}
         <header className="header-bar">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

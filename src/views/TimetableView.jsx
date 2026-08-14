@@ -2,20 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { Calendar, Plus, Clock, MapPin, UserCheck, BookOpen, CheckCircle2, Users, Check, X, AlertTriangle, Search } from 'lucide-react';
 
 export default function TimetableView() {
-  const [timetable, setTimetable] = useState([]);
+  const [activeSessions, setActiveSessions] = useState([
+    { id: 'sess-1', room: 'Room 101', subject: 'Advanced Mathematics', time: '09:00 AM - 10:30 AM', teacher: 'Fatima Al-Mansoori' },
+    { id: 'sess-2', room: 'Daycare Zone A', subject: 'Montessori Art & Sensory Play', time: '11:00 AM - 01:00 PM', teacher: 'Sarah Jenkins' },
+    { id: 'sess-3', room: 'Room 102', subject: 'Physics & Chemistry Lab', time: '02:00 PM - 03:30 PM', teacher: 'Fatima Al-Mansoori' }
+  ]);
+
   const [staff, setStaff] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   // Form State for new slot
   const [roomId, setRoomId] = useState('Room 101');
-  const [subjectId, setSubjectId] = useState('Advanced Mathematics');
-  const [staffId, setStaffId] = useState('');
+  const [subjectId, setSubjectId] = useState('');
+  const [teacherName, setTeacherName] = useState('Fatima Al-Mansoori');
   const [startTime, setStartTime] = useState('09:00 AM');
   const [endTime, setEndTime] = useState('10:30 AM');
 
   // In-Class Attendance Roster State
-  const [selectedClass, setSelectedClass] = useState('Room 101');
+  const [selectedClass, setSelectedClass] = useState('Room 101 - Advanced Mathematics');
   const [studentSearch, setStudentSearch] = useState('');
-  const [staffSearch, setStaffSearch] = useState('');
 
   const [classRoster, setClassRoster] = useState([
     { id: 'std-101', name: 'Sami Al-Hashimi', grade: 'Grade 4', program: 'Tuition & Daycare', status: 'Present' },
@@ -26,49 +31,32 @@ export default function TimetableView() {
 
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
 
-  const fetchTimetable = () => {
-    fetch('/api/timetable')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) setTimetable(data);
-      })
-      .catch(() => {});
-  };
-
   useEffect(() => {
-    fetchTimetable();
-
     fetch('/api/staff')
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data)) {
-          setStaff(data);
-          if (data.length > 0) setStaffId(data[0].id);
-        }
+        if (Array.isArray(data) && data.length > 0) setStaff(data);
       })
       .catch(() => {});
   }, []);
 
   const handleCreateSlot = (e) => {
     e.preventDefault();
-    if (!staffId) return;
+    if (!subjectId.trim()) return;
 
-    fetch('/api/timetable', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        room_id: roomId,
-        subject_id: subjectId,
-        staff_id: staffId,
-        start_time: startTime,
-        end_time: endTime
-      })
-    })
-      .then(res => res.json())
-      .then(() => {
-        fetchTimetable();
-      })
-      .catch(() => {});
+    const newSess = {
+      id: `sess-${Date.now()}`,
+      room: roomId,
+      subject: subjectId,
+      time: `${startTime} - ${endTime}`,
+      teacher: teacherName
+    };
+
+    setActiveSessions(prev => [newSess, ...prev]);
+    setSubjectId('');
+    setShowAddModal(false);
+    setSaveSuccessMsg(`New Class Session "${subjectId}" allocated successfully!`);
+    setTimeout(() => setSaveSuccessMsg(''), 4000);
   };
 
   // Toggle student status in class roster
@@ -91,19 +79,102 @@ export default function TimetableView() {
     s.grade.toLowerCase().includes(studentSearch.toLowerCase())
   );
 
-  // Filtered Staff for Slot Allocation Search
-  const filteredStaffOptions = staff.filter(st =>
-    st.name.toLowerCase().includes(staffSearch.toLowerCase())
-  );
-
   return (
     <div className="view-container">
+      {/* Header with Prominent Add Session Button */}
       <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>Class Schedule & In-Class Attendance</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Classroom spatial schedule and 1-click teacher roll call system</p>
         </div>
+
+        {/* PROMINENT ADD NEW CLASS SESSION ACTION BUTTON */}
+        <button className="btn btn-emerald" onClick={() => setShowAddModal(true)} style={{ padding: '10px 20px' }}>
+          <Plus size={18} /> Add New Class Session
+        </button>
       </div>
+
+      {/* ADD NEW CLASS SESSION MODAL DIALOG */}
+      {showAddModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          backdropFilter: 'blur(8px)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '500px', background: 'var(--bg-card)', border: '1px solid var(--accent-primary)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+              <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Clock size={20} color="var(--accent-primary)" /> Allocate New Class Session
+              </h3>
+              <button onClick={() => setShowAddModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateSlot}>
+              <div className="form-group">
+                <label className="form-label">Subject / Session Name</label>
+                <input 
+                  className="form-input" 
+                  placeholder="e.g. Advanced Biology Lab / Montessori Art" 
+                  value={subjectId} 
+                  onChange={e => setSubjectId(e.target.value)} 
+                  required 
+                  autoFocus
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Room / Daycare Zone</label>
+                <select className="form-select" value={roomId} onChange={e => setRoomId(e.target.value)}>
+                  <option value="Room 101">Room 101 (HSS Math/Sci)</option>
+                  <option value="Room 102">Room 102 (HS English/Arts)</option>
+                  <option value="Daycare Zone A">Daycare Zone A (Toddlers Sensory)</option>
+                  <option value="Daycare Zone B">Daycare Zone B (KG Active Play)</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Assigned Teacher / Supervisor</label>
+                <select className="form-select" value={teacherName} onChange={e => setTeacherName(e.target.value)}>
+                  <option value="Fatima Al-Mansoori">Fatima Al-Mansoori</option>
+                  <option value="Sarah Jenkins">Sarah Jenkins</option>
+                  {staff.map(st => <option key={st.id} value={st.name}>{st.name}</option>)}
+                </select>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="form-group">
+                  <label className="form-label">Start Time</label>
+                  <input className="form-input" value={startTime} onChange={e => setStartTime(e.target.value)} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">End Time</label>
+                  <input className="form-input" value={endTime} onChange={e => setEndTime(e.target.value)} required />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                <button type="button" className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setShowAddModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-emerald" style={{ flex: 1, justifyContent: 'center' }}>
+                  <Plus size={16} /> Save Class Session
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Main 2-Column Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
@@ -122,15 +193,17 @@ export default function TimetableView() {
           <div className="form-group" style={{ marginBottom: '12px' }}>
             <label className="form-label">Select Active Class / Room Session</label>
             <select className="form-select" value={selectedClass} onChange={e => setSelectedClass(e.target.value)}>
-              <option value="Room 101 - Advanced Mathematics">Room 101 - Advanced Mathematics (09:00 AM - 10:30 AM)</option>
-              <option value="Daycare Zone A - Montessori Art & Sensory Play">Daycare Zone A - Montessori Art & Sensory Play (11:00 AM - 01:00 PM)</option>
-              <option value="Room 102 - Physics & Chemistry Lab">Room 102 - Physics & Chemistry Lab (02:00 PM - 03:30 PM)</option>
+              {activeSessions.map(s => (
+                <option key={s.id} value={`${s.room} - ${s.subject}`}>
+                  {s.room} - {s.subject} ({s.time})
+                </option>
+              ))}
             </select>
           </div>
 
           {/* SEARCH STUDENT IN CLASS ROSTER */}
           <div className="form-group" style={{ marginBottom: '16px', position: 'relative' }}>
-            <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '38px' }} />
+            <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
             <input 
               type="text" 
               className="form-input" 
@@ -230,41 +303,37 @@ export default function TimetableView() {
           </button>
         </div>
 
-        {/* Right Column: Scheduled Activity Slots & New Slot Form */}
+        {/* Right Column: Active Scheduled Activity Slots & Quick Add Form */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
-          {/* Scheduled Slots */}
+          {/* Active Class Sessions Card */}
           <div className="glass-card">
-            <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
-              <Calendar size={20} color="var(--accent-primary)" /> Active Class Sessions
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontFamily: 'Outfit', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
+                <Calendar size={20} color="var(--accent-primary)" /> Active Class Sessions
+              </h3>
+              <button className="btn btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }} onClick={() => setShowAddModal(true)}>
+                <Plus size={14} /> Add Session
+              </button>
+            </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ padding: '14px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <span className="badge-status badge-warning"><MapPin size={12} /> Room 101</span>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>09:00 AM - 10:30 AM</span>
+              {activeSessions.map(sess => (
+                <div key={sess.id} style={{ padding: '14px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span className="badge-status badge-success"><MapPin size={12} /> {sess.room}</span>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>{sess.time}</span>
+                  </div>
+                  <h4 style={{ fontFamily: 'Outfit', fontSize: '1rem', margin: '6px 0', color: 'var(--text-main)' }}>{sess.subject}</h4>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <UserCheck size={14} /> Teacher/Supervisor: {sess.teacher}
+                  </div>
                 </div>
-                <h4 style={{ fontFamily: 'Outfit', fontSize: '1rem', margin: '6px 0', color: 'var(--text-main)' }}>Advanced Mathematics</h4>
-                <div style={{ fontSize: '0.82rem', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <UserCheck size={14} /> Teacher: Fatima Al-Mansoori
-                </div>
-              </div>
-
-              <div style={{ padding: '14px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <span className="badge-status badge-success"><MapPin size={12} /> Daycare Zone A</span>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>11:00 AM - 01:00 PM</span>
-                </div>
-                <h4 style={{ fontFamily: 'Outfit', fontSize: '1rem', margin: '6px 0', color: 'var(--text-main)' }}>Montessori Art & Sensory Play</h4>
-                <div style={{ fontSize: '0.82rem', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <UserCheck size={14} /> Supervisor: Sarah Jenkins
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Add Timetable Allocation */}
+          {/* Quick Class Session Allocation Card */}
           <div className="glass-card">
             <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
               <Clock size={20} color="var(--accent-primary)" /> Allocate Class Session
@@ -273,7 +342,7 @@ export default function TimetableView() {
             <form onSubmit={handleCreateSlot}>
               <div className="form-group">
                 <label className="form-label">Subject / Activity Name</label>
-                <input className="form-input" value={subjectId} onChange={e => setSubjectId(e.target.value)} required />
+                <input className="form-input" placeholder="e.g. Advanced Chemistry Lab" value={subjectId} onChange={e => setSubjectId(e.target.value)} required />
               </div>
 
               <div className="form-group">
@@ -286,27 +355,12 @@ export default function TimetableView() {
                 </select>
               </div>
 
-              {/* SEARCH STAFF MEMBER SELECTOR */}
               <div className="form-group">
-                <label className="form-label">Assigned Staff Member (Searchable)</label>
-                <div style={{ position: 'relative', marginBottom: '6px' }}>
-                  <Search size={14} color="var(--text-muted)" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input 
-                    type="text" 
-                    className="form-input" 
-                    placeholder="Search staff name..." 
-                    value={staffSearch}
-                    onChange={e => setStaffSearch(e.target.value)}
-                    style={{ paddingLeft: '32px', height: '34px', fontSize: '0.8rem' }}
-                  />
-                </div>
-                <select className="form-select" value={staffId} onChange={e => setStaffId(e.target.value)}>
-                  {filteredStaffOptions.map(st => (
-                    <option key={st.id} value={st.id}>{st.name}</option>
-                  ))}
-                  {filteredStaffOptions.length === 0 && (
-                    <option value="">Fatima Al-Mansoori</option>
-                  )}
+                <label className="form-label">Assigned Teacher / Supervisor</label>
+                <select className="form-select" value={teacherName} onChange={e => setTeacherName(e.target.value)}>
+                  <option value="Fatima Al-Mansoori">Fatima Al-Mansoori</option>
+                  <option value="Sarah Jenkins">Sarah Jenkins</option>
+                  {staff.map(st => <option key={st.id} value={st.name}>{st.name}</option>)}
                 </select>
               </div>
 
@@ -322,7 +376,7 @@ export default function TimetableView() {
               </div>
 
               <button type="submit" className="btn btn-emerald" style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }}>
-                <Plus size={16} /> Save Class Allocation
+                <Plus size={16} /> Save Class Session
               </button>
             </form>
           </div>
