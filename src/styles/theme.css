@@ -555,6 +555,11 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
     z-index: 105;
   }
 
+  /* HIDE REDUNDANT SECOND BRAND LOGO IN MOBILE DRAWER MENU */
+  .sidebar .brand-header {
+    display: none !important;
+  }
+
   .sidebar.mobile-open {
     display: flex;
   }
@@ -569,7 +574,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   }
 
   .nav-tile-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr); /* 2 COLUMNS IN PORTRAIT MOBILE VIEW MATCHING SCREENSHOT 2 */
     gap: 12px;
   }
 }
