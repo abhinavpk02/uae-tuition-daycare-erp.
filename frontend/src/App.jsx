@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Gauge, ShieldCheck, ShoppingBag, Clock, Users, 
-  Building2, Globe, Sparkles, Calendar, Coins, UserCheck, Lock, UserPlus, BookOpen, Menu, X, Sun, Moon 
+  Building2, Sparkles, Calendar, Coins, UserCheck, Lock, UserPlus, BookOpen, Menu, X, Sun, Moon 
 } from 'lucide-react';
 
 import DashboardView from './views/DashboardView';
@@ -78,9 +78,16 @@ export default function App() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button onClick={toggleTheme} className="theme-toggle-btn" style={{ padding: '6px 12px' }}>
-            {theme === 'dark' ? <Sun size={16} color="#F59E0B" /> : <Moon size={16} color="#3B82F6" />}
+          {/* Icon-Only Theme Mode Switcher */}
+          <button 
+            onClick={toggleTheme} 
+            className="theme-toggle-btn" 
+            title="Toggle Light/Dark Theme"
+            style={{ width: '40px', height: '40px', padding: 0, justifyContent: 'center', borderRadius: '12px' }}
+          >
+            {theme === 'dark' ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#3B82F6" />}
           </button>
+          
           <button 
             className="mobile-menu-toggle" 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -104,7 +111,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* PERFECT 1:1 SQUARE TILE NAVIGATION GRID */}
+          {/* PERFECT 1:1 APPLE CONTROL CENTER SQUARE TILE NAVIGATION GRID */}
           <div className="nav-tile-grid">
 
             {canAccess('parent-portal') && activeRole === 'Parent' && (
@@ -251,26 +258,27 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="main-content">
-        {/* Top Header Bar */}
+        {/* Sleek Minimalist Top Header Bar */}
         <header className="header-bar">
-          <div>
-            <div className="badge-uae">
-              <Globe size={14} /> United Arab Emirates Standard (AED)
-            </div>
-          </div>
-          <div className="header-actions">
-            {/* Dark/Light Mode Theme Switcher */}
-            <button onClick={toggleTheme} className="theme-toggle-btn">
-              {theme === 'dark' ? <Sun size={16} color="#F59E0B" /> : <Moon size={16} color="#3B82F6" />}
-              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-            </button>
-
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div className="badge-status badge-warning" style={{ fontSize: '0.8rem', padding: '6px 14px' }}>
-              RBAC Mode: {activeRole}
+              RBAC: {activeRole}
             </div>
             <div className="badge-status badge-success" style={{ fontSize: '0.8rem', padding: '6px 14px' }}>
-              <Sparkles size={14} /> 100% Audit Balanced
+              <Sparkles size={14} /> Balanced
             </div>
+          </div>
+
+          <div className="header-actions">
+            {/* Icon-Only Theme Mode Switcher Button */}
+            <button 
+              onClick={toggleTheme} 
+              className="theme-toggle-btn"
+              title="Toggle Light/Dark Theme"
+              style={{ width: '40px', height: '40px', padding: 0, justifyContent: 'center', borderRadius: '12px' }}
+            >
+              {theme === 'dark' ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#3B82F6" />}
+            </button>
           </div>
         </header>
 
