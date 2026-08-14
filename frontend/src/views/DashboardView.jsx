@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { 
   TrendingUp, Users, Clock, ShieldCheck, DollarSign, 
-  ShoppingBag, Award, ArrowUpRight, CheckCircle2 
+  ShoppingBag, ArrowUpRight, CheckCircle2, Coins, Layers
 } from 'lucide-react';
 
 export default function DashboardView({ onNavigate }) {
@@ -44,60 +44,75 @@ export default function DashboardView({ onNavigate }) {
 
   return (
     <div className="view-container">
-      {/* KPI Cards */}
-      <div className="grid-stats">
-        <div className="glass-card stat-card">
-          <div className="stat-icon-wrapper" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10B981' }}>
-            <DollarSign size={26} />
+      {/* KPI Cards: Large Minimalist Cards */}
+      <div className="grid-stats-large">
+        
+        {/* Metric 1: Total Volume */}
+        <div className="stat-card-large glass-card">
+          <div className="stat-icon-large" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10B981' }}>
+            <Coins size={32} />
           </div>
           <div>
-            <div className="stat-value">AED {stats.totalRevenue}</div>
-            <div className="stat-label">Total Ledger Volume</div>
-          </div>
-        </div>
-
-        <div className="glass-card stat-card">
-          <div className="stat-icon-wrapper" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B' }}>
-            <Users size={26} />
-          </div>
-          <div>
-            <div className="stat-value">{stats.activeStudents}</div>
-            <div className="stat-label">Enrolled Students (Tuition/Daycare)</div>
-          </div>
-        </div>
-
-        <div className="glass-card stat-card">
-          <div className="stat-icon-wrapper" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3B82F6' }}>
-            <Clock size={26} />
-          </div>
-          <div>
-            <div className="stat-value">{stats.daycareHours} hrs</div>
-            <div className="stat-label">Daycare Hours (Current Month)</div>
-          </div>
-        </div>
-
-        <div className="glass-card stat-card">
-          <div className="stat-icon-wrapper" style={{ background: stats.isBalanced ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', color: stats.isBalanced ? '#10B981' : '#EF4444' }}>
-            <ShieldCheck size={26} />
-          </div>
-          <div>
-            <div className="stat-value" style={{ fontSize: '1.2rem', color: stats.isBalanced ? '#10B981' : '#EF4444' }}>
-              {stats.isBalanced ? 'BALANCED (100%)' : 'UNBALANCED'}
+            <div className="stat-val-large" style={{ color: '#10B981' }}>
+              AED {stats.totalRevenue}
             </div>
-            <div className="stat-label">Double-Entry Ledger Status</div>
+            <div className="stat-lbl-large">Total Volume</div>
           </div>
         </div>
+
+        {/* Metric 2: Enrolled Students */}
+        <div className="stat-card-large glass-card">
+          <div className="stat-icon-large" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B' }}>
+            <Users size={32} />
+          </div>
+          <div>
+            <div className="stat-val-large" style={{ color: '#F59E0B' }}>
+              {stats.activeStudents}
+            </div>
+            <div className="stat-lbl-large">Enrolled Students</div>
+          </div>
+        </div>
+
+        {/* Metric 3: Daycare Hours */}
+        <div className="stat-card-large glass-card">
+          <div className="stat-icon-large" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3B82F6' }}>
+            <Clock size={32} />
+          </div>
+          <div>
+            <div className="stat-val-large" style={{ color: '#3B82F6' }}>
+              {stats.daycareHours} hrs
+            </div>
+            <div className="stat-lbl-large">Daycare Hours</div>
+          </div>
+        </div>
+
+        {/* Metric 4: Ledger Status */}
+        <div className="stat-card-large glass-card">
+          <div className="stat-icon-large" style={{ background: stats.isBalanced ? 'rgba(139, 92, 246, 0.15)' : 'rgba(239, 68, 68, 0.15)', color: stats.isBalanced ? '#8B5CF6' : '#EF4444' }}>
+            <ShieldCheck size={32} />
+          </div>
+          <div>
+            <div className="stat-val-large" style={{ color: stats.isBalanced ? '#8B5CF6' : '#EF4444', fontSize: '1.45rem' }}>
+              {stats.isBalanced ? '100% BALANCED' : 'UNBALANCED'}
+            </div>
+            <div className="stat-lbl-large">Ledger Audit Status</div>
+          </div>
+        </div>
+
       </div>
 
-      {/* Main Grid Section */}
+      {/* Main Content Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
         
-        {/* Recent Ledger Journal Entries */}
+        {/* Recent Double-Entry Journal Entries Table */}
         <div className="glass-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <h3 style={{ fontFamily: 'Outfit', fontSize: '1.2rem' }}>Recent Double-Entry Journal Entries</h3>
-            <button className="btn btn-outline" onClick={() => onNavigate('accounting')} style={{ fontSize: '0.8rem', padding: '6px 12px' }}>
-              View General Ledger <ArrowUpRight size={14} />
+            <div>
+              <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', color: '#F9FAFB' }}>Recent Double-Entry Journal Entries</h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Automated financial transaction logs</p>
+            </div>
+            <button className="btn btn-outline" onClick={() => onNavigate('accounting')} style={{ fontSize: '0.8rem', padding: '6px 14px' }}>
+              General Ledger <ArrowUpRight size={14} />
             </button>
           </div>
 
@@ -107,7 +122,7 @@ export default function DashboardView({ onNavigate }) {
                 <th>Date / Ref</th>
                 <th>Description</th>
                 <th>Module</th>
-                <th>Status</th>
+                <th>Audit Status</th>
               </tr>
             </thead>
             <tbody>
@@ -129,13 +144,13 @@ export default function DashboardView({ onNavigate }) {
               ) : (
                 <>
                   <tr>
-                    <td>2026-08-14</td>
+                    <td style={{ fontFamily: 'monospace' }}>2026-08-14</td>
                     <td style={{ fontWeight: 600 }}>Initial Owner Capital Injection</td>
                     <td><span className="badge-status badge-warning">Manual</span></td>
                     <td><span className="badge-status badge-success"><CheckCircle2 size={12} /> Balanced (AED 100,000)</span></td>
                   </tr>
                   <tr>
-                    <td>2026-08-14</td>
+                    <td style={{ fontFamily: 'monospace' }}>2026-08-14</td>
                     <td style={{ fontWeight: 600 }}>Purchase of Tuition & Daycare Equipment Assets</td>
                     <td><span className="badge-status badge-warning">Manual</span></td>
                     <td><span className="badge-status badge-success"><CheckCircle2 size={12} /> Balanced (AED 25,000)</span></td>
@@ -146,24 +161,96 @@ export default function DashboardView({ onNavigate }) {
           </table>
         </div>
 
-        {/* Quick ERP Action Hub */}
+        {/* Re-imagined ERP Operations Hub: Large Iconic Cards */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h3 style={{ fontFamily: 'Outfit', fontSize: '1.2rem', marginBottom: '8px' }}>ERP Operations Hub</h3>
-          
-          <button className="btn btn-emerald" onClick={() => onNavigate('pos')} style={{ justifyContent: 'space-between', width: '100%', padding: '14px 18px' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><ShoppingBag size={18} /> Launch POS Terminal</span>
-            <ArrowUpRight size={16} />
-          </button>
+          <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', color: '#F9FAFB', marginBottom: '4px' }}>
+            ERP Operations Hub
+          </h3>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
+            Direct access to core module terminals
+          </p>
 
-          <button className="btn btn-gold" onClick={() => onNavigate('attendance')} style={{ justifyContent: 'space-between', width: '100%', padding: '14px 18px' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Clock size={18} /> RFID Attendance Scanner</span>
-            <ArrowUpRight size={16} />
-          </button>
+          {/* Card 1: POS Terminal */}
+          <div 
+            onClick={() => onNavigate('pos')}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              padding: '20px', 
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.04))', 
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: '16px',
+              cursor: 'pointer',
+              transition: 'all 0.25s ease'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981' }}>
+                <ShoppingBag size={26} />
+              </div>
+              <div>
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#F9FAFB' }}>POS Terminal</h4>
+                <p style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>Tuition & Daycare Checkout</p>
+              </div>
+            </div>
+            <ArrowUpRight size={20} color="#10B981" />
+          </div>
 
-          <button className="btn btn-outline" onClick={() => onNavigate('accounting')} style={{ justifyContent: 'space-between', width: '100%', padding: '14px 18px' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><ShieldCheck size={18} /> General Ledger Reports</span>
-            <ArrowUpRight size={16} />
-          </button>
+          {/* Card 2: RFID Scanner */}
+          <div 
+            onClick={() => onNavigate('attendance')}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              padding: '20px', 
+              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.04))', 
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              borderRadius: '16px',
+              cursor: 'pointer',
+              transition: 'all 0.25s ease'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F59E0B' }}>
+                <Clock size={26} />
+              </div>
+              <div>
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#F9FAFB' }}>RFID Daycare Engine</h4>
+                <p style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>Real-time Attendance Tracker</p>
+              </div>
+            </div>
+            <ArrowUpRight size={20} color="#F59E0B" />
+          </div>
+
+          {/* Card 3: Ledger Reports */}
+          <div 
+            onClick={() => onNavigate('accounting')}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              padding: '20px', 
+              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.04))', 
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              borderRadius: '16px',
+              cursor: 'pointer',
+              transition: 'all 0.25s ease'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(59, 130, 246, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3B82F6' }}>
+                <Layers size={26} />
+              </div>
+              <div>
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#F9FAFB' }}>Financial Reports</h4>
+                <p style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>General Ledger & Audits</p>
+              </div>
+            </div>
+            <ArrowUpRight size={20} color="#3B82F6" />
+          </div>
+
         </div>
 
       </div>

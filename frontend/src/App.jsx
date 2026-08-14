@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
-  LayoutDashboard, ShieldCheck, ShoppingBag, Clock, Users, 
-  Building2, Globe, Sparkles, Calendar, Coins, UserCheck, Lock, UserPlus 
+  Gauge, ShieldCheck, ShoppingBag, Clock, Users, 
+  Building2, Globe, Sparkles, Calendar, Coins, UserCheck, Lock, UserPlus, BookOpen 
 } from 'lucide-react';
 
 import DashboardView from './views/DashboardView';
@@ -46,12 +46,12 @@ export default function App() {
     return false;
   };
 
-
   return (
     <div className="app-container">
-      {/* Sidebar */}
+      {/* Sidebar Navigation */}
       <aside className="sidebar">
         <div>
+          {/* Brand Header */}
           <div className="brand-header">
             <div className="brand-icon">
               <Building2 size={24} />
@@ -62,124 +62,140 @@ export default function App() {
             </div>
           </div>
 
-          <ul className="nav-menu">
+          {/* 2-Column Square Tile Navigation Grid */}
+          <div className="nav-tile-grid">
+
             {canAccess('parent-portal') && activeRole === 'Parent' && (
-              <li className="nav-item">
+              <div className="nav-tile-item">
                 <button 
-                  className={currentView === 'parent-portal' ? 'active' : ''} 
+                  className={`nav-tile-btn ${currentView === 'parent-portal' ? 'active' : ''}`} 
                   onClick={() => setCurrentView('parent-portal')}
                 >
-                  <UserCheck size={18} /> Parent Portal
+                  <UserCheck size={26} />
+                  <span className="nav-tile-label">Parent Portal</span>
                 </button>
-              </li>
+              </div>
             )}
 
             {canAccess('dashboard') && (
-              <li className="nav-item">
+              <div className="nav-tile-item">
                 <button 
-                  className={currentView === 'dashboard' ? 'active' : ''} 
+                  className={`nav-tile-btn ${currentView === 'dashboard' ? 'active' : ''}`} 
                   onClick={() => setCurrentView('dashboard')}
                 >
-                  <LayoutDashboard size={18} /> Executive Dashboard
+                  <Gauge size={26} />
+                  <span className="nav-tile-label">Exec Dashboard</span>
                 </button>
-              </li>
+              </div>
             )}
 
             {canAccess('rbac') && (
-              <li className="nav-item">
+              <div className="nav-tile-item">
                 <button 
-                  className={currentView === 'rbac' ? 'active' : ''} 
+                  className={`nav-tile-btn ${currentView === 'rbac' ? 'active' : ''}`} 
                   onClick={() => setCurrentView('rbac')}
                 >
-                  <Lock size={18} /> RBAC Permissions
+                  <Lock size={26} />
+                  <span className="nav-tile-label">Permissions</span>
                 </button>
-              </li>
+              </div>
             )}
 
             {canAccess('students') && (
-              <li className="nav-item">
+              <div className="nav-tile-item">
                 <button 
-                  className={currentView === 'students' ? 'active' : ''} 
+                  className={`nav-tile-btn ${currentView === 'students' ? 'active' : ''}`} 
                   onClick={() => setCurrentView('students')}
                 >
-                  <Users size={18} /> Student Directory
+                  <Users size={26} />
+                  <span className="nav-tile-label">Student Dir</span>
                 </button>
-              </li>
+              </div>
             )}
 
             {canAccess('staff') && (
-              <li className="nav-item">
+              <div className="nav-tile-item">
                 <button 
-                  className={currentView === 'staff' ? 'active' : ''} 
+                  className={`nav-tile-btn ${currentView === 'staff' ? 'active' : ''}`} 
                   onClick={() => setCurrentView('staff')}
                 >
-                  <UserPlus size={18} /> Staff Directory
+                  <UserPlus size={26} />
+                  <span className="nav-tile-label">Staff Dir</span>
                 </button>
-              </li>
+              </div>
             )}
 
             {canAccess('accounting') && (
-              <li className="nav-item">
+              <div className="nav-tile-item">
                 <button 
-                  className={currentView === 'accounting' ? 'active' : ''} 
+                  className={`nav-tile-btn ${currentView === 'accounting' ? 'active' : ''}`} 
                   onClick={() => setCurrentView('accounting')}
                 >
-                  <ShieldCheck size={18} /> Double-Entry Ledger
+                  <BookOpen size={26} />
+                  <span className="nav-tile-label">Ledger</span>
                 </button>
-              </li>
+              </div>
             )}
 
             {canAccess('pos') && (
-              <li className="nav-item">
+              <div className="nav-tile-item">
                 <button 
-                  className={currentView === 'pos' ? 'active' : ''} 
+                  className={`nav-tile-btn ${currentView === 'pos' ? 'active' : ''}`} 
                   onClick={() => setCurrentView('pos')}
                 >
-                  <ShoppingBag size={18} /> POS Checkout Terminal
+                  <ShoppingBag size={26} />
+                  <span className="nav-tile-label">POS Terminal</span>
                 </button>
-              </li>
+              </div>
             )}
 
             {canAccess('attendance') && (
-              <li className="nav-item">
+              <div className="nav-tile-item">
                 <button 
-                  className={currentView === 'attendance' ? 'active' : ''} 
+                  className={`nav-tile-btn ${currentView === 'attendance' ? 'active' : ''}`} 
                   onClick={() => setCurrentView('attendance')}
                 >
-                  <Clock size={18} /> RFID & Daycare Engine
+                  <Clock size={26} />
+                  <span className="nav-tile-label">RFID/Daycare</span>
                 </button>
-              </li>
+              </div>
             )}
 
             {canAccess('timetable') && (
-              <li className="nav-item">
+              <div className="nav-tile-item">
                 <button 
-                  className={currentView === 'timetable' ? 'active' : ''} 
+                  className={`nav-tile-btn ${currentView === 'timetable' ? 'active' : ''}`} 
                   onClick={() => setCurrentView('timetable')}
                 >
-                  <Calendar size={18} /> Room Timetable
+                  <Calendar size={26} />
+                  <span className="nav-tile-label">Room Timetable</span>
                 </button>
-              </li>
+              </div>
             )}
 
             {canAccess('assets') && (
-              <li className="nav-item">
+              <div className="nav-tile-item">
                 <button 
-                  className={currentView === 'assets' ? 'active' : ''} 
+                  className={`nav-tile-btn ${currentView === 'assets' ? 'active' : ''}`} 
                   onClick={() => setCurrentView('assets')}
                 >
-                  <Coins size={18} /> Fixed Assets & Depr.
+                  <Coins size={26} />
+                  <span className="nav-tile-label">Fixed Assets</span>
                 </button>
-              </li>
+              </div>
             )}
-          </ul>
+
+          </div>
         </div>
 
-        <div style={{ paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 600 }}>Active RBAC Mode:</div>
+        {/* Footer Role Switcher */}
+        <div style={{ paddingTop: '14px', borderTop: '1px solid var(--border-color)', marginTop: '16px' }}>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Active RBAC Mode:
+          </div>
           <select 
             className="form-select" 
-            style={{ width: '100%', fontSize: '0.82rem', padding: '8px 10px', background: '#0F172A', border: '1px solid var(--border-highlight)' }}
+            style={{ width: '100%', fontSize: '0.8rem', padding: '8px', background: '#0F172A', border: '1px solid var(--border-highlight)' }}
             value={activeRole}
             onChange={e => handleRoleChange(e.target.value)}
           >
