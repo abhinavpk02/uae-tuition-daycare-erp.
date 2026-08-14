@@ -70,8 +70,6 @@ function SearchableSelectInput({ label, placeholder, options, value, onChange })
           marginTop: '6px',
           background: 'var(--bg-card)',
           opacity: 1,
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
           border: '1px solid var(--border-highlight)',
           borderRadius: '16px',
           boxShadow: '0 12px 40px rgba(0, 0, 0, 0.5)',
@@ -458,7 +456,7 @@ export default function POSView() {
 
       {/* Add New Inventory Item Modal */}
       {showAddModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="glass-card" style={{ width: '460px', padding: '28px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)' }}>Add Inventory Item</h3>

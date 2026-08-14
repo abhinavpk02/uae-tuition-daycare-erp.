@@ -67,8 +67,6 @@ function SearchableSelectInput({ label, placeholder, options, value, onChange })
           marginTop: '6px',
           background: 'var(--bg-card)',
           opacity: 1,
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
           border: '1px solid var(--border-highlight)',
           borderRadius: '16px',
           boxShadow: '0 12px 40px rgba(0, 0, 0, 0.5)',
