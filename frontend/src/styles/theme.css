@@ -1,11 +1,11 @@
 :root, [data-theme="dark"] {
-  /* True OLED Black Apple Control Center Glass (Dark Mode) */
+  /* True OLED Black Apple Control Center Translucent Frosted Glass (Dark Mode) */
   --bg-dark: #000000;
-  --bg-body-gradient: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.12) 0%, #000000 70%);
-  --bg-card: rgba(18, 18, 18, 0.68);
+  --bg-body-gradient: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, #000000 70%);
+  --bg-card: rgba(18, 18, 18, 0.65);
   --bg-card-hover: rgba(32, 32, 32, 0.85);
-  --bg-sidebar: rgba(10, 10, 10, 0.78);
-  --glass-blur: blur(32px) saturate(200%);
+  --bg-sidebar: rgba(10, 10, 10, 0.75);
+  --glass-blur: blur(28px) saturate(190%);
   --border-color: rgba(255, 255, 255, 0.12);
   --border-highlight: rgba(16, 185, 129, 0.5);
 
@@ -15,7 +15,7 @@
   --text-main: #FFFFFF;
   --text-muted: #A1A1AA;
   --text-dim: #71717A;
-  --card-bg-subtle: rgba(255, 255, 255, 0.06);
+  --card-bg-subtle: rgba(255, 255, 255, 0.05);
 
   /* SF PRO FONT FAMILY EVERYWHERE */
   --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", system-ui, sans-serif;
@@ -38,7 +38,7 @@
   --bg-card: rgba(255, 255, 255, 0.72);
   --bg-card-hover: rgba(255, 255, 255, 0.90);
   --bg-sidebar: rgba(255, 255, 255, 0.78);
-  --glass-blur: blur(32px) saturate(200%);
+  --glass-blur: blur(28px) saturate(190%);
   --border-color: rgba(255, 255, 255, 0.85);
   --border-highlight: rgba(5, 150, 105, 0.6);
 
@@ -108,7 +108,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   position: relative;
 }
 
-/* Sidebar Navigation (Apple Control Center OLED & Light Translucent Glass) */
+/* Sidebar Navigation (Translucent Frosted Glass) */
 .sidebar {
   width: 290px;
   background: var(--bg-sidebar);
@@ -166,7 +166,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   letter-spacing: 0.08em;
 }
 
-/* PERFECT 1:1 APPLE CONTROL CENTER SQUARE TILE NAV */
+/* PERFECT 1:1 APPLE CONTROL CENTER SQUARE TILE NAV (TRANSLUCENT FROSTED GLASS) */
 .nav-tile-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -188,8 +188,8 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   padding: 12px;
   border-radius: 18px;
   background: var(--card-bg-subtle);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
   color: var(--text-muted);
   cursor: pointer;
@@ -275,7 +275,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   transform: translateY(-1px);
 }
 
-/* NOTIFICATION DRAWER POPOVER (DESKTOP & PERFECTLY CENTERED MOBILE) */
+/* NOTIFICATION DRAWER POPOVER (TRANSLUCENT FROSTED GLASS) */
 .notif-drawer-popover {
   position: absolute;
   top: 52px;
@@ -479,6 +479,8 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 
 .form-input, .form-select {
   background: var(--card-bg-subtle);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
   border-radius: 14px;
   padding: 10px 14px;
