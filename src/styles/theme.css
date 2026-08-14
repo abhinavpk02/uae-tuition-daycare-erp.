@@ -294,7 +294,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  border-radius: 20px;
   padding: 24px;
   transition: all 0.3s ease;
   box-shadow: var(--glass-shadow);
@@ -394,18 +394,19 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 .custom-table th {
   background: var(--card-bg-subtle);
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: 14px 18px;
+  padding: 12px 16px;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
 }
 
 .custom-table td {
-  padding: 14px 18px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--border-color);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: var(--text-main);
 }
 
@@ -413,18 +414,18 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   background: var(--card-bg-subtle);
 }
 
-/* Buttons */
+/* Modern Minimalist Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
-  border-radius: var(--radius-md);
+  padding: 10px 18px;
+  border-radius: 14px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: all 0.25s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: 42px;
   font-family: var(--font-body) !important;
 }
@@ -457,7 +458,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   border-color: var(--accent-primary);
 }
 
-/* Inputs & Forms */
+/* Modern Minimalist Inputs & Forms */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -466,21 +467,23 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 }
 
 .form-label {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .form-input, .form-select {
   background: var(--card-bg-subtle);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: 14px;
   padding: 10px 14px;
   color: var(--text-main);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   outline: none;
   transition: all 0.2s ease;
-  min-height: 44px;
+  min-height: 42px;
   font-family: var(--font-body) !important;
 }
 
@@ -492,7 +495,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 /* Badges */
 .badge-status {
   padding: 4px 10px;
-  border-radius: 12px;
+  border-radius: 10px;
   font-size: 0.75rem;
   font-weight: 600;
   display: inline-flex;
