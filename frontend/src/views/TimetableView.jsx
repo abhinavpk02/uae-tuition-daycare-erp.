@@ -24,23 +24,48 @@ export default function TimetableView() {
 
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
 
-  // DYNAMICALLY FETCH ALL REGISTERED STUDENTS FROM DATABASE
+  // COMBINE API STUDENTS & MANUALLY REGISTERED LOCALSTORAGE STUDENTS
   useEffect(() => {
+    const localSaved = JSON.parse(localStorage.getItem('registered_students') || '[]');
+
     fetch('/api/students')
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          const formatted = data.map((s, idx) => ({
-            id: s.id || `std-${idx}`,
-            name: s.name,
-            grade: s.standard || s.grade || 'Grade ' + (idx + 1),
-            program: s.program || 'Tuition & Daycare',
-            status: idx % 4 === 2 ? 'Absent' : idx % 5 === 3 ? 'Late' : 'Present'
-          }));
-          setClassRoster(formatted);
-        }
+        let combined = Array.isArray(data) && data.length > 0 ? [...data] : [...classRoster];
+
+        // Merge any manually added students from localStorage that aren't already present
+        localSaved.forEach(ls => {
+          if (!combined.some(c => String(c.id) === String(ls.id) || c.name.toLowerCase() === ls.name.toLowerCase())) {
+            combined.unshift(ls);
+          }
+        });
+
+        const formatted = combined.map((s, idx) => ({
+          id: s.id || `std-${idx}`,
+          name: s.name,
+          grade: s.standard || s.grade || 'Grade ' + (idx + 1),
+          program: s.program || 'Tuition & Daycare',
+          status: s.status || (idx % 4 === 2 ? 'Absent' : idx % 5 === 3 ? 'Late' : 'Present')
+        }));
+        setClassRoster(formatted);
       })
-      .catch(() => {});
+      .catch(() => {
+        // Fallback: merge initial state with localSaved
+        let combined = [...classRoster];
+        localSaved.forEach(ls => {
+          if (!combined.some(c => String(c.id) === String(ls.id) || c.name.toLowerCase() === ls.name.toLowerCase())) {
+            combined.unshift(ls);
+          }
+        });
+        const formatted = combined.map((s, idx) => ({
+          id: s.id || `std-${idx}`,
+          name: s.name,
+          grade: s.standard || s.grade || 'Grade ' + (idx + 1),
+          program: s.program || 'Tuition & Daycare',
+          status: s.status || 'Present'
+        }));
+        setClassRoster(formatted);
+      });
   }, []);
 
   // Toggle student status in class roster

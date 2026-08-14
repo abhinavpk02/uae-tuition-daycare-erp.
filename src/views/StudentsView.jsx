@@ -4,10 +4,11 @@ import AddStudentModal from '../components/AddStudentModal';
 
 export default function StudentsView({ activeRole = 'SuperAdmin' }) {
   const [students, setStudents] = useState([
-    { id: 'std-101', name: 'Sami Al-Hashimi', standard: 'Grade 4', program: 'Tuition & Daycare', parent_id: 'PRT-882194', due_amount: 140.0, attendance_status: 'Present' },
-    { id: 'std-102', name: 'Mariam Bin Zayed', standard: 'Grade 2', program: 'Daycare Only', parent_id: 'PRT-992103', due_amount: 0.0, attendance_status: 'Present' },
-    { id: 'std-103', name: 'Rashid Al-Maktoum', standard: 'Grade 5', program: 'Tuition Only', parent_id: 'PRT-441092', due_amount: 450.0, attendance_status: 'Absent' },
-    { id: 'std-104', name: 'Fatima Al-Nuaimi', standard: 'Grade 3', program: 'Tuition & Daycare', parent_id: 'PRT-110293', due_amount: 0.0, attendance_status: 'Late' }
+    { id: 'std-101', name: 'Zayed Al-Hashimi', standard: 'Grade 10', program: 'Tuition & Daycare', parent_id: 'PRT-882194', due_amount: 140.0, attendance_status: 'Present' },
+    { id: 'std-102', name: 'Mariam Al-Hashimi', standard: 'KG 2', program: 'Daycare Only', parent_id: 'PRT-992103', due_amount: 0.0, attendance_status: 'Present' },
+    { id: 'std-103', name: 'Sami Al-Hashimi', standard: 'Grade 4', program: 'Tuition & Daycare', parent_id: 'PRT-332104', due_amount: 0.0, attendance_status: 'Present' },
+    { id: 'std-104', name: 'Rashid Al-Maktoum', standard: 'Grade 5', program: 'Tuition Only', parent_id: 'PRT-441092', due_amount: 450.0, attendance_status: 'Absent' },
+    { id: 'std-105', name: 'Fatima Al-Nuaimi', standard: 'Grade 3', program: 'Tuition & Daycare', parent_id: 'PRT-110293', due_amount: 0.0, attendance_status: 'Late' }
   ]);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,18 +21,34 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
   ]);
 
   const fetchStudents = () => {
+    const localSaved = JSON.parse(localStorage.getItem('registered_students') || '[]');
+
     fetch('/api/students')
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setStudents(data.map(s => ({
-            ...s,
-            due_amount: s.due_amount !== undefined ? s.due_amount : 140.0,
-            attendance_status: s.attendance_status || 'Present'
-          })));
-        }
+        let combined = Array.isArray(data) && data.length > 0 ? [...data] : [...students];
+
+        localSaved.forEach(ls => {
+          if (!combined.some(c => String(c.id) === String(ls.id) || c.name.toLowerCase() === ls.name.toLowerCase())) {
+            combined.unshift(ls);
+          }
+        });
+
+        setStudents(combined.map(s => ({
+          ...s,
+          due_amount: s.due_amount !== undefined ? s.due_amount : 140.0,
+          attendance_status: s.attendance_status || 'Present'
+        })));
       })
-      .catch(() => {});
+      .catch(() => {
+        let combined = [...students];
+        localSaved.forEach(ls => {
+          if (!combined.some(c => String(c.id) === String(ls.id) || c.name.toLowerCase() === ls.name.toLowerCase())) {
+            combined.unshift(ls);
+          }
+        });
+        setStudents(combined);
+      });
   };
 
   useEffect(() => {
@@ -72,7 +89,7 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
   // Filter students based on search query
   const filteredStudents = students.filter(s =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.standard.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (s.standard && s.standard.toLowerCase().includes(searchQuery.toLowerCase())) ||
     (s.program && s.program.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
@@ -82,7 +99,7 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
         <div>
           <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>Student Directory, Due Payments & Attendance</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Search students, manage attendance, track outstanding tuition dues, and register new enrollments
+            Search students, manage attendance, track outstanding tuition dues, and register new enrollments ({students.length} Registered Students)
           </p>
         </div>
 
@@ -99,17 +116,13 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
         {/* Students Table with Real-time Search Filter */}
         <div className="glass-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-            <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <UserCheck size={20} color="var(--accent-primary)" /> Enrolled Students Directory ({filteredStudents.length})
-            </h3>
-
-            {/* SEARCH STUDENT INPUT */}
+            <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)' }}>Registered Students Roster ({students.length})</h3>
             <div style={{ position: 'relative', width: '280px' }}>
-              <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+              <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
               <input 
                 type="text" 
                 className="form-input" 
-                placeholder="Search student by name or grade..." 
+                placeholder="Search by student name or grade..." 
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 style={{ paddingLeft: '36px', height: '38px', fontSize: '0.85rem', width: '100%' }}
@@ -121,31 +134,46 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
             <table className="custom-table">
               <thead>
                 <tr>
+                  <th>Student ID</th>
                   <th>Student Name</th>
-                  <th>Grade</th>
-                  <th>Program</th>
-                  <th>Attendance Status</th>
+                  <th>Standard / Grade</th>
+                  <th>Program Type</th>
                   <th>Outstanding Dues</th>
-                  <th>Quick Actions</th>
+                  <th>Attendance Status</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredStudents.length > 0 ? (
-                  filteredStudents.map(s => (
-                    <tr key={s.id}>
-                      <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{s.name}</td>
-                      <td><span className="badge-status badge-warning">{s.standard}</span></td>
+                  filteredStudents.map(std => (
+                    <tr key={std.id}>
+                      <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{std.id}</td>
+                      <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{std.name}</td>
+                      <td><span className="badge-status badge-warning">{std.standard}</span></td>
+                      <td><span className="badge-status badge-success">{std.program}</span></td>
                       <td>
-                        <span className="badge-status badge-success">
-                          {s.program || 'Tuition & Daycare'}
-                        </span>
+                        {std.due_amount > 0 ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ color: '#EF4444', fontWeight: 700, fontFamily: 'monospace' }}>
+                              AED {std.due_amount.toFixed(2)}
+                            </span>
+                            {['SuperAdmin', 'Admin', 'Accountant'].includes(activeRole) && (
+                              <button 
+                                className="btn btn-emerald" 
+                                style={{ padding: '2px 8px', fontSize: '0.72rem', height: '26px' }}
+                                onClick={() => handleSettleDue(std.id)}
+                              >
+                                Settle Dues
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <span style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>✔ Settled</span>
+                        )}
                       </td>
-                      
-                      {/* One-Click Attendance Toggle Buttons */}
                       <td>
                         <div style={{ display: 'inline-flex', gap: '4px', background: 'var(--card-bg-subtle)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
                           <button 
-                            onClick={() => handleToggleAttendance(s.id, 'Present')}
+                            onClick={() => handleToggleAttendance(std.id, 'Present')}
                             style={{
                               padding: '4px 8px',
                               fontSize: '0.72rem',
@@ -153,15 +181,14 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
                               borderRadius: '6px',
                               border: 'none',
                               cursor: 'pointer',
-                              background: s.attendance_status === 'Present' ? 'var(--accent-primary)' : 'transparent',
-                              color: s.attendance_status === 'Present' ? '#FFF' : 'var(--text-muted)'
+                              background: std.attendance_status === 'Present' ? 'var(--accent-primary)' : 'transparent',
+                              color: std.attendance_status === 'Present' ? '#FFF' : 'var(--text-muted)'
                             }}
                           >
                             Present
                           </button>
-
                           <button 
-                            onClick={() => handleToggleAttendance(s.id, 'Late')}
+                            onClick={() => handleToggleAttendance(std.id, 'Late')}
                             style={{
                               padding: '4px 8px',
                               fontSize: '0.72rem',
@@ -169,15 +196,14 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
                               borderRadius: '6px',
                               border: 'none',
                               cursor: 'pointer',
-                              background: s.attendance_status === 'Late' ? '#F59E0B' : 'transparent',
-                              color: s.attendance_status === 'Late' ? '#FFF' : 'var(--text-muted)'
+                              background: std.attendance_status === 'Late' ? '#F59E0B' : 'transparent',
+                              color: std.attendance_status === 'Late' ? '#FFF' : 'var(--text-muted)'
                             }}
                           >
                             Late
                           </button>
-
                           <button 
-                            onClick={() => handleToggleAttendance(s.id, 'Absent')}
+                            onClick={() => handleToggleAttendance(std.id, 'Absent')}
                             style={{
                               padding: '4px 8px',
                               fontSize: '0.72rem',
@@ -185,37 +211,13 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
                               borderRadius: '6px',
                               border: 'none',
                               cursor: 'pointer',
-                              background: s.attendance_status === 'Absent' ? '#EF4444' : 'transparent',
-                              color: s.attendance_status === 'Absent' ? '#FFF' : 'var(--text-muted)'
+                              background: std.attendance_status === 'Absent' ? '#EF4444' : 'transparent',
+                              color: std.attendance_status === 'Absent' ? '#FFF' : 'var(--text-muted)'
                             }}
                           >
                             Absent
                           </button>
                         </div>
-                      </td>
-
-                      {/* Student Due Status */}
-                      <td>
-                        {s.due_amount > 0 ? (
-                          <span className="badge-status" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#EF4444', border: '1px solid #EF4444' }}>
-                            <AlertTriangle size={12} /> Due: AED {s.due_amount.toFixed(2)}
-                          </span>
-                        ) : (
-                          <span className="badge-status badge-success">
-                            <CheckCircle2 size={12} /> Settled
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Settle Due Payment CTA */}
-                      <td>
-                        {s.due_amount > 0 ? (
-                          <button className="btn btn-emerald" style={{ padding: '6px 12px', fontSize: '0.78rem' }} onClick={() => handleSettleDue(s.id)}>
-                            <DollarSign size={14} /> Settle Due
-                          </button>
-                        ) : (
-                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No Due</span>
-                        )}
                       </td>
                     </tr>
                   ))

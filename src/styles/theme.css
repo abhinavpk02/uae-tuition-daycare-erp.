@@ -1,21 +1,21 @@
 :root, [data-theme="dark"] {
-  /* True Ultra-Clean Pure OLED Pitch Black (Dark Mode) */
+  /* True Matte Black & Pure White Minimalist Dark Mode Design System */
   --bg-dark: #000000;
   --bg-body-gradient: #000000;
-  --bg-card: #0D0D0D;
-  --bg-card-hover: #171717;
+  --bg-card: #0A0A0A;
+  --bg-card-hover: #141414;
   --bg-sidebar: #050505;
-  --glass-blur: blur(20px);
-  --border-color: #1F1F1F;
-  --border-highlight: #10B981;
+  --glass-blur: none;
+  --border-color: #222222;
+  --border-highlight: #FFFFFF;
 
-  --accent-primary: #10B981;
-  --accent-primary-glow: rgba(16, 185, 129, 0.2);
+  --accent-primary: #FFFFFF;
+  --accent-primary-glow: rgba(255, 255, 255, 0.15);
 
   --text-main: #FFFFFF;
-  --text-muted: #A1A1AA;
-  --text-dim: #71717A;
-  --card-bg-subtle: #141414;
+  --text-muted: #D1D5DB;
+  --text-dim: #9CA3AF;
+  --card-bg-subtle: #121212;
 
   /* SF PRO FONT FAMILY EVERYWHERE */
   --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", system-ui, sans-serif;
@@ -25,10 +25,10 @@
   --radius-md: 16px;
   --radius-lg: 24px;
 
-  --shadow-glow: 0 0 25px rgba(16, 185, 129, 0.2);
-  --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-glow: 0 0 20px rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
-  --scrollbar-thumb: #10B981;
+  --scrollbar-thumb: #FFFFFF;
 }
 
 [data-theme="light"] {
@@ -90,9 +90,10 @@ body {
 h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-tile-label {
   font-family: var(--font-heading) !important;
   letter-spacing: -0.015em;
+  color: var(--text-main);
 }
 
-/* Scrollbar (Emerald Green across modes) */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -118,7 +119,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   overflow-x: hidden;
 }
 
-/* Sidebar Navigation (Translucent Frosted Glass) */
+/* Sidebar Navigation (Matte Black & White) */
 .sidebar {
   width: 290px;
   background: var(--bg-sidebar);
@@ -148,12 +149,12 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 .brand-icon {
   width: 44px;
   height: 44px;
-  background: var(--accent-primary);
+  background: var(--text-main);
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--bg-dark);
   box-shadow: 0 4px 14px var(--accent-primary-glow);
   flex-shrink: 0;
 }
@@ -168,13 +169,13 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 
 .brand-subtitle {
   font-size: 0.72rem;
-  color: var(--accent-primary);
+  color: var(--text-muted);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
-/* PERFECT 1:1 APPLE CONTROL CENTER SQUARE TILE NAV (TRANSLUCENT FROSTED GLASS) */
+/* MATTE BLACK & WHITE CONTROL CENTER SQUARE TILE NAV */
 .nav-tile-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -188,7 +189,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 
 .nav-tile-btn {
   width: 100%;
-  aspect-ratio: 1 / 1; /* PERFECT 1:1 SQUARE ASPECT RATIO */
+  aspect-ratio: 1 / 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -203,24 +204,30 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   text-align: center;
 }
 
+.nav-tile-btn svg {
+  color: var(--text-muted);
+}
+
 .nav-tile-btn:hover {
   color: var(--text-main);
   background: var(--bg-card-hover);
   border-color: var(--border-highlight);
   transform: scale(1.03);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.nav-tile-btn:hover svg {
+  color: var(--text-main);
 }
 
 .nav-tile-btn.active {
-  color: var(--accent-primary);
-  background: var(--bg-card);
-  border: 2px solid var(--accent-primary);
-  box-shadow: 0 0 24px var(--accent-primary-glow);
+  color: var(--bg-dark);
+  background: var(--text-main);
+  border: 2px solid var(--text-main);
+  box-shadow: 0 0 20px var(--accent-primary-glow);
 }
 
 .nav-tile-btn.active svg {
-  color: var(--accent-primary);
-  filter: drop-shadow(0 0 8px var(--accent-primary-glow));
+  color: var(--bg-dark);
 }
 
 .nav-tile-label {
@@ -283,7 +290,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 }
 
 .theme-toggle-btn:hover {
-  border-color: var(--accent-primary);
+  border-color: var(--border-highlight);
   transform: translateY(-1px);
 }
 
@@ -301,7 +308,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   background: var(--bg-card);
 }
 
-/* APPLE CONTROL CENTER FROSTED GLASS CARDS */
+/* MATTE BLACK CARDS */
 .glass-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -329,7 +336,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   box-sizing: border-box;
 }
 
-/* PERFECT 1:1 APPLE OLED FROSTED GLASS KPI SQUARE CARD */
+/* MATTE BLACK KPI SQUARE CARD */
 .stat-card-square {
   aspect-ratio: 1 / 1;
   display: flex;
@@ -349,8 +356,8 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 
 .stat-card-square:hover {
   transform: translateY(-4px) scale(1.02);
-  border-color: var(--accent-primary);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border-color: var(--border-highlight);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
 }
 
 .stat-icon-square {
@@ -363,7 +370,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   margin-bottom: 12px;
   flex-shrink: 0;
   background: var(--card-bg-subtle);
-  color: var(--accent-primary);
+  color: var(--text-main);
   border: 1px solid var(--border-color);
 }
 
@@ -463,14 +470,16 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 }
 
 .btn-emerald {
-  background: var(--accent-primary);
-  color: white;
+  background: var(--text-main);
+  color: var(--bg-dark);
   box-shadow: 0 4px 14px var(--accent-primary-glow);
+  border: 1px solid var(--text-main);
 }
 
 .btn-emerald:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 20px var(--accent-primary-glow);
+  background: #E5E7EB;
 }
 
 .btn-gold {
@@ -487,7 +496,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 
 .btn-outline:hover {
   background: var(--bg-card-hover);
-  border-color: var(--accent-primary);
+  border-color: var(--border-highlight);
 }
 
 /* Modern Minimalist Inputs & Forms */
@@ -520,7 +529,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 }
 
 .form-input:focus, .form-select:focus {
-  border-color: var(--accent-primary);
+  border-color: var(--border-highlight);
   box-shadow: 0 0 0 3px var(--accent-primary-glow);
 }
 
@@ -536,9 +545,9 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 }
 
 .badge-success {
-  background: var(--accent-primary-glow);
-  color: var(--accent-primary);
-  border: 1px solid var(--accent-primary);
+  background: var(--card-bg-subtle);
+  color: var(--text-main);
+  border: 1px solid var(--border-highlight);
 }
 
 .badge-warning {
@@ -603,7 +612,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
     right: 0;
     width: 100vw;
     height: calc(100vh - 70px);
-    background: var(--bg-dark); /* SOLID BACKDROP PREVENTING DASHBOARD OVERLAP WHILE SCROLLING */
+    background: var(--bg-dark);
     padding: 20px;
     display: none;
     z-index: 1000;
@@ -648,7 +657,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   .stat-card-square {
     width: 100% !important;
     max-width: 100% !important;
-    aspect-ratio: auto !important; /* HEIGHT ADJUSTS DYNAMICALLY */
+    aspect-ratio: auto !important;
     min-height: 140px !important;
     padding: 14px 8px !important;
     box-sizing: border-box !important;
@@ -685,7 +694,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
     max-width: 400px !important;
     margin: 0 auto !important;
     z-index: 999 !important;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9) !important;
   }
 }
 
