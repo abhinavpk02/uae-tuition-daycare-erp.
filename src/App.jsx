@@ -223,7 +223,7 @@ export default function App() {
               </div>
             )}
 
-            {/* 7. ROOM TIMETABLE */}
+            {/* 7. CLASS SCHEDULE (RENAMED FROM ROOM TIMETABLE) */}
             {canAccess('timetable') && (
               <div className="nav-tile-item">
                 <button 
@@ -231,7 +231,7 @@ export default function App() {
                   onClick={() => handleNavClick('timetable')}
                 >
                   <Calendar size={26} />
-                  <span className="nav-tile-label">Room Timetable</span>
+                  <span className="nav-tile-label">Class Schedule</span>
                 </button>
               </div>
             )}

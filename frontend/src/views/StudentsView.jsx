@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { UserCheck, BookOpen, Plus, ShieldAlert, CheckCircle2, AlertTriangle, DollarSign, Clock } from 'lucide-react';
+import { UserCheck, BookOpen, Plus, ShieldAlert, CheckCircle2, AlertTriangle, DollarSign, Clock, Search } from 'lucide-react';
 import AddStudentModal from '../components/AddStudentModal';
 
 export default function StudentsView({ activeRole = 'SuperAdmin' }) {
@@ -10,6 +10,7 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
     { id: 'std-104', name: 'Fatima Al-Nuaimi', standard: 'Grade 3', program: 'Tuition & Daycare', parent_id: 'PRT-110293', due_amount: 0.0, attendance_status: 'Late' }
   ]);
 
+  const [searchQuery, setSearchQuery] = useState('');
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
 
   const [subjects] = useState([
@@ -68,13 +69,20 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
     setStudents(prev => prev.map(s => s.id === studentId ? { ...s, attendance_status: newStatus } : s));
   };
 
+  // Filter students based on search query
+  const filteredStudents = students.filter(s =>
+    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.standard.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (s.program && s.program.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   return (
     <div className="view-container">
       <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>Student Directory, Due Payments & Attendance</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Manage student attendance, track outstanding tuition dues, and register new enrollments
+            Search students, manage attendance, track outstanding tuition dues, and register new enrollments
           </p>
         </div>
 
@@ -88,11 +96,26 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         
-        {/* Students Table */}
+        {/* Students Table with Real-time Search Filter */}
         <div className="glass-card">
-          <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <UserCheck size={20} color="var(--accent-primary)" /> Enrolled Students Directory ({students.length})
-          </h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+            <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <UserCheck size={20} color="var(--accent-primary)" /> Enrolled Students Directory ({filteredStudents.length})
+            </h3>
+
+            {/* SEARCH STUDENT INPUT */}
+            <div style={{ position: 'relative', width: '280px' }}>
+              <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+              <input 
+                type="text" 
+                className="form-input" 
+                placeholder="Search student by name or grade..." 
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                style={{ paddingLeft: '36px', height: '38px', fontSize: '0.85rem', width: '100%' }}
+              />
+            </div>
+          </div>
 
           <div className="table-responsive-wrapper">
             <table className="custom-table">
@@ -107,94 +130,102 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
                 </tr>
               </thead>
               <tbody>
-                {students.map(s => (
-                  <tr key={s.id}>
-                    <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{s.name}</td>
-                    <td><span className="badge-status badge-warning">{s.standard}</span></td>
-                    <td>
-                      <span className="badge-status badge-success">
-                        {s.program || 'Tuition & Daycare'}
-                      </span>
-                    </td>
-                    
-                    {/* One-Click Attendance Toggle Buttons */}
-                    <td>
-                      <div style={{ display: 'inline-flex', gap: '4px', background: 'var(--card-bg-subtle)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-                        <button 
-                          onClick={() => handleToggleAttendance(s.id, 'Present')}
-                          style={{
-                            padding: '4px 8px',
-                            fontSize: '0.72rem',
-                            fontWeight: 600,
-                            borderRadius: '6px',
-                            border: 'none',
-                            cursor: 'pointer',
-                            background: s.attendance_status === 'Present' ? 'var(--accent-primary)' : 'transparent',
-                            color: s.attendance_status === 'Present' ? '#FFF' : 'var(--text-muted)'
-                          }}
-                        >
-                          Present
-                        </button>
-
-                        <button 
-                          onClick={() => handleToggleAttendance(s.id, 'Late')}
-                          style={{
-                            padding: '4px 8px',
-                            fontSize: '0.72rem',
-                            fontWeight: 600,
-                            borderRadius: '6px',
-                            border: 'none',
-                            cursor: 'pointer',
-                            background: s.attendance_status === 'Late' ? '#F59E0B' : 'transparent',
-                            color: s.attendance_status === 'Late' ? '#FFF' : 'var(--text-muted)'
-                          }}
-                        >
-                          Late
-                        </button>
-
-                        <button 
-                          onClick={() => handleToggleAttendance(s.id, 'Absent')}
-                          style={{
-                            padding: '4px 8px',
-                            fontSize: '0.72rem',
-                            fontWeight: 600,
-                            borderRadius: '6px',
-                            border: 'none',
-                            cursor: 'pointer',
-                            background: s.attendance_status === 'Absent' ? '#EF4444' : 'transparent',
-                            color: s.attendance_status === 'Absent' ? '#FFF' : 'var(--text-muted)'
-                          }}
-                        >
-                          Absent
-                        </button>
-                      </div>
-                    </td>
-
-                    {/* Student Due Status */}
-                    <td>
-                      {s.due_amount > 0 ? (
-                        <span className="badge-status" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#EF4444', border: '1px solid #EF4444' }}>
-                          <AlertTriangle size={12} /> Due: AED {s.due_amount.toFixed(2)}
-                        </span>
-                      ) : (
+                {filteredStudents.length > 0 ? (
+                  filteredStudents.map(s => (
+                    <tr key={s.id}>
+                      <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{s.name}</td>
+                      <td><span className="badge-status badge-warning">{s.standard}</span></td>
+                      <td>
                         <span className="badge-status badge-success">
-                          <CheckCircle2 size={12} /> Settled
+                          {s.program || 'Tuition & Daycare'}
                         </span>
-                      )}
-                    </td>
+                      </td>
+                      
+                      {/* One-Click Attendance Toggle Buttons */}
+                      <td>
+                        <div style={{ display: 'inline-flex', gap: '4px', background: 'var(--card-bg-subtle)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                          <button 
+                            onClick={() => handleToggleAttendance(s.id, 'Present')}
+                            style={{
+                              padding: '4px 8px',
+                              fontSize: '0.72rem',
+                              fontWeight: 600,
+                              borderRadius: '6px',
+                              border: 'none',
+                              cursor: 'pointer',
+                              background: s.attendance_status === 'Present' ? 'var(--accent-primary)' : 'transparent',
+                              color: s.attendance_status === 'Present' ? '#FFF' : 'var(--text-muted)'
+                            }}
+                          >
+                            Present
+                          </button>
 
-                    {/* Settle Due Payment CTA */}
-                    <td>
-                      {s.due_amount > 0 ? (
-                        <button className="btn btn-emerald" style={{ padding: '6px 12px', fontSize: '0.78rem' }} onClick={() => handleSettleDue(s.id)}>
-                          <DollarSign size={14} /> Settle Due
-                        </button>
-                      ) : (
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No Due</span>
-                      )}
+                          <button 
+                            onClick={() => handleToggleAttendance(s.id, 'Late')}
+                            style={{
+                              padding: '4px 8px',
+                              fontSize: '0.72rem',
+                              fontWeight: 600,
+                              borderRadius: '6px',
+                              border: 'none',
+                              cursor: 'pointer',
+                              background: s.attendance_status === 'Late' ? '#F59E0B' : 'transparent',
+                              color: s.attendance_status === 'Late' ? '#FFF' : 'var(--text-muted)'
+                            }}
+                          >
+                            Late
+                          </button>
+
+                          <button 
+                            onClick={() => handleToggleAttendance(s.id, 'Absent')}
+                            style={{
+                              padding: '4px 8px',
+                              fontSize: '0.72rem',
+                              fontWeight: 600,
+                              borderRadius: '6px',
+                              border: 'none',
+                              cursor: 'pointer',
+                              background: s.attendance_status === 'Absent' ? '#EF4444' : 'transparent',
+                              color: s.attendance_status === 'Absent' ? '#FFF' : 'var(--text-muted)'
+                            }}
+                          >
+                            Absent
+                          </button>
+                        </div>
+                      </td>
+
+                      {/* Student Due Status */}
+                      <td>
+                        {s.due_amount > 0 ? (
+                          <span className="badge-status" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#EF4444', border: '1px solid #EF4444' }}>
+                            <AlertTriangle size={12} /> Due: AED {s.due_amount.toFixed(2)}
+                          </span>
+                        ) : (
+                          <span className="badge-status badge-success">
+                            <CheckCircle2 size={12} /> Settled
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Settle Due Payment CTA */}
+                      <td>
+                        {s.due_amount > 0 ? (
+                          <button className="btn btn-emerald" style={{ padding: '6px 12px', fontSize: '0.78rem' }} onClick={() => handleSettleDue(s.id)}>
+                            <DollarSign size={14} /> Settle Due
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No Due</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '24px' }}>
+                      No students found matching "{searchQuery}"
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
