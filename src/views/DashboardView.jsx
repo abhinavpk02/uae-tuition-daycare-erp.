@@ -44,15 +44,15 @@ export default function DashboardView({ onNavigate }) {
 
   return (
     <div className="view-container">
-      {/* KPI Cards: PERFECT 1:1 SQUARE CARDS */}
+      {/* KPI Cards: PERFECT 1:1 SQUARE CARDS IN MINIMALIST 2-COLOR PALETTE */}
       <div className="grid-stats-large">
         
         {/* Metric 1: Total Volume */}
         <div className="stat-card-square">
-          <div className="stat-icon-square" style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-emerald)' }}>
+          <div className="stat-icon-square">
             <Coins size={32} />
           </div>
-          <div className="stat-val-square" style={{ color: 'var(--accent-emerald)' }}>
+          <div className="stat-val-square" style={{ color: 'var(--accent-primary)' }}>
             AED {stats.totalRevenue}
           </div>
           <div className="stat-lbl-square">Total Volume</div>
@@ -60,10 +60,10 @@ export default function DashboardView({ onNavigate }) {
 
         {/* Metric 2: Enrolled Students */}
         <div className="stat-card-square">
-          <div className="stat-icon-square" style={{ background: 'rgba(245, 158, 11, 0.15)', color: 'var(--accent-gold)' }}>
+          <div className="stat-icon-square">
             <Users size={32} />
           </div>
-          <div className="stat-val-square" style={{ color: 'var(--accent-gold)' }}>
+          <div className="stat-val-square">
             {stats.activeStudents}
           </div>
           <div className="stat-lbl-square">Enrolled Students</div>
@@ -71,10 +71,10 @@ export default function DashboardView({ onNavigate }) {
 
         {/* Metric 3: Daycare Hours */}
         <div className="stat-card-square">
-          <div className="stat-icon-square" style={{ background: 'rgba(59, 130, 246, 0.15)', color: 'var(--accent-blue)' }}>
+          <div className="stat-icon-square">
             <Clock size={32} />
           </div>
-          <div className="stat-val-square" style={{ color: 'var(--accent-blue)' }}>
+          <div className="stat-val-square">
             {stats.daycareHours} hrs
           </div>
           <div className="stat-lbl-square">Daycare Hours</div>
@@ -82,10 +82,10 @@ export default function DashboardView({ onNavigate }) {
 
         {/* Metric 4: Ledger Status */}
         <div className="stat-card-square">
-          <div className="stat-icon-square" style={{ background: stats.isBalanced ? 'rgba(139, 92, 246, 0.15)' : 'rgba(239, 68, 68, 0.15)', color: stats.isBalanced ? 'var(--accent-purple)' : '#EF4444' }}>
+          <div className="stat-icon-square">
             <ShieldCheck size={32} />
           </div>
-          <div className="stat-val-square" style={{ color: stats.isBalanced ? 'var(--accent-purple)' : '#EF4444', fontSize: '1.25rem' }}>
+          <div className="stat-val-square" style={{ color: stats.isBalanced ? 'var(--accent-primary)' : '#EF4444', fontSize: '1.25rem' }}>
             {stats.isBalanced ? '100% BALANCED' : 'UNBALANCED'}
           </div>
           <div className="stat-lbl-square">Ledger Audit Status</div>
@@ -155,7 +155,7 @@ export default function DashboardView({ onNavigate }) {
           </div>
         </div>
 
-        {/* Re-imagined ERP Operations Hub: Large Iconic Cards */}
+        {/* Re-imagined ERP Operations Hub: Clean 2-Color Square Tiles */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', color: 'var(--text-main)', marginBottom: '2px' }}>
             ERP Operations Hub
@@ -172,15 +172,15 @@ export default function DashboardView({ onNavigate }) {
               alignItems: 'center', 
               justifyContent: 'space-between',
               padding: '20px', 
-              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.04))', 
-              border: '1px solid rgba(16, 185, 129, 0.3)',
+              background: 'var(--card-bg-subtle)', 
+              border: '1px solid var(--border-color)',
               borderRadius: '16px',
               cursor: 'pointer',
               transition: 'all 0.25s ease'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-emerald)', flexShrink: 0 }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--accent-primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)', flexShrink: 0 }}>
                 <ShoppingBag size={26} />
               </div>
               <div>
@@ -188,7 +188,7 @@ export default function DashboardView({ onNavigate }) {
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Tuition & Daycare Checkout</p>
               </div>
             </div>
-            <ArrowUpRight size={20} color="var(--accent-emerald)" />
+            <ArrowUpRight size={20} color="var(--accent-primary)" />
           </div>
 
           {/* Card 2: RFID Scanner */}
@@ -199,15 +199,15 @@ export default function DashboardView({ onNavigate }) {
               alignItems: 'center', 
               justifyContent: 'space-between',
               padding: '20px', 
-              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.04))', 
-              border: '1px solid rgba(245, 158, 11, 0.3)',
+              background: 'var(--card-bg-subtle)', 
+              border: '1px solid var(--border-color)',
               borderRadius: '16px',
               cursor: 'pointer',
               transition: 'all 0.25s ease'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-gold)', flexShrink: 0 }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--accent-primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)', flexShrink: 0 }}>
                 <Clock size={26} />
               </div>
               <div>
@@ -215,7 +215,7 @@ export default function DashboardView({ onNavigate }) {
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Real-time Attendance Tracker</p>
               </div>
             </div>
-            <ArrowUpRight size={20} color="var(--accent-gold)" />
+            <ArrowUpRight size={20} color="var(--accent-primary)" />
           </div>
 
           {/* Card 3: Ledger Reports */}
@@ -226,15 +226,15 @@ export default function DashboardView({ onNavigate }) {
               alignItems: 'center', 
               justifyContent: 'space-between',
               padding: '20px', 
-              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.04))', 
-              border: '1px solid rgba(59, 130, 246, 0.3)',
+              background: 'var(--card-bg-subtle)', 
+              border: '1px solid var(--border-color)',
               borderRadius: '16px',
               cursor: 'pointer',
               transition: 'all 0.25s ease'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(59, 130, 246, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-blue)', flexShrink: 0 }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--accent-primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)', flexShrink: 0 }}>
                 <Layers size={26} />
               </div>
               <div>
@@ -242,7 +242,7 @@ export default function DashboardView({ onNavigate }) {
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>General Ledger & Audits</p>
               </div>
             </div>
-            <ArrowUpRight size={20} color="var(--accent-blue)" />
+            <ArrowUpRight size={20} color="var(--accent-primary)" />
           </div>
 
         </div>
