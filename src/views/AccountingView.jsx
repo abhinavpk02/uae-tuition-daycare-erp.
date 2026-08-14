@@ -278,6 +278,7 @@ export default function AccountingView() {
                 <th>Description</th>
                 <th>Ref Module</th>
                 <th>Constraint State</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -288,9 +289,19 @@ export default function AccountingView() {
                   <td style={{ fontWeight: 600 }}>{e.description}</td>
                   <td><span className="badge-status badge-warning">{e.ref_module}</span></td>
                   <td><span className="badge-status badge-success"><CheckCircle2 size={12} /> Debit == Credit</span></td>
+                  <td>
+                    {e.ref_id ? (
+                      <button className="btn btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }} onClick={() => window.open(`/api/billing-pos/invoices/${e.ref_id}/pdf`, '_blank')}>
+                        PDF Invoice
+                      </button>
+                    ) : (
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Ledger Direct</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
+
           </table>
         </div>
       )}
