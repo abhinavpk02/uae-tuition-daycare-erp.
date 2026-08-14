@@ -35,12 +35,14 @@ class StaffV1Create(BaseModel):
 
 @router.post("/students", status_code=status.HTTP_201_CREATED)
 async def create_student_v1(payload: StudentV1Create, db: AsyncSession = Depends(get_db)):
-    # Hierarchy check: Parents cannot register students
-    if payload.creator_role == 'Parent':
+    # Strict Rule: Only SuperAdmin and Admin can register new student entries
+    creator = payload.creator_role or "SuperAdmin"
+    if creator not in ['SuperAdmin', 'Admin']:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
-            detail="Parent role is read-only and cannot create new student entries"
+            detail=f"Access Denied: {creator} role cannot create student entries. Only SuperAdmin and Admin are authorized."
         )
+
 
     # 1. Lookup or create Parent User & ProfileParent
     usr_res = await db.execute(select(User).where(User.email == payload.parent_email))

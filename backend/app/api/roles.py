@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from pydantic import BaseModel
+from typing import Optional
 
 from app.core.database import get_db
 from app.models.domain import RolePermission
@@ -12,6 +13,7 @@ class PermissionUpdate(BaseModel):
     manage_students_staff: bool = True
     admissions_onboarding: bool = True
     operational_details: bool = True
+    requester_role: Optional[str] = "SuperAdmin"
 
 class RolePermissionResponse(BaseModel):
     role: str
@@ -50,6 +52,14 @@ async def update_role_permissions(
     data: PermissionUpdate, 
     db: AsyncSession = Depends(get_db)
 ):
+    # Enforce SuperAdmin restriction
+    requester = data.requester_role or "SuperAdmin"
+    if requester != "SuperAdmin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access Denied: Only SuperAdmin is authorized to update RBAC role permissions."
+        )
+
     result = await db.execute(select(RolePermission).where(RolePermission.role == role_name))
     perm = result.scalar_one_or_none()
 

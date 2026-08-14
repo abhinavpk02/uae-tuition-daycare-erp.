@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Check, ShieldCheck, Users, UserPlus, Sliders, CheckCircle2 } from 'lucide-react';
+import { Check, ShieldCheck, Users, UserPlus, Sliders, CheckCircle2, Lock } from 'lucide-react';
 
 const ROLES_LIST = [
   { id: 'SuperAdmin', label: 'SuperAdmin (Full Access)' },
@@ -8,7 +8,7 @@ const ROLES_LIST = [
   { id: 'Parent', label: 'Parent Portal' },
 ];
 
-export default function RBACManagementView() {
+export default function RBACManagementView({ activeRole = 'SuperAdmin' }) {
   const [selectedRole, setSelectedRole] = useState('SuperAdmin');
   const [permissions, setPermissions] = useState({
     manage_students_staff: true,
@@ -41,24 +41,46 @@ export default function RBACManagementView() {
   }, [selectedRole]);
 
   const handleSave = () => {
+    if (activeRole !== 'SuperAdmin') {
+      setSaveStatus('Error: Only SuperAdmin can modify role permissions');
+      return;
+    }
+
     setLoading(true);
     setSaveStatus('');
     fetch(`/api/v1/roles/${selectedRole}/permissions`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(permissions),
+      body: JSON.stringify({ ...permissions, requester_role: activeRole }),
     })
-      .then((res) => res.json())
-      .then((data) => {
-        setSaveStatus('Permissions saved successfully!');
+      .then((res) => res.json().then(data => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (ok) {
+          setSaveStatus('Permissions saved successfully!');
+        } else {
+          setSaveStatus(`Error: ${data.detail || 'Failed to save'}`);
+        }
       })
       .catch((err) => setSaveStatus(`Error saving: ${err.message}`))
       .finally(() => setLoading(false));
   };
 
   const togglePermission = (key) => {
+    if (activeRole !== 'SuperAdmin') return;
     setPermissions((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+
+  if (activeRole !== 'SuperAdmin') {
+    return (
+      <div className="glass-card" style={{ padding: '40px', textAlign: 'center', margin: '40px auto', maxWidth: '500px' }}>
+        <Lock size={48} color="#EF4444" style={{ marginBottom: '16px' }} />
+        <h3 style={{ fontFamily: 'Outfit', color: '#F9FAFB', marginBottom: '8px' }}>Access Restricted</h3>
+        <p style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>
+          Only <strong style={{ color: 'var(--accent-gold)' }}>SuperAdmin</strong> is authorized to view and modify RBAC permission settings.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)' }}>

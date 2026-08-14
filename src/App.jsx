@@ -34,8 +34,9 @@ export default function App() {
   const canAccess = (viewKey) => {
     if (activeRole === 'SuperAdmin') return true;
     if (activeRole === 'Admin') {
-      return ['dashboard', 'accounting', 'pos', 'students', 'assets', 'rbac'].includes(viewKey);
+      return ['dashboard', 'accounting', 'pos', 'students', 'assets'].includes(viewKey);
     }
+
     if (activeRole === 'Teacher') {
       return ['attendance', 'timetable', 'students'].includes(viewKey);
     }
@@ -200,7 +201,7 @@ export default function App() {
         {/* View Router with Access Protection */}
         {currentView === 'parent-portal' && canAccess('parent-portal') && <ParentPortalView />}
         {currentView === 'dashboard' && canAccess('dashboard') && <DashboardView onNavigate={setCurrentView} />}
-        {currentView === 'rbac' && canAccess('rbac') && <RBACManagementView />}
+        {currentView === 'rbac' && canAccess('rbac') && <RBACManagementView activeRole={activeRole} />}
         {currentView === 'accounting' && canAccess('accounting') && <AccountingView />}
         {currentView === 'pos' && canAccess('pos') && <POSView />}
         {currentView === 'attendance' && canAccess('attendance') && <AttendanceDaycareView />}
