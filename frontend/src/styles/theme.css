@@ -16,8 +16,9 @@
   --text-dim: #71717A;
   --card-bg-subtle: rgba(255, 255, 255, 0.05);
 
-  --font-heading: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  /* SF PRO FONT FAMILY EVERYWHERE */
+  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", system-ui, sans-serif;
 
   --radius-sm: 10px;
   --radius-md: 16px;
@@ -47,6 +48,10 @@
   --text-dim: #64748B;
   --card-bg-subtle: #F1F5F9;
 
+  /* SF PRO FONT FAMILY EVERYWHERE */
+  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", system-ui, sans-serif;
+
   --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.06);
   --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 
@@ -57,16 +62,24 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: var(--font-body) !important;
 }
 
 body {
   background-color: var(--bg-dark);
   color: var(--text-main);
-  font-family: var(--font-body);
+  font-family: var(--font-body) !important;
   line-height: 1.5;
   min-height: 100vh;
   overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-tile-label {
+  font-family: var(--font-heading) !important;
+  letter-spacing: -0.015em;
 }
 
 /* Scrollbar (Emerald Green across modes) */
@@ -135,7 +148,7 @@ body {
 }
 
 .brand-title {
-  font-family: var(--font-heading);
+  font-family: var(--font-heading) !important;
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -202,7 +215,7 @@ body {
 }
 
 .nav-tile-label {
-  font-family: var(--font-heading);
+  font-family: var(--font-heading) !important;
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -322,7 +335,7 @@ body {
 }
 
 .stat-val-square {
-  font-family: var(--font-heading);
+  font-family: var(--font-heading) !important;
   font-size: 1.75rem;
   font-weight: 800;
   line-height: 1.1;
@@ -331,7 +344,7 @@ body {
 }
 
 .stat-lbl-square {
-  font-family: var(--font-heading);
+  font-family: var(--font-heading) !important;
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--text-muted);
@@ -397,6 +410,7 @@ body {
   border: 1px solid transparent;
   transition: all 0.25s ease;
   min-height: 42px;
+  font-family: var(--font-body) !important;
 }
 
 .btn-emerald {
@@ -451,6 +465,7 @@ body {
   outline: none;
   transition: all 0.2s ease;
   min-height: 44px;
+  font-family: var(--font-body) !important;
 }
 
 .form-input:focus, .form-select:focus {
