@@ -25,7 +25,7 @@ export default function App() {
     if (newRole === 'Parent') {
       setCurrentView('parent-portal');
     } else if (newRole === 'Teacher') {
-      setCurrentView('attendance');
+      setCurrentView('students');
     } else {
       setCurrentView('dashboard');
     }
@@ -35,16 +35,17 @@ export default function App() {
   const canAccess = (viewKey) => {
     if (activeRole === 'SuperAdmin') return true;
     if (activeRole === 'Admin') {
-      return ['dashboard', 'accounting', 'pos', 'students', 'staff', 'assets'].includes(viewKey);
+      return ['dashboard', 'accounting', 'pos', 'attendance', 'students', 'staff', 'assets'].includes(viewKey);
     }
     if (activeRole === 'Teacher') {
-      return ['attendance', 'timetable', 'students', 'staff'].includes(viewKey);
+      return ['students', 'timetable'].includes(viewKey);
     }
     if (activeRole === 'Parent') {
       return ['parent-portal', 'students'].includes(viewKey);
     }
     return false;
   };
+
 
   return (
     <div className="app-container">
