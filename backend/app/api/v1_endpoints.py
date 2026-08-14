@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
+
 from typing import Optional, List
 from decimal import Decimal
 
@@ -17,13 +17,13 @@ class StudentV1Create(BaseModel):
     standard: str = Field(..., example="Grade 10")
     program: StudentProgram = Field(StudentProgram.Both, example="Both")
     parent_phone: str = Field(..., example="+971 50 123 4567")
-    parent_email: EmailStr = Field(..., example="parent@uaeerp.ae")
+    parent_email: str = Field(..., example="parent@uaeerp.ae")
     creator_role: Optional[str] = Field("SuperAdmin", example="SuperAdmin")
 
 # 2. Staff Payload Schema
 class StaffV1Create(BaseModel):
     name: str = Field(..., min_length=2, example="Fatima Al-Mansoori")
-    email: EmailStr = Field(..., example="fatima@uaeerp.ae")
+    email: str = Field(..., example="fatima@uaeerp.ae")
     dob: Optional[str] = Field(None, example="1992-03-20")
     passport_no: Optional[str] = Field(None, example="N9876543")
     emirates_id: str = Field(..., example="784-1992-1234567-1")
