@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Gauge, ShieldCheck, ShoppingBag, Clock, Users, 
-  Building2, Sparkles, Calendar, Coins, UserCheck, Lock, UserPlus, BookOpen, Menu, X, Sun, Moon 
+  Building2, Sparkles, Calendar, Coins, UserCheck, Lock, UserPlus, BookOpen, Menu, X, Sun, Moon, Bot 
 } from 'lucide-react';
 
 import DashboardView from './views/DashboardView';
@@ -14,6 +14,7 @@ import AssetsView from './views/AssetsView';
 import TimetableView from './views/TimetableView';
 import ParentPortalView from './views/ParentPortalView';
 import RBACManagementView from './views/RBACManagementView';
+import AIAssistantView from './views/AIAssistantView';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -51,7 +52,7 @@ export default function App() {
   const canAccess = (viewKey) => {
     if (activeRole === 'SuperAdmin') return true;
     if (activeRole === 'Admin') {
-      return ['dashboard', 'accounting', 'pos', 'attendance', 'students', 'staff', 'assets'].includes(viewKey);
+      return ['dashboard', 'accounting', 'pos', 'attendance', 'students', 'staff', 'assets', 'ai-assistant'].includes(viewKey);
     }
     if (activeRole === 'Teacher') {
       return ['students', 'timetable'].includes(viewKey);
@@ -234,6 +235,19 @@ export default function App() {
               </div>
             )}
 
+            {/* AI ASSISTANT TAB AT THE VERY LAST POSITION */}
+            {canAccess('ai-assistant') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'ai-assistant' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('ai-assistant')}
+                >
+                  <Bot size={26} />
+                  <span className="nav-tile-label">AI Assistant</span>
+                </button>
+              </div>
+            )}
+
           </div>
         </div>
 
@@ -293,6 +307,7 @@ export default function App() {
         {currentView === 'attendance' && canAccess('attendance') && <AttendanceDaycareView />}
         {currentView === 'timetable' && canAccess('timetable') && <TimetableView />}
         {currentView === 'assets' && canAccess('assets') && <AssetsView />}
+        {currentView === 'ai-assistant' && canAccess('ai-assistant') && <AIAssistantView />}
       </main>
     </div>
   );
