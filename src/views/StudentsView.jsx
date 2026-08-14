@@ -27,7 +27,7 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
 
   return (
     <div className="view-container">
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem' }}>Student Directory & Academic Programs</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
@@ -43,35 +43,37 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+      <div className="grid-2col-responsive">
         
         {/* Students Table */}
         <div className="glass-card">
           <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px' }}>Enrolled Students Directory</h3>
-          <table className="custom-table">
-            <thead>
-              <tr>
-                <th>Student Name</th>
-                <th>Standard / Grade</th>
-                <th>Enrolled Program</th>
-                <th>Parent ID</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map(s => (
-                <tr key={s.id}>
-                  <td style={{ fontWeight: 600 }}>{s.name}</td>
-                  <td><span className="badge-status badge-warning">{s.standard}</span></td>
-                  <td>
-                    <span className={`badge-status ${s.program === 'Both' ? 'badge-success' : 'badge-warning'}`}>
-                      {s.program}
-                    </span>
-                  </td>
-                  <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{s.parent_id.substring(0, 8)}...</td>
+          <div className="table-responsive-wrapper">
+            <table className="custom-table">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Standard / Grade</th>
+                  <th>Enrolled Program</th>
+                  <th>Parent ID</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {students.map(s => (
+                  <tr key={s.id}>
+                    <td style={{ fontWeight: 600 }}>{s.name}</td>
+                    <td><span className="badge-status badge-warning">{s.standard}</span></td>
+                    <td>
+                      <span className={`badge-status ${s.program === 'Both' ? 'badge-success' : 'badge-warning'}`}>
+                        {s.program}
+                      </span>
+                    </td>
+                    <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{s.parent_id.substring(0, 8)}...</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Subjects & Course Pricing Matrix */}

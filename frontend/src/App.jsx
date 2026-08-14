@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Gauge, ShieldCheck, ShoppingBag, Clock, Users, 
-  Building2, Globe, Sparkles, Calendar, Coins, UserCheck, Lock, UserPlus, BookOpen 
+  Building2, Globe, Sparkles, Calendar, Coins, UserCheck, Lock, UserPlus, BookOpen, Menu, X 
 } from 'lucide-react';
 
 import DashboardView from './views/DashboardView';
@@ -18,6 +18,7 @@ import RBACManagementView from './views/RBACManagementView';
 export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [activeRole, setActiveRole] = useState('SuperAdmin');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Handle role switching with automatic view redirection
   const handleRoleChange = (newRole) => {
@@ -29,6 +30,11 @@ export default function App() {
     } else {
       setCurrentView('dashboard');
     }
+  };
+
+  const handleNavClick = (viewKey) => {
+    setCurrentView(viewKey);
+    setMobileMenuOpen(false);
   };
 
   // RBAC Permission checks
@@ -48,10 +54,31 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Sidebar Navigation */}
-      <aside className="sidebar">
+
+      {/* Mobile Sticky Top Bar (Smartphones / Tablets) */}
+      <div className="mobile-header-bar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="brand-icon" style={{ width: '36px', height: '36px' }}>
+            <Building2 size={20} />
+          </div>
+          <div>
+            <div className="brand-title" style={{ fontSize: '1.1rem' }}>UAE ERP</div>
+            <div className="brand-subtitle" style={{ fontSize: '0.65rem' }}>Tuition & Daycare</div>
+          </div>
+        </div>
+
+        <button 
+          className="mobile-menu-toggle" 
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+
+      {/* Sidebar Navigation (Desktop & Mobile Drawer) */}
+      <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
         <div>
-          {/* Brand Header */}
+          {/* Brand Header (Desktop) */}
           <div className="brand-header">
             <div className="brand-icon">
               <Building2 size={24} />
@@ -69,7 +96,7 @@ export default function App() {
               <div className="nav-tile-item">
                 <button 
                   className={`nav-tile-btn ${currentView === 'parent-portal' ? 'active' : ''}`} 
-                  onClick={() => setCurrentView('parent-portal')}
+                  onClick={() => handleNavClick('parent-portal')}
                 >
                   <UserCheck size={26} />
                   <span className="nav-tile-label">Parent Portal</span>
@@ -81,7 +108,7 @@ export default function App() {
               <div className="nav-tile-item">
                 <button 
                   className={`nav-tile-btn ${currentView === 'dashboard' ? 'active' : ''}`} 
-                  onClick={() => setCurrentView('dashboard')}
+                  onClick={() => handleNavClick('dashboard')}
                 >
                   <Gauge size={26} />
                   <span className="nav-tile-label">Exec Dashboard</span>
@@ -93,7 +120,7 @@ export default function App() {
               <div className="nav-tile-item">
                 <button 
                   className={`nav-tile-btn ${currentView === 'rbac' ? 'active' : ''}`} 
-                  onClick={() => setCurrentView('rbac')}
+                  onClick={() => handleNavClick('rbac')}
                 >
                   <Lock size={26} />
                   <span className="nav-tile-label">Permissions</span>
@@ -105,7 +132,7 @@ export default function App() {
               <div className="nav-tile-item">
                 <button 
                   className={`nav-tile-btn ${currentView === 'students' ? 'active' : ''}`} 
-                  onClick={() => setCurrentView('students')}
+                  onClick={() => handleNavClick('students')}
                 >
                   <Users size={26} />
                   <span className="nav-tile-label">Student Dir</span>
@@ -117,7 +144,7 @@ export default function App() {
               <div className="nav-tile-item">
                 <button 
                   className={`nav-tile-btn ${currentView === 'staff' ? 'active' : ''}`} 
-                  onClick={() => setCurrentView('staff')}
+                  onClick={() => handleNavClick('staff')}
                 >
                   <UserPlus size={26} />
                   <span className="nav-tile-label">Staff Dir</span>
@@ -129,7 +156,7 @@ export default function App() {
               <div className="nav-tile-item">
                 <button 
                   className={`nav-tile-btn ${currentView === 'accounting' ? 'active' : ''}`} 
-                  onClick={() => setCurrentView('accounting')}
+                  onClick={() => handleNavClick('accounting')}
                 >
                   <BookOpen size={26} />
                   <span className="nav-tile-label">Ledger</span>
@@ -141,7 +168,7 @@ export default function App() {
               <div className="nav-tile-item">
                 <button 
                   className={`nav-tile-btn ${currentView === 'pos' ? 'active' : ''}`} 
-                  onClick={() => setCurrentView('pos')}
+                  onClick={() => handleNavClick('pos')}
                 >
                   <ShoppingBag size={26} />
                   <span className="nav-tile-label">POS Terminal</span>
@@ -153,7 +180,7 @@ export default function App() {
               <div className="nav-tile-item">
                 <button 
                   className={`nav-tile-btn ${currentView === 'attendance' ? 'active' : ''}`} 
-                  onClick={() => setCurrentView('attendance')}
+                  onClick={() => handleNavClick('attendance')}
                 >
                   <Clock size={26} />
                   <span className="nav-tile-label">RFID/Daycare</span>
@@ -165,7 +192,7 @@ export default function App() {
               <div className="nav-tile-item">
                 <button 
                   className={`nav-tile-btn ${currentView === 'timetable' ? 'active' : ''}`} 
-                  onClick={() => setCurrentView('timetable')}
+                  onClick={() => handleNavClick('timetable')}
                 >
                   <Calendar size={26} />
                   <span className="nav-tile-label">Room Timetable</span>
@@ -177,7 +204,7 @@ export default function App() {
               <div className="nav-tile-item">
                 <button 
                   className={`nav-tile-btn ${currentView === 'assets' ? 'active' : ''}`} 
-                  onClick={() => setCurrentView('assets')}
+                  onClick={() => handleNavClick('assets')}
                 >
                   <Coins size={26} />
                   <span className="nav-tile-label">Fixed Assets</span>
