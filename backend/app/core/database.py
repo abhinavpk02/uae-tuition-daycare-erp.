@@ -8,17 +8,32 @@ try:
 except ImportError:
     pass
 
-# Default to /tmp/erp.db on Vercel serverless environment
-if os.getenv("VERCEL"):
-    DEFAULT_DB_URL = "sqlite+aiosqlite:////tmp/erp.db"
-else:
-    DEFAULT_DB_URL = "sqlite+aiosqlite:///./erp.db"
+# Support Turso Database environment variables (TURSO_DATABASE_URL & TURSO_AUTH_TOKEN)
+TURSO_DB_URL = os.getenv("TURSO_DATABASE_URL")
+TURSO_TOKEN = os.getenv("TURSO_AUTH_TOKEN")
 
-DATABASE_URL = os.getenv("DATABASE_URL", DEFAULT_DB_URL)
+if TURSO_DB_URL:
+    DATABASE_URL = TURSO_DB_URL
 
+# Default to /tmp/erp.db on Vercel serverless environment if no DATABASE_URL provided
+if not DATABASE_URL:
+    if os.getenv("VERCEL"):
+        DATABASE_URL = "sqlite+aiosqlite:////tmp/erp.db"
+    else:
+        DATABASE_URL = "sqlite+aiosqlite:///./erp.db"
 
+# 1. Convert Turso libsql:// or https:// to sqlite+libsql:// format for SQLAlchemy
+if DATABASE_URL.startswith("libsql://"):
+    DATABASE_URL = DATABASE_URL.replace("libsql://", "sqlite+libsql://", 1)
+elif DATABASE_URL.startswith("https://") and "turso.io" in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace("https://", "sqlite+libsql://", 1)
 
-# Convert standard postgres:// or postgresql:// to postgresql+asyncpg:// if needed
+# Append Turso Auth Token if set in environment
+if TURSO_TOKEN and "turso.io" in DATABASE_URL and "authToken=" not in DATABASE_URL:
+    delimiter = "&" if "?" in DATABASE_URL else "?"
+    DATABASE_URL = f"{DATABASE_URL}{delimiter}authToken={TURSO_TOKEN}"
+
+# 2. Convert standard PostgreSQL URLs to asyncpg
 if DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 elif DATABASE_URL.startswith("postgres://"):
@@ -29,6 +44,7 @@ engine = create_async_engine(
     echo=False,
     connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
 )
+
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
