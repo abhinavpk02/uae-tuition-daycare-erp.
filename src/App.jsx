@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Gauge, ShieldCheck, ShoppingBag, Clock, Users, 
-  Building2, Sparkles, Calendar, Coins, UserCheck, Lock, UserPlus, BookOpen, Menu, X, Sun, Moon, Bot 
+  Building2, Sparkles, Calendar, Coins, UserCheck, Lock, UserPlus, BookOpen, Menu, X, Sun, Moon, Bot, Bell, AlertTriangle, DollarSign 
 } from 'lucide-react';
 
 import DashboardView from './views/DashboardView';
@@ -21,6 +21,7 @@ export default function App() {
   const [activeRole, setActiveRole] = useState('SuperAdmin');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useState('dark');
+  const [showNotifDrawer, setShowNotifDrawer] = useState(false);
 
   // Sync active theme with document data-theme attribute
   useEffect(() => {
@@ -79,6 +80,16 @@ export default function App() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Notification Button (Mobile) */}
+          <button 
+            onClick={() => setShowNotifDrawer(!showNotifDrawer)} 
+            className="theme-toggle-btn"
+            style={{ width: '40px', height: '40px', padding: 0, justifyContent: 'center', borderRadius: '12px', position: 'relative' }}
+          >
+            <Bell size={18} color="var(--accent-primary)" />
+            <span style={{ position: 'absolute', top: '6px', right: '6px', width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444' }}></span>
+          </button>
+
           {/* Icon-Only Theme Mode Switcher */}
           <button 
             onClick={toggleTheme} 
@@ -275,15 +286,27 @@ export default function App() {
         {/* Sleek Minimalist Top Header Bar */}
         <header className="header-bar">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div className="badge-status badge-warning" style={{ fontSize: '0.8rem', padding: '6px 14px' }}>
-              RBAC: {activeRole}
+            <div className="badge-status badge-warning" style={{ fontSize: '0.78rem', padding: '4px 12px' }}>
+              <ShieldCheck size={14} /> RBAC: {activeRole}
             </div>
-            <div className="badge-status badge-success" style={{ fontSize: '0.8rem', padding: '6px 14px' }}>
+            <div className="badge-status badge-success" style={{ fontSize: '0.78rem', padding: '4px 12px' }}>
               <Sparkles size={14} /> Balanced
             </div>
           </div>
 
-          <div className="header-actions">
+          <div className="header-actions" style={{ position: 'relative' }}>
+            
+            {/* Minimalist Notification Center Bell Button */}
+            <button 
+              onClick={() => setShowNotifDrawer(!showNotifDrawer)} 
+              className="theme-toggle-btn"
+              title="System Alerts & Dues"
+              style={{ width: '40px', height: '40px', padding: 0, justifyContent: 'center', borderRadius: '12px', position: 'relative' }}
+            >
+              <Bell size={18} color="var(--accent-primary)" />
+              <span style={{ position: 'absolute', top: '6px', right: '6px', width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444' }}></span>
+            </button>
+
             {/* Icon-Only Theme Mode Switcher Button */}
             <button 
               onClick={toggleTheme} 
@@ -293,6 +316,68 @@ export default function App() {
             >
               {theme === 'dark' ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#3B82F6" />}
             </button>
+
+            {/* Floating Frosted Glass Notification Center Drawer */}
+            {showNotifDrawer && (
+              <div 
+                className="glass-card" 
+                style={{ 
+                  position: 'absolute', 
+                  top: '52px', 
+                  right: 0, 
+                  width: '340px', 
+                  zIndex: 200, 
+                  padding: '20px', 
+                  borderRadius: '20px',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+                  border: '1px solid var(--border-color)'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
+                  <h4 style={{ fontFamily: 'Outfit', fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                    System Alerts & Dues
+                  </h4>
+                  <button onClick={() => setShowNotifDrawer(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '320px', overflowY: 'auto' }}>
+                  {/* Alert 1: Low Stock */}
+                  <div style={{ padding: '10px 12px', background: 'rgba(245, 158, 11, 0.12)', borderRadius: '12px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#F59E0B', fontWeight: 700, fontSize: '0.8rem' }}>
+                      <AlertTriangle size={14} /> Low Inventory Stock
+                    </div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-main)', marginTop: '4px' }}>
+                      Daycare Uniform Set (Size 4) — <strong>2 units left</strong>
+                    </div>
+                  </div>
+
+                  {/* Alert 2: Pending Student Due */}
+                  <div style={{ padding: '10px 12px', background: 'rgba(239, 68, 68, 0.12)', borderRadius: '12px', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#EF4444', fontWeight: 700, fontSize: '0.8rem' }}>
+                      <DollarSign size={14} /> Pending Tuition Dues
+                    </div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-main)', marginTop: '4px' }}>
+                      Sami Al-Hashimi: <strong>AED 140.00 Overdue</strong><br/>
+                      Rashid Al-Maktoum: <strong>AED 450.00 Overdue</strong>
+                    </div>
+                  </div>
+
+                  {/* Alert 3: Absent Staff / Students */}
+                  <div style={{ padding: '10px 12px', background: 'rgba(59, 130, 246, 0.12)', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#3B82F6', fontWeight: 700, fontSize: '0.8rem' }}>
+                      <Users size={14} /> Absent Staff & Students
+                    </div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-main)', marginTop: '4px' }}>
+                      • 1 Staff Member Absent (Sarah Jenkins)<br/>
+                      • 1 Student Absent (Rashid Al-Maktoum)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
         </header>
 
