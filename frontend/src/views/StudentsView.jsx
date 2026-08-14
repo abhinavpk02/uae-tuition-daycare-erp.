@@ -3,7 +3,7 @@ import { UserCheck, BookOpen, Plus, ShieldAlert, UserPlus } from 'lucide-react';
 import AddStudentModal from '../components/AddStudentModal';
 import AddStaffModal from '../components/AddStaffModal';
 
-export default function StudentsView() {
+export default function StudentsView({ activeRole = 'SuperAdmin' }) {
   const [students, setStudents] = useState([]);
   const [staff, setStaff] = useState([]);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
@@ -43,16 +43,26 @@ export default function StudentsView() {
       <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem' }}>Academic & Student Directory</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Registered students, daycare enrollment programs, and teaching staff</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+            Active RBAC Mode: <span style={{ color: 'var(--accent-gold)', fontWeight: 600 }}>{activeRole}</span>
+          </p>
         </div>
 
+        {/* Hierarchical Action Buttons */}
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button className="btn btn-emerald" onClick={() => setIsStudentModalOpen(true)}>
-            <Plus size={18} /> Register Student
-          </button>
-          <button className="btn btn-gold" onClick={() => setIsStaffModalOpen(true)}>
-            <UserPlus size={18} /> Onboard Staff
-          </button>
+          {/* SuperAdmin, Admin, Teacher can all register students & parents */}
+          {['SuperAdmin', 'Admin', 'Teacher'].includes(activeRole) && (
+            <button className="btn btn-emerald" onClick={() => setIsStudentModalOpen(true)}>
+              <Plus size={18} /> Register Student
+            </button>
+          )}
+
+          {/* SuperAdmin and Admin can onboard staff (SuperAdmin creates Admin/Teacher; Admin creates Teacher) */}
+          {['SuperAdmin', 'Admin'].includes(activeRole) && (
+            <button className="btn btn-gold" onClick={() => setIsStaffModalOpen(true)}>
+              <UserPlus size={18} /> Onboard Staff
+            </button>
+          )}
         </div>
       </div>
 
@@ -119,17 +129,19 @@ export default function StudentsView() {
 
       </div>
 
-      {/* Modals */}
+      {/* Modals with creatorRole hierarchy enforcement */}
       <AddStudentModal 
         isOpen={isStudentModalOpen} 
         onClose={() => setIsStudentModalOpen(false)} 
-        onSuccess={() => fetchStudents()} 
+        onSuccess={() => fetchStudents()}
+        creatorRole={activeRole}
       />
 
       <AddStaffModal 
         isOpen={isStaffModalOpen} 
         onClose={() => setIsStaffModalOpen(false)} 
-        onSuccess={() => fetchStaff()} 
+        onSuccess={() => fetchStaff()}
+        creatorRole={activeRole}
       />
     </div>
   );

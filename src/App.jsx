@@ -204,7 +204,7 @@ export default function App() {
         {currentView === 'accounting' && canAccess('accounting') && <AccountingView />}
         {currentView === 'pos' && canAccess('pos') && <POSView />}
         {currentView === 'attendance' && canAccess('attendance') && <AttendanceDaycareView />}
-        {currentView === 'students' && canAccess('students') && <StudentsView />}
+        {currentView === 'students' && canAccess('students') && <StudentsView activeRole={activeRole} />}
         {currentView === 'timetable' && canAccess('timetable') && <TimetableView />}
         {currentView === 'assets' && canAccess('assets') && <AssetsView />}
       </main>

@@ -18,6 +18,7 @@ class StudentV1Create(BaseModel):
     program: StudentProgram = Field(StudentProgram.Both, example="Both")
     parent_phone: str = Field(..., example="+971 50 123 4567")
     parent_email: EmailStr = Field(..., example="parent@uaeerp.ae")
+    creator_role: Optional[str] = Field("SuperAdmin", example="SuperAdmin")
 
 # 2. Staff Payload Schema
 class StaffV1Create(BaseModel):
@@ -29,10 +30,18 @@ class StaffV1Create(BaseModel):
     address: Optional[str] = Field(None, example="Al Wasl Road, Villa 42, Dubai, UAE")
     role: UserRole = Field(UserRole.Teacher, example="Teacher")
     hourly_rate: float = Field(..., ge=0, example=120.00)
+    creator_role: Optional[str] = Field("SuperAdmin", example="SuperAdmin")
 
 
 @router.post("/students", status_code=status.HTTP_201_CREATED)
 async def create_student_v1(payload: StudentV1Create, db: AsyncSession = Depends(get_db)):
+    # Hierarchy check: Parents cannot register students
+    if payload.creator_role == 'Parent':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Parent role is read-only and cannot create new student entries"
+        )
+
     # 1. Lookup or create Parent User & ProfileParent
     usr_res = await db.execute(select(User).where(User.email == payload.parent_email))
     parent_user = usr_res.scalar_one_or_none()
@@ -87,6 +96,23 @@ async def create_student_v1(payload: StudentV1Create, db: AsyncSession = Depends
 
 @router.post("/staff", status_code=status.HTTP_201_CREATED)
 async def create_staff_v1(payload: StaffV1Create, db: AsyncSession = Depends(get_db)):
+    creator = payload.creator_role or "SuperAdmin"
+
+    # Enforce Creation Boundaries:
+    # 1. Teachers cannot add staff entries at all (only Students/Parents)
+    if creator in ["Teacher", "Parent"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail=f"{creator}s are not permitted to onboard staff members. Staff onboarding is restricted to Admin & SuperAdmin."
+        )
+
+    # 2. Admin can only add up to Teacher (cannot add SuperAdmin or Admin)
+    if creator == "Admin" and payload.role in [UserRole.Admin, UserRole.SuperAdmin]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Admin role can only onboard Teacher / Staff members. Only SuperAdmin can create new Admin accounts."
+        )
+
     # 1. Check existing email or Emirates ID
     email_check = await db.execute(select(User).where(User.email == payload.email))
     if email_check.scalar_one_or_none():

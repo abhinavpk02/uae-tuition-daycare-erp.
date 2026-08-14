@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, User, Mail, Calendar, Shield, CreditCard, MapPin, DollarSign, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
-export default function AddStaffModal({ isOpen, onClose, onSuccess }) {
+export default function AddStaffModal({ isOpen, onClose, onSuccess, creatorRole = 'SuperAdmin' }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,6 +16,13 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [toastMsg, setToastMsg] = useState('');
+
+  // Default role selection based on creator hierarchy
+  useEffect(() => {
+    if (creatorRole === 'Admin') {
+      setFormData(prev => ({ ...prev, role: 'Teacher' }));
+    }
+  }, [creatorRole]);
 
   if (!isOpen) return null;
 
@@ -47,7 +54,8 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }) {
 
     const payload = {
       ...formData,
-      hourly_rate: parseFloat(formData.hourly_rate) || 0
+      hourly_rate: parseFloat(formData.hourly_rate) || 0,
+      creator_role: creatorRole
     };
 
     fetch('/api/v1/staff', {
@@ -89,8 +97,12 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }) {
         {/* Modal Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
-            <h3 style={{ fontFamily: 'Outfit', fontSize: '1.3rem', fontWeight: 700, color: '#F9FAFB' }}>Onboard New Staff</h3>
-            <p style={{ fontSize: '0.8rem', color: '#9CA3AF' }}>Register teaching or administrative staff with Emirates ID compliance</p>
+            <h3 style={{ fontFamily: 'Outfit', fontSize: '1.3rem', fontWeight: 700, color: '#F9FAFB' }}>
+              Onboard New Staff
+            </h3>
+            <p style={{ fontSize: '0.8rem', color: '#9CA3AF' }}>
+              Acting Creator Role: <span style={{ color: 'var(--accent-gold)', fontWeight: 600 }}>{creatorRole}</span>
+            </p>
           </div>
           <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#9CA3AF', cursor: 'pointer' }}>
             <X size={20} />
@@ -192,7 +204,10 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }) {
               <label className="form-label">Assigned Role *</label>
               <select className="form-select" name="role" value={formData.role} onChange={handleChange}>
                 <option value="Teacher">Teacher / Staff</option>
-                <option value="Admin">Admin / Accountant</option>
+                {/* SuperAdmin can create Admins; Admin can only create Teachers */}
+                {creatorRole === 'SuperAdmin' && (
+                  <option value="Admin">Admin / Accountant</option>
+                )}
               </select>
             </div>
 
