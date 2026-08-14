@@ -23,6 +23,13 @@ export default function App() {
   const [theme, setTheme] = useState('dark');
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
 
+  // Automatically start with 2-column square grid open on mobile launch
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      setMobileMenuOpen(true);
+    }
+  }, []);
+
   // Sync active theme with document data-theme attribute
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -319,21 +326,7 @@ export default function App() {
 
             {/* HARMONIZED APPLE CONTROL CENTER FROSTED GLASS NOTIFICATION DRAWER */}
             {showNotifDrawer && (
-              <div 
-                className="glass-card" 
-                style={{ 
-                  position: 'absolute', 
-                  top: '52px', 
-                  right: 0, 
-                  width: '350px', 
-                  zIndex: 200, 
-                  padding: '20px', 
-                  borderRadius: '22px',
-                  boxShadow: 'var(--glass-shadow)',
-                  border: '1px solid var(--border-color)',
-                  background: 'var(--bg-card)'
-                }}
-              >
+              <div className="notif-drawer-popover">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
                   <h4 style={{ fontFamily: 'Outfit', fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)' }}>
                     System Alerts & Dues

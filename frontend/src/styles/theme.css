@@ -248,28 +248,20 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   flex-wrap: wrap;
 }
 
-/* Theme Mode Switcher Button */
-.theme-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 20px;
+/* NOTIFICATION DRAWER POPOVER (DESKTOP & PERFECTLY CENTERED MOBILE) */
+.notif-drawer-popover {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  width: 350px;
+  z-index: 500;
+  padding: 20px;
+  border-radius: 22px;
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--border-color);
   background: var(--bg-card);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: var(--glass-shadow);
-}
-
-.theme-toggle-btn:hover {
-  border-color: var(--accent-primary);
-  transform: translateY(-1px);
 }
 
 /* APPLE CONTROL CENTER FROSTED GLASS CARDS */
@@ -576,6 +568,19 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   .nav-tile-grid {
     grid-template-columns: repeat(2, 1fr); /* 2 COLUMNS IN PORTRAIT MOBILE VIEW MATCHING SCREENSHOT 2 */
     gap: 12px;
+  }
+
+  /* PERFECT FIXED CENTERED ALIGNMENT FOR NOTIFICATION DRAWER ON SMARTPHONES */
+  .notif-drawer-popover {
+    position: fixed !important;
+    top: 75px !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: 400px !important;
+    margin: 0 auto !important;
+    z-index: 999 !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8) !important;
   }
 }
 
