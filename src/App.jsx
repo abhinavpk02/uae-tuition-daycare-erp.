@@ -74,7 +74,7 @@ export default function App() {
             <Building2 size={20} />
           </div>
           <div>
-            <div className="brand-title" style={{ fontSize: '1.1rem' }}>UAE ERP</div>
+            <div className="brand-title" style={{ fontSize: '1.1rem' }}>NEST</div>
             <div className="brand-subtitle" style={{ fontSize: '0.65rem' }}>Tuition & Daycare</div>
           </div>
         </div>
@@ -118,7 +118,7 @@ export default function App() {
               <Building2 size={24} />
             </div>
             <div>
-              <div className="brand-title">UAE ERP</div>
+              <div className="brand-title">NEST</div>
               <div className="brand-subtitle">Tuition & Daycare</div>
             </div>
           </div>
@@ -317,7 +317,7 @@ export default function App() {
               {theme === 'dark' ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#3B82F6" />}
             </button>
 
-            {/* Floating Frosted Glass Notification Center Drawer */}
+            {/* HARMONIZED APPLE CONTROL CENTER FROSTED GLASS NOTIFICATION DRAWER */}
             {showNotifDrawer && (
               <div 
                 className="glass-card" 
@@ -325,12 +325,13 @@ export default function App() {
                   position: 'absolute', 
                   top: '52px', 
                   right: 0, 
-                  width: '340px', 
+                  width: '350px', 
                   zIndex: 200, 
                   padding: '20px', 
-                  borderRadius: '20px',
-                  boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-                  border: '1px solid var(--border-color)'
+                  borderRadius: '22px',
+                  boxShadow: 'var(--glass-shadow)',
+                  border: '1px solid var(--border-color)',
+                  background: 'var(--bg-card)'
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
@@ -344,8 +345,8 @@ export default function App() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '320px', overflowY: 'auto' }}>
                   {/* Alert 1: Low Stock */}
-                  <div style={{ padding: '10px 12px', background: 'rgba(245, 158, 11, 0.12)', borderRadius: '12px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#F59E0B', fontWeight: 700, fontSize: '0.8rem' }}>
+                  <div style={{ padding: '12px', background: 'var(--card-bg-subtle)', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--accent-primary)', fontWeight: 700, fontSize: '0.8rem' }}>
                       <AlertTriangle size={14} /> Low Inventory Stock
                     </div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--text-main)', marginTop: '4px' }}>
@@ -354,8 +355,8 @@ export default function App() {
                   </div>
 
                   {/* Alert 2: Pending Student Due */}
-                  <div style={{ padding: '10px 12px', background: 'rgba(239, 68, 68, 0.12)', borderRadius: '12px', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#EF4444', fontWeight: 700, fontSize: '0.8rem' }}>
+                  <div style={{ padding: '12px', background: 'var(--card-bg-subtle)', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--accent-primary)', fontWeight: 700, fontSize: '0.8rem' }}>
                       <DollarSign size={14} /> Pending Tuition Dues
                     </div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--text-main)', marginTop: '4px' }}>
@@ -365,8 +366,8 @@ export default function App() {
                   </div>
 
                   {/* Alert 3: Absent Staff / Students */}
-                  <div style={{ padding: '10px 12px', background: 'rgba(59, 130, 246, 0.12)', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#3B82F6', fontWeight: 700, fontSize: '0.8rem' }}>
+                  <div style={{ padding: '12px', background: 'var(--card-bg-subtle)', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)', fontWeight: 700, fontSize: '0.8rem' }}>
                       <Users size={14} /> Absent Staff & Students
                     </div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--text-main)', marginTop: '4px' }}>
