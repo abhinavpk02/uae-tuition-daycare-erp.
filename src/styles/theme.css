@@ -28,13 +28,13 @@
 }
 
 [data-theme="light"] {
-  /* Apple Control Center Frosted Glass (Light Mode) */
-  --bg-dark: #F1F5F9;
-  --bg-card: rgba(255, 255, 255, 0.75);
-  --bg-card-hover: rgba(255, 255, 255, 0.95);
-  --bg-sidebar: rgba(255, 255, 255, 0.8);
+  /* Clean Apple Frosted Glass (Light Mode) */
+  --bg-dark: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F1F5F9;
+  --bg-sidebar: #FFFFFF;
   --glass-blur: blur(28px) saturate(190%);
-  --border-color: rgba(255, 255, 255, 0.8);
+  --border-color: #E2E8F0;
   --border-highlight: rgba(5, 150, 105, 0.5);
 
   --accent-primary: #059669;
@@ -43,10 +43,10 @@
   --text-main: #0F172A;
   --text-muted: #475569;
   --text-dim: #64748B;
-  --card-bg-subtle: rgba(255, 255, 255, 0.5);
+  --card-bg-subtle: #F1F5F9;
 
   --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 * {
@@ -182,14 +182,14 @@ body {
   background: var(--bg-card-hover);
   border-color: var(--border-highlight);
   transform: scale(1.03);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .nav-tile-btn.active {
   color: var(--accent-primary);
   background: var(--bg-card);
   border: 2px solid var(--accent-primary);
-  box-shadow: 0 0 24px var(--accent-primary-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 24px var(--accent-primary-glow);
 }
 
 .nav-tile-btn.active svg {
@@ -255,7 +255,7 @@ body {
   transform: translateY(-1px);
 }
 
-/* APPLE CONTROL CENTER OLED FROSTED GLASS CARDS */
+/* APPLE CONTROL CENTER FROSTED GLASS CARDS */
 .glass-card {
   background: var(--bg-card);
   backdrop-filter: var(--glass-blur);
@@ -300,7 +300,7 @@ body {
 .stat-card-square:hover {
   transform: translateY(-4px) scale(1.02);
   border-color: var(--accent-primary);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 .stat-icon-square {
@@ -438,7 +438,7 @@ body {
 }
 
 .form-input, .form-select {
-  background: var(--bg-dark);
+  background: var(--card-bg-subtle);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 10px 14px;

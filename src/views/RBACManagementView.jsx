@@ -74,31 +74,22 @@ export default function RBACManagementView({ activeRole = 'SuperAdmin' }) {
     return (
       <div className="glass-card" style={{ padding: '40px', textAlign: 'center', margin: '40px auto', maxWidth: '500px' }}>
         <Lock size={48} color="#EF4444" style={{ marginBottom: '16px' }} />
-        <h3 style={{ fontFamily: 'Outfit', color: '#F9FAFB', marginBottom: '8px' }}>Access Restricted</h3>
-        <p style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>
-          Only <strong style={{ color: 'var(--accent-gold)' }}>SuperAdmin</strong> is authorized to view and modify RBAC permission settings.
+        <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)', marginBottom: '8px' }}>Access Restricted</h3>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+          Only <strong style={{ color: 'var(--accent-primary)' }}>SuperAdmin</strong> is authorized to view and modify RBAC permission settings.
         </p>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '600px' }}>
       {/* 2-Pane Main Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '24px', flex: 1, minHeight: 0 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '24px', flex: 1 }}>
         
         {/* Left Sidebar: Roles List */}
-        <div 
-          className="glass-card" 
-          style={{ 
-            background: 'rgba(15, 23, 42, 0.75)', 
-            backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '16px',
-            padding: '20px' 
-          }}
-        >
-          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '16px' }}>
+        <div className="glass-card" style={{ padding: '20px' }}>
+          <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '16px' }}>
             System Roles
           </div>
 
@@ -115,15 +106,16 @@ export default function RBACManagementView({ activeRole = 'SuperAdmin' }) {
                     justifyContent: 'space-between',
                     width: '100%',
                     padding: '12px 16px',
-                    borderRadius: '10px',
-                    border: 'none',
+                    borderRadius: '12px',
+                    border: '1px solid var(--border-color)',
                     cursor: 'pointer',
                     fontWeight: 600,
-                    fontSize: '0.9rem',
+                    fontSize: '0.88rem',
                     textAlign: 'left',
                     transition: 'all 0.2s ease',
-                    background: isActive ? '#2563EB' : 'transparent',
-                    color: isActive ? '#FFFFFF' : '#9CA3AF',
+                    background: isActive ? 'var(--accent-primary)' : 'var(--card-bg-subtle)',
+                    color: isActive ? '#FFFFFF' : 'var(--text-main)',
+                    boxShadow: isActive ? '0 4px 14px var(--accent-primary-glow)' : 'none'
                   }}
                 >
                   <span>{role.label}</span>
@@ -135,30 +127,17 @@ export default function RBACManagementView({ activeRole = 'SuperAdmin' }) {
         </div>
 
         {/* Right Panel: Role Details & Permission Blocks */}
-        <div 
-          className="glass-card" 
-          style={{ 
-            background: 'rgba(15, 23, 42, 0.75)', 
-            backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '16px',
-            padding: '28px',
-            overflowY: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-            justify: 'space-between'
-          }}
-        >
+        <div className="glass-card" style={{ padding: '28px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
             {/* Right Panel Header */}
             <h2 
               style={{ 
                 fontFamily: 'Outfit', 
-                fontSize: '1.4rem', 
+                fontSize: '1.3rem', 
                 fontWeight: 700, 
                 letterSpacing: '0.04em', 
                 marginBottom: '24px',
-                color: '#F9FAFB',
+                color: 'var(--text-main)',
                 textTransform: 'uppercase'
               }}
             >
@@ -170,23 +149,23 @@ export default function RBACManagementView({ activeRole = 'SuperAdmin' }) {
               style={{ 
                 display: 'flex', 
                 alignItems: 'flex-start', 
-                justify: 'space-between',
+                justifyContent: 'space-between',
                 padding: '20px', 
-                background: 'rgba(255, 255, 255, 0.03)', 
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: '12px',
+                background: 'var(--card-bg-subtle)', 
+                border: '1px solid var(--border-color)',
+                borderRadius: '16px',
                 marginBottom: '16px' 
               }}
             >
               <div style={{ display: 'flex', gap: '16px', flex: 1, paddingRight: '20px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(59, 130, 246, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3B82F6', flexShrink: 0 }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--accent-primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)', flexShrink: 0 }}>
                   <Users size={22} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#F9FAFB', marginBottom: '6px' }}>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '6px' }}>
                     Manage Students & Staff
                   </h4>
-                  <p style={{ fontSize: '0.85rem', color: '#9CA3AF', lineHeight: '1.5' }}>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
                     Grant full access to add and manage student profiles, staff records, and core center details. Includes the centralized module to seamlessly onboard new students, register staff members, and update essential records.
                   </p>
                 </div>
@@ -201,15 +180,22 @@ export default function RBACManagementView({ activeRole = 'SuperAdmin' }) {
                 />
                 <span 
                   style={{
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: permissions.manage_students_staff ? '#10B981' : '#374151',
-                    transition: '.3s', borderRadius: '26px'
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    background: permissions.manage_students_staff ? 'var(--accent-primary)' : 'var(--border-color)',
+                    borderRadius: '26px',
+                    transition: '0.3s'
                   }}
                 >
                   <span 
                     style={{
-                      position: 'absolute', content: '""', height: '20px', width: '20px', left: permissions.manage_students_staff ? '24px' : '3px', bottom: '3px',
-                      backgroundColor: 'white', transition: '.3s', borderRadius: '50%'
+                      position: 'absolute',
+                      height: '20px', width: '20px',
+                      left: permissions.manage_students_staff ? '24px' : '3px',
+                      bottom: '3px',
+                      background: 'white',
+                      borderRadius: '50%',
+                      transition: '0.3s'
                     }}
                   />
                 </span>
@@ -221,24 +207,24 @@ export default function RBACManagementView({ activeRole = 'SuperAdmin' }) {
               style={{ 
                 display: 'flex', 
                 alignItems: 'flex-start', 
-                justify: 'space-between',
+                justifyContent: 'space-between',
                 padding: '20px', 
-                background: 'rgba(255, 255, 255, 0.03)', 
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: '12px',
+                background: 'var(--card-bg-subtle)', 
+                border: '1px solid var(--border-color)',
+                borderRadius: '16px',
                 marginBottom: '16px' 
               }}
             >
               <div style={{ display: 'flex', gap: '16px', flex: 1, paddingRight: '20px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(245, 158, 11, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F59E0B', flexShrink: 0 }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--accent-primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)', flexShrink: 0 }}>
                   <UserPlus size={22} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#F9FAFB', marginBottom: '6px' }}>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '6px' }}>
                     Admissions & Staff Onboarding
                   </h4>
-                  <p style={{ fontSize: '0.85rem', color: '#9CA3AF', lineHeight: '1.5' }}>
-                    Provides full administrative access for admissions. Includes tools to onboard teachers and complete all staff onboarding steps. Permits user to create new student and employee entries.
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                    Provides full administrative access for admissions. Permits authorized users to process student applications and complete all staff onboarding steps.
                   </p>
                 </div>
               </div>
@@ -252,15 +238,22 @@ export default function RBACManagementView({ activeRole = 'SuperAdmin' }) {
                 />
                 <span 
                   style={{
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: permissions.admissions_onboarding ? '#10B981' : '#374151',
-                    transition: '.3s', borderRadius: '26px'
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    background: permissions.admissions_onboarding ? 'var(--accent-primary)' : 'var(--border-color)',
+                    borderRadius: '26px',
+                    transition: '0.3s'
                   }}
                 >
                   <span 
                     style={{
-                      position: 'absolute', content: '""', height: '20px', width: '20px', left: permissions.admissions_onboarding ? '24px' : '3px', bottom: '3px',
-                      backgroundColor: 'white', transition: '.3s', borderRadius: '50%'
+                      position: 'absolute',
+                      height: '20px', width: '20px',
+                      left: permissions.admissions_onboarding ? '24px' : '3px',
+                      bottom: '3px',
+                      background: 'white',
+                      borderRadius: '50%',
+                      transition: '0.3s'
                     }}
                   />
                 </span>
@@ -272,23 +265,23 @@ export default function RBACManagementView({ activeRole = 'SuperAdmin' }) {
               style={{ 
                 display: 'flex', 
                 alignItems: 'flex-start', 
-                justify: 'space-between',
+                justifyContent: 'space-between',
                 padding: '20px', 
-                background: 'rgba(255, 255, 255, 0.03)', 
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: '12px',
-                marginBottom: '16px' 
+                background: 'var(--card-bg-subtle)', 
+                border: '1px solid var(--border-color)',
+                borderRadius: '16px',
+                marginBottom: '24px' 
               }}
             >
               <div style={{ display: 'flex', gap: '16px', flex: 1, paddingRight: '20px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', flexShrink: 0 }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--accent-primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)', flexShrink: 0 }}>
                   <Sliders size={22} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#F9FAFB', marginBottom: '6px' }}>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '6px' }}>
                     Day-to-day Operational Details
                   </h4>
-                  <p style={{ fontSize: '0.85rem', color: '#9CA3AF', lineHeight: '1.5' }}>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
                     Includes centralized controls to manage day-to-day operational details for the center.
                   </p>
                 </div>
@@ -303,15 +296,22 @@ export default function RBACManagementView({ activeRole = 'SuperAdmin' }) {
                 />
                 <span 
                   style={{
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: permissions.operational_details ? '#10B981' : '#374151',
-                    transition: '.3s', borderRadius: '26px'
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    background: permissions.operational_details ? 'var(--accent-primary)' : 'var(--border-color)',
+                    borderRadius: '26px',
+                    transition: '0.3s'
                   }}
                 >
                   <span 
                     style={{
-                      position: 'absolute', content: '""', height: '20px', width: '20px', left: permissions.operational_details ? '24px' : '3px', bottom: '3px',
-                      backgroundColor: 'white', transition: '.3s', borderRadius: '50%'
+                      position: 'absolute',
+                      height: '20px', width: '20px',
+                      left: permissions.operational_details ? '24px' : '3px',
+                      bottom: '3px',
+                      background: 'white',
+                      borderRadius: '50%',
+                      transition: '0.3s'
                     }}
                   />
                 </span>
@@ -319,46 +319,32 @@ export default function RBACManagementView({ activeRole = 'SuperAdmin' }) {
             </div>
           </div>
 
-          {/* Sticky Bottom Bar with Green Save Button */}
-          <div 
-            style={{ 
-              display: 'flex', 
-              justify: 'space-between', 
-              alignItems: 'center', 
-              paddingTop: '20px', 
-              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-              marginTop: '20px' 
-            }}
-          >
-            <div>
-              {saveStatus && (
-                <span style={{ fontSize: '0.85rem', color: saveStatus.includes('Error') ? '#EF4444' : '#10B981', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
-                  <CheckCircle2 size={16} /> {saveStatus}
-                </span>
-              )}
-            </div>
+          {/* Action Footer */}
+          <div>
+            {saveStatus && (
+              <div 
+                style={{ 
+                  marginBottom: '16px', 
+                  fontSize: '0.85rem', 
+                  fontWeight: 600, 
+                  color: saveStatus.startsWith('Error') ? '#EF4444' : 'var(--accent-primary)' 
+                }}
+              >
+                {saveStatus}
+              </div>
+            )}
 
             <button 
+              className="btn btn-emerald" 
               onClick={handleSave} 
               disabled={loading}
-              style={{
-                background: 'linear-gradient(135deg, #10B981, #059669)',
-                color: '#FFFFFF',
-                padding: '12px 24px',
-                borderRadius: '10px',
-                border: 'none',
-                fontWeight: 600,
-                fontSize: '0.92rem',
-                cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)',
-                transition: 'all 0.2s ease',
-              }}
+              style={{ padding: '12px 28px', fontSize: '0.9rem' }}
             >
               {loading ? 'Saving Changes...' : 'Save Permissions'}
             </button>
           </div>
-
         </div>
+
       </div>
     </div>
   );
