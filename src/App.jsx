@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, ShieldCheck, ShoppingBag, Clock, Users, 
-  Building2, Globe, Sparkles, Calendar, Coins, UserCheck, Lock 
+  Building2, Globe, Sparkles, Calendar, Coins, UserCheck, Lock, UserPlus 
 } from 'lucide-react';
 
 import DashboardView from './views/DashboardView';
@@ -9,6 +9,7 @@ import AccountingView from './views/AccountingView';
 import POSView from './views/POSView';
 import AttendanceDaycareView from './views/AttendanceDaycareView';
 import StudentsView from './views/StudentsView';
+import StaffView from './views/StaffView';
 import AssetsView from './views/AssetsView';
 import TimetableView from './views/TimetableView';
 import ParentPortalView from './views/ParentPortalView';
@@ -34,11 +35,10 @@ export default function App() {
   const canAccess = (viewKey) => {
     if (activeRole === 'SuperAdmin') return true;
     if (activeRole === 'Admin') {
-      return ['dashboard', 'accounting', 'pos', 'students', 'assets'].includes(viewKey);
+      return ['dashboard', 'accounting', 'pos', 'students', 'staff', 'assets'].includes(viewKey);
     }
-
     if (activeRole === 'Teacher') {
-      return ['attendance', 'timetable', 'students'].includes(viewKey);
+      return ['attendance', 'timetable', 'students', 'staff'].includes(viewKey);
     }
     if (activeRole === 'Parent') {
       return ['parent-portal', 'students'].includes(viewKey);
@@ -95,6 +95,28 @@ export default function App() {
               </li>
             )}
 
+            {canAccess('students') && (
+              <li className="nav-item">
+                <button 
+                  className={currentView === 'students' ? 'active' : ''} 
+                  onClick={() => setCurrentView('students')}
+                >
+                  <Users size={18} /> Student Directory
+                </button>
+              </li>
+            )}
+
+            {canAccess('staff') && (
+              <li className="nav-item">
+                <button 
+                  className={currentView === 'staff' ? 'active' : ''} 
+                  onClick={() => setCurrentView('staff')}
+                >
+                  <UserPlus size={18} /> Staff Directory
+                </button>
+              </li>
+            )}
+
             {canAccess('accounting') && (
               <li className="nav-item">
                 <button 
@@ -124,17 +146,6 @@ export default function App() {
                   onClick={() => setCurrentView('attendance')}
                 >
                   <Clock size={18} /> RFID & Daycare Engine
-                </button>
-              </li>
-            )}
-
-            {canAccess('students') && (
-              <li className="nav-item">
-                <button 
-                  className={currentView === 'students' ? 'active' : ''} 
-                  onClick={() => setCurrentView('students')}
-                >
-                  <Users size={18} /> Academic & Students
                 </button>
               </li>
             )}
@@ -202,10 +213,11 @@ export default function App() {
         {currentView === 'parent-portal' && canAccess('parent-portal') && <ParentPortalView />}
         {currentView === 'dashboard' && canAccess('dashboard') && <DashboardView onNavigate={setCurrentView} />}
         {currentView === 'rbac' && canAccess('rbac') && <RBACManagementView activeRole={activeRole} />}
+        {currentView === 'students' && canAccess('students') && <StudentsView activeRole={activeRole} />}
+        {currentView === 'staff' && canAccess('staff') && <StaffView activeRole={activeRole} />}
         {currentView === 'accounting' && canAccess('accounting') && <AccountingView />}
         {currentView === 'pos' && canAccess('pos') && <POSView />}
         {currentView === 'attendance' && canAccess('attendance') && <AttendanceDaycareView />}
-        {currentView === 'students' && canAccess('students') && <StudentsView activeRole={activeRole} />}
         {currentView === 'timetable' && canAccess('timetable') && <TimetableView />}
         {currentView === 'assets' && canAccess('assets') && <AssetsView />}
       </main>

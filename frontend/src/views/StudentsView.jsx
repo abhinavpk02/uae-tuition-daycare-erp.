@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { UserCheck, BookOpen, Plus, ShieldAlert, UserPlus } from 'lucide-react';
+import { UserCheck, BookOpen, Plus, ShieldAlert } from 'lucide-react';
 import AddStudentModal from '../components/AddStudentModal';
-import AddStaffModal from '../components/AddStaffModal';
 
 export default function StudentsView({ activeRole = 'SuperAdmin' }) {
   const [students, setStudents] = useState([]);
-  const [staff, setStaff] = useState([]);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
-  const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
 
   const [subjects] = useState([
     { id: '1', name: 'Advanced Mathematics', tier: 'HSS', monthly_fee: 1200 },
@@ -24,46 +21,26 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
       .catch(() => {});
   };
 
-  const fetchStaff = () => {
-    fetch('/api/staff')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) setStaff(data);
-      })
-      .catch(() => {});
-  };
-
   useEffect(() => {
     fetchStudents();
-    fetchStaff();
   }, []);
 
   return (
     <div className="view-container">
       <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem' }}>Academic & Student Directory</h2>
+          <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem' }}>Student Directory & Academic Programs</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Active RBAC Mode: <span style={{ color: 'var(--accent-gold)', fontWeight: 600 }}>{activeRole}</span>
+            Registered students and daycare program enrollments
           </p>
         </div>
 
-        {/* Hierarchical Action Buttons */}
-        <div style={{ display: 'flex', gap: '12px' }}>
-          {/* SuperAdmin, Admin, Teacher can all register students & parents */}
-          {['SuperAdmin', 'Admin', 'Teacher'].includes(activeRole) && (
-            <button className="btn btn-emerald" onClick={() => setIsStudentModalOpen(true)}>
-              <Plus size={18} /> Register Student
-            </button>
-          )}
-
-          {/* SuperAdmin and Admin can onboard staff (SuperAdmin creates Admin/Teacher; Admin creates Teacher) */}
-          {['SuperAdmin', 'Admin'].includes(activeRole) && (
-            <button className="btn btn-gold" onClick={() => setIsStaffModalOpen(true)}>
-              <UserPlus size={18} /> Onboard Staff
-            </button>
-          )}
-        </div>
+        {/* Action Button for SuperAdmin and Admin */}
+        {['SuperAdmin', 'Admin'].includes(activeRole) && (
+          <button className="btn btn-emerald" onClick={() => setIsStudentModalOpen(true)}>
+            <Plus size={18} /> Register Student
+          </button>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
@@ -97,7 +74,7 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
           </table>
         </div>
 
-        {/* Subjects & Staff Directory */}
+        {/* Subjects & Course Pricing Matrix */}
         <div className="glass-card">
           <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px' }}>Tuition Pricing Matrix</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -113,34 +90,15 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
               </div>
             ))}
           </div>
-
-          <h3 style={{ fontFamily: 'Outfit', margin: '24px 0 16px' }}>Teaching Staff Directory</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {staff.map(st => (
-              <div key={st.id} style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-md)' }}>
-                <div style={{ fontWeight: 600 }}>{st.name}</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
-                  Emirates ID: {st.emirates_id} | AED {st.hourly_rate}/hr
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
 
       </div>
 
-      {/* Modals with creatorRole hierarchy enforcement */}
+      {/* Modal Trigger */}
       <AddStudentModal 
         isOpen={isStudentModalOpen} 
         onClose={() => setIsStudentModalOpen(false)} 
         onSuccess={() => fetchStudents()}
-        creatorRole={activeRole}
-      />
-
-      <AddStaffModal 
-        isOpen={isStaffModalOpen} 
-        onClose={() => setIsStaffModalOpen(false)} 
-        onSuccess={() => fetchStaff()}
         creatorRole={activeRole}
       />
     </div>
