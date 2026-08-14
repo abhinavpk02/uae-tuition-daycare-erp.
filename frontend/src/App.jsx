@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Gauge, ShieldCheck, ShoppingBag, Clock, Users, 
-  Building2, Globe, Sparkles, Calendar, Coins, UserCheck, Lock, UserPlus, BookOpen, Menu, X 
+  Building2, Globe, Sparkles, Calendar, Coins, UserCheck, Lock, UserPlus, BookOpen, Menu, X, Sun, Moon 
 } from 'lucide-react';
 
 import DashboardView from './views/DashboardView';
@@ -19,6 +19,16 @@ export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [activeRole, setActiveRole] = useState('SuperAdmin');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [theme, setTheme] = useState('dark');
+
+  // Sync active theme with document data-theme attribute
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   // Handle role switching with automatic view redirection
   const handleRoleChange = (newRole) => {
@@ -67,12 +77,17 @@ export default function App() {
           </div>
         </div>
 
-        <button 
-          className="mobile-menu-toggle" 
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button onClick={toggleTheme} className="theme-toggle-btn" style={{ padding: '6px 12px' }}>
+            {theme === 'dark' ? <Sun size={16} color="#F59E0B" /> : <Moon size={16} color="#3B82F6" />}
+          </button>
+          <button 
+            className="mobile-menu-toggle" 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {/* Sidebar Navigation (Desktop & Mobile Drawer) */}
@@ -89,7 +104,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* 2-Column Square Tile Navigation Grid */}
+          {/* PERFECT 1:1 SQUARE TILE NAVIGATION GRID */}
           <div className="nav-tile-grid">
 
             {canAccess('parent-portal') && activeRole === 'Parent' && (
@@ -222,7 +237,7 @@ export default function App() {
           </div>
           <select 
             className="form-select" 
-            style={{ width: '100%', fontSize: '0.8rem', padding: '8px', background: '#0F172A', border: '1px solid var(--border-highlight)' }}
+            style={{ width: '100%', fontSize: '0.8rem', padding: '8px' }}
             value={activeRole}
             onChange={e => handleRoleChange(e.target.value)}
           >
@@ -244,6 +259,12 @@ export default function App() {
             </div>
           </div>
           <div className="header-actions">
+            {/* Dark/Light Mode Theme Switcher */}
+            <button onClick={toggleTheme} className="theme-toggle-btn">
+              {theme === 'dark' ? <Sun size={16} color="#F59E0B" /> : <Moon size={16} color="#3B82F6" />}
+              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            </button>
+
             <div className="badge-status badge-warning" style={{ fontSize: '0.8rem', padding: '6px 14px' }}>
               RBAC Mode: {activeRole}
             </div>

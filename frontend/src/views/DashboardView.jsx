@@ -44,59 +44,51 @@ export default function DashboardView({ onNavigate }) {
 
   return (
     <div className="view-container">
-      {/* KPI Cards: Large Minimalist Cards */}
+      {/* KPI Cards: PERFECT 1:1 SQUARE CARDS */}
       <div className="grid-stats-large">
         
         {/* Metric 1: Total Volume */}
-        <div className="stat-card-large glass-card">
-          <div className="stat-icon-large" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10B981' }}>
+        <div className="stat-card-square">
+          <div className="stat-icon-square" style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-emerald)' }}>
             <Coins size={32} />
           </div>
-          <div>
-            <div className="stat-val-large" style={{ color: '#10B981' }}>
-              AED {stats.totalRevenue}
-            </div>
-            <div className="stat-lbl-large">Total Volume</div>
+          <div className="stat-val-square" style={{ color: 'var(--accent-emerald)' }}>
+            AED {stats.totalRevenue}
           </div>
+          <div className="stat-lbl-square">Total Volume</div>
         </div>
 
         {/* Metric 2: Enrolled Students */}
-        <div className="stat-card-large glass-card">
-          <div className="stat-icon-large" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B' }}>
+        <div className="stat-card-square">
+          <div className="stat-icon-square" style={{ background: 'rgba(245, 158, 11, 0.15)', color: 'var(--accent-gold)' }}>
             <Users size={32} />
           </div>
-          <div>
-            <div className="stat-val-large" style={{ color: '#F59E0B' }}>
-              {stats.activeStudents}
-            </div>
-            <div className="stat-lbl-large">Enrolled Students</div>
+          <div className="stat-val-square" style={{ color: 'var(--accent-gold)' }}>
+            {stats.activeStudents}
           </div>
+          <div className="stat-lbl-square">Enrolled Students</div>
         </div>
 
         {/* Metric 3: Daycare Hours */}
-        <div className="stat-card-large glass-card">
-          <div className="stat-icon-large" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3B82F6' }}>
+        <div className="stat-card-square">
+          <div className="stat-icon-square" style={{ background: 'rgba(59, 130, 246, 0.15)', color: 'var(--accent-blue)' }}>
             <Clock size={32} />
           </div>
-          <div>
-            <div className="stat-val-large" style={{ color: '#3B82F6' }}>
-              {stats.daycareHours} hrs
-            </div>
-            <div className="stat-lbl-large">Daycare Hours</div>
+          <div className="stat-val-square" style={{ color: 'var(--accent-blue)' }}>
+            {stats.daycareHours} hrs
           </div>
+          <div className="stat-lbl-square">Daycare Hours</div>
         </div>
 
         {/* Metric 4: Ledger Status */}
-        <div className="stat-card-large glass-card">
-          <div className="stat-icon-large" style={{ background: stats.isBalanced ? 'rgba(139, 92, 246, 0.15)' : 'rgba(239, 68, 68, 0.15)', color: stats.isBalanced ? '#8B5CF6' : '#EF4444' }}>
+        <div className="stat-card-square">
+          <div className="stat-icon-square" style={{ background: stats.isBalanced ? 'rgba(139, 92, 246, 0.15)' : 'rgba(239, 68, 68, 0.15)', color: stats.isBalanced ? 'var(--accent-purple)' : '#EF4444' }}>
             <ShieldCheck size={32} />
           </div>
-          <div>
-            <div className="stat-val-large" style={{ color: stats.isBalanced ? '#8B5CF6' : '#EF4444', fontSize: '1.35rem' }}>
-              {stats.isBalanced ? '100% BALANCED' : 'UNBALANCED'}
-            </div>
-            <div className="stat-lbl-large">Ledger Audit Status</div>
+          <div className="stat-val-square" style={{ color: stats.isBalanced ? 'var(--accent-purple)' : '#EF4444', fontSize: '1.25rem' }}>
+            {stats.isBalanced ? '100% BALANCED' : 'UNBALANCED'}
           </div>
+          <div className="stat-lbl-square">Ledger Audit Status</div>
         </div>
 
       </div>
@@ -108,7 +100,7 @@ export default function DashboardView({ onNavigate }) {
         <div className="glass-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
             <div>
-              <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', color: '#F9FAFB' }}>Recent Double-Entry Journal Entries</h3>
+              <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', color: 'var(--text-main)' }}>Recent Double-Entry Journal Entries</h3>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Automated financial transaction logs</p>
             </div>
             <button className="btn btn-outline" onClick={() => onNavigate('accounting')} style={{ fontSize: '0.8rem', padding: '6px 14px' }}>
@@ -165,7 +157,7 @@ export default function DashboardView({ onNavigate }) {
 
         {/* Re-imagined ERP Operations Hub: Large Iconic Cards */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', color: '#F9FAFB', marginBottom: '2px' }}>
+          <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', color: 'var(--text-main)', marginBottom: '2px' }}>
             ERP Operations Hub
           </h3>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px' }}>
@@ -188,15 +180,15 @@ export default function DashboardView({ onNavigate }) {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', flexShrink: 0 }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-emerald)', flexShrink: 0 }}>
                 <ShoppingBag size={26} />
               </div>
               <div>
-                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#F9FAFB' }}>POS Terminal</h4>
-                <p style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>Tuition & Daycare Checkout</p>
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)' }}>POS Terminal</h4>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Tuition & Daycare Checkout</p>
               </div>
             </div>
-            <ArrowUpRight size={20} color="#10B981" />
+            <ArrowUpRight size={20} color="var(--accent-emerald)" />
           </div>
 
           {/* Card 2: RFID Scanner */}
@@ -215,15 +207,15 @@ export default function DashboardView({ onNavigate }) {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F59E0B', flexShrink: 0 }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-gold)', flexShrink: 0 }}>
                 <Clock size={26} />
               </div>
               <div>
-                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#F9FAFB' }}>RFID Daycare Engine</h4>
-                <p style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>Real-time Attendance Tracker</p>
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)' }}>RFID Daycare Engine</h4>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Real-time Attendance Tracker</p>
               </div>
             </div>
-            <ArrowUpRight size={20} color="#F59E0B" />
+            <ArrowUpRight size={20} color="var(--accent-gold)" />
           </div>
 
           {/* Card 3: Ledger Reports */}
@@ -242,15 +234,15 @@ export default function DashboardView({ onNavigate }) {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(59, 130, 246, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3B82F6', flexShrink: 0 }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(59, 130, 246, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-blue)', flexShrink: 0 }}>
                 <Layers size={26} />
               </div>
               <div>
-                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#F9FAFB' }}>Financial Reports</h4>
-                <p style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>General Ledger & Audits</p>
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)' }}>Financial Reports</h4>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>General Ledger & Audits</p>
               </div>
             </div>
-            <ArrowUpRight size={20} color="#3B82F6" />
+            <ArrowUpRight size={20} color="var(--accent-blue)" />
           </div>
 
         </div>
