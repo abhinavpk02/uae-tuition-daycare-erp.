@@ -1,40 +1,61 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Clock, QrCode, CheckCircle2, UserCheck, Calculator, DollarSign, AlertCircle, Search, ChevronDown } from 'lucide-react';
+import { Clock, QrCode, CheckCircle2, UserCheck, Calculator, DollarSign, AlertCircle, Search } from 'lucide-react';
 
-// Sleek Searchable Combobox Component
-function SearchableSelect({ label, placeholder, options, value, onChange }) {
-  const [search, setSearch] = useState('');
+// UNIFIED DIRECT SEARCHABLE SELECTION BAR COMPONENT
+function SearchableSelectInput({ label, placeholder, options, value, onChange }) {
+  const selectedOpt = options.find(o => String(o.value) === String(value));
+  const [searchTerm, setSearchTerm] = useState(selectedOpt ? selectedOpt.label : '');
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
-  const selectedOpt = options.find(o => String(o.value) === String(value));
+  useEffect(() => {
+    const matched = options.find(o => String(o.value) === String(value));
+    if (matched && !isOpen) {
+      setSearchTerm(matched.label);
+    }
+  }, [value, options, isOpen]);
 
-  const filtered = options.filter(o =>
-    o.label.toLowerCase().includes(search.toLowerCase())
+  const filteredOptions = options.filter(o =>
+    o.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   useEffect(() => {
     function handleClickOutside(event) {
       if (containerRef.current && !containerRef.current.contains(event.target)) {
         setIsOpen(false);
+        const matched = options.find(o => String(o.value) === String(value));
+        if (matched) setSearchTerm(matched.label);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [value, options]);
 
   return (
     <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
       {label && <label className="form-label">{label}</label>}
-      <div 
-        className="form-input" 
-        onClick={() => setIsOpen(!isOpen)}
-        style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-      >
-        <span style={{ color: selectedOpt ? 'var(--text-main)' : 'var(--text-muted)', fontWeight: 600 }}>
-          {selectedOpt ? selectedOpt.label : placeholder || 'Type or click to search...'}
-        </span>
-        <Search size={14} color="var(--accent-primary)" />
+      <div style={{ position: 'relative', width: '100%' }}>
+        <input
+          type="text"
+          className="form-input"
+          placeholder={placeholder || "Type or click to search student/staff..."}
+          value={searchTerm}
+          onFocus={() => {
+            setIsOpen(true);
+            setSearchTerm('');
+          }}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setIsOpen(true);
+          }}
+          style={{
+            paddingRight: '36px',
+            fontWeight: 600,
+            width: '100%',
+            cursor: 'text'
+          }}
+        />
+        <Search size={16} color="var(--accent-primary)" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
       </div>
 
       {isOpen && (
@@ -45,52 +66,47 @@ function SearchableSelect({ label, placeholder, options, value, onChange }) {
           right: 0,
           marginTop: '6px',
           background: 'var(--bg-card)',
-          border: '1px solid var(--border-color)',
+          opacity: 1,
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          border: '1px solid var(--border-highlight)',
           borderRadius: '16px',
-          boxShadow: 'var(--glass-shadow)',
-          zIndex: 999,
-          padding: '8px',
-          maxHeight: '240px',
+          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.5)',
+          zIndex: 9999,
+          padding: '6px',
+          maxHeight: '220px',
           overflowY: 'auto'
         }}>
-          <input
-            type="text"
-            className="form-input"
-            placeholder="Type student/staff name to search..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            onClick={e => e.stopPropagation()}
-            autoFocus
-            style={{ marginBottom: '8px', height: '36px', fontSize: '0.82rem', width: '100%' }}
-          />
-          {filtered.map(opt => (
-            <div
-              key={opt.value}
-              onClick={() => {
-                onChange(opt.value);
-                setIsOpen(false);
-                setSearch('');
-              }}
-              style={{
-                padding: '10px 12px',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                fontSize: '0.85rem',
-                color: String(opt.value) === String(value) ? 'var(--accent-primary)' : 'var(--text-main)',
-                fontWeight: String(opt.value) === String(value) ? 700 : 500,
-                background: String(opt.value) === String(value) ? 'var(--card-bg-subtle)' : 'transparent',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}
-            >
-              <span>{opt.label}</span>
-              {String(opt.value) === String(value) && <CheckCircle2 size={14} color="var(--accent-primary)" />}
-            </div>
-          ))}
-          {filtered.length === 0 && (
-            <div style={{ padding: '12px', fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center' }}>
-              No matches found for "{search}"
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map(opt => (
+              <div
+                key={opt.value}
+                onClick={() => {
+                  onChange(opt.value);
+                  setSearchTerm(opt.label);
+                  setIsOpen(false);
+                }}
+                style={{
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  fontSize: '0.86rem',
+                  color: String(opt.value) === String(value) ? 'var(--accent-primary)' : 'var(--text-main)',
+                  fontWeight: String(opt.value) === String(value) ? 700 : 500,
+                  background: String(opt.value) === String(value) ? 'var(--card-bg-subtle)' : 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  transition: 'background 0.15s ease'
+                }}
+              >
+                <span>{opt.label}</span>
+                {String(opt.value) === String(value) && <CheckCircle2 size={14} color="var(--accent-primary)" />}
+              </div>
+            ))
+          ) : (
+            <div style={{ padding: '12px', fontSize: '0.82rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+              No matches found for "{searchTerm}"
             </div>
           )}
         </div>
@@ -210,7 +226,7 @@ export default function AttendanceDaycareView() {
 
   const studentOptions = students.map(s => ({
     value: s.id,
-    label: `${s.name} (${s.standard || 'Student'}) - ${s.program || 'Tuition & Daycare'}`
+    label: `${s.name} (${s.standard || 'Student'})`
   }));
 
   const staffOptions = staff.map(st => ({
@@ -225,7 +241,7 @@ export default function AttendanceDaycareView() {
         <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Real-time scanner check-in/out triggering daycare hourly calculations and staff payroll ledger entries</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+      <div className="grid-split-responsive" style={{ marginBottom: '28px' }}>
         
         {/* RFID Scanner Simulator */}
         <div className="glass-card">
@@ -259,11 +275,11 @@ export default function AttendanceDaycareView() {
             </div>
           </div>
 
-          {/* TYPE & SEARCH SELECTION COMBIFIED INPUT */}
+          {/* TYPE-TO-SEARCH DIRECT SELECTION BAR */}
           <div className="form-group">
-            <SearchableSelect 
+            <SearchableSelectInput 
               label={`Search & Select Registered ${scanType}`}
-              placeholder={`Type name to search ${scanType.toLowerCase()}...`}
+              placeholder={`Type name directly to search ${scanType.toLowerCase()}...`}
               options={scanType === 'Student' ? studentOptions : staffOptions}
               value={selectedEntity}
               onChange={val => setSelectedEntity(val)}
@@ -290,9 +306,10 @@ export default function AttendanceDaycareView() {
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
               Tallies total check-in/out hours * AED 35/hr and posts invoice + Ledger entry (Debit Accounts Rec 1100, Credit Daycare Rev 4100).
             </p>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
-              <div style={{ flex: 1 }}>
-                <SearchableSelect 
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: '180px' }}>
+                <SearchableSelectInput 
+                  placeholder="Type student name directly..."
                   options={students.map(s => ({ value: s.id, label: s.name }))}
                   value={selectedBillingStudent}
                   onChange={val => setSelectedBillingStudent(val)}
@@ -313,9 +330,10 @@ export default function AttendanceDaycareView() {
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
               Tallies monthly hours * hourly rate and posts Salary Expense 5000 / Cash 1000.
             </p>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
-              <div style={{ flex: 1 }}>
-                <SearchableSelect 
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: '180px' }}>
+                <SearchableSelectInput 
+                  placeholder="Type staff name directly..."
                   options={staff.map(st => ({ value: st.id, label: st.name }))}
                   value={selectedPayrollStaff}
                   onChange={val => setSelectedPayrollStaff(val)}
@@ -333,7 +351,7 @@ export default function AttendanceDaycareView() {
       {daycareResult && (
         <div className="glass-card" style={{ marginBottom: '24px', border: '1px solid var(--accent-primary)' }}>
           <h3 style={{ fontFamily: 'Outfit', color: 'var(--accent-primary)', marginBottom: '12px' }}>✔ Daycare Hourly Billing Calculated!</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', fontFamily: 'monospace' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px', fontFamily: 'monospace' }}>
             <div>Student: <strong>{daycareResult.student_name}</strong></div>
             <div>Accumulated Hours: <strong>{daycareResult.total_hours} hrs</strong></div>
             <div>Hourly Rate: <strong>AED {daycareResult.hourly_rate}/hr</strong></div>
@@ -345,7 +363,7 @@ export default function AttendanceDaycareView() {
       {payrollResult && (
         <div className="glass-card" style={{ marginBottom: '24px', border: '1px solid var(--accent-primary)' }}>
           <h3 style={{ fontFamily: 'Outfit', color: 'var(--accent-primary)', marginBottom: '12px' }}>✔ Staff Payroll Processed!</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', fontFamily: 'monospace' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px', fontFamily: 'monospace' }}>
             <div>Staff Member: <strong>{payrollResult.staff_name}</strong></div>
             <div>Emirates ID: <strong>{payrollResult.emirates_id}</strong></div>
             <div>Hourly Rate: <strong>AED {payrollResult.hourly_rate}/hr</strong></div>
@@ -357,53 +375,55 @@ export default function AttendanceDaycareView() {
       {/* Live Attendance Logs Table */}
       <div className="glass-card">
         <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', color: 'var(--text-main)' }}>Live Check-In / Check-Out Log</h3>
-        <table className="custom-table">
-          <thead>
-            <tr>
-              <th>Ref Type</th>
-              <th>Ref ID</th>
-              <th>Check-In Time</th>
-              <th>Check-Out Time</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {attendanceLogs.length > 0 ? (
-              attendanceLogs.map(att => (
-                <tr key={att.id}>
-                  <td><span className="badge-status badge-warning">{att.ref_type}</span></td>
-                  <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{att.ref_id.substring(0, 8)}...</td>
-                  <td>{new Date(att.check_in).toLocaleString()}</td>
-                  <td>{att.check_out ? new Date(att.check_out).toLocaleString() : <span style={{ color: 'var(--accent-primary)' }}>Active Session</span>}</td>
-                  <td>
-                    {!att.check_out && (
-                      <button className="btn btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }} onClick={() => handleCheckOut(att.id)}>
-                        Check Out Now
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <>
-                <tr>
-                  <td><span className="badge-status badge-warning">Student</span></td>
-                  <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>c37c1f9a...</td>
-                  <td>14/8/2026, 4:11:22 PM</td>
-                  <td>14/8/2026, 8:11:22 PM</td>
-                  <td><span className="badge-status badge-success">Completed</span></td>
-                </tr>
-                <tr>
-                  <td><span className="badge-status badge-warning">Staff</span></td>
-                  <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>bf6e34ed...</td>
-                  <td>14/8/2026, 12:11:22 PM</td>
-                  <td>14/8/2026, 8:11:22 PM</td>
-                  <td><span className="badge-status badge-success">Completed</span></td>
-                </tr>
-              </>
-            )}
-          </tbody>
-        </table>
+        <div className="table-responsive-wrapper">
+          <table className="custom-table">
+            <thead>
+              <tr>
+                <th>Ref Type</th>
+                <th>Ref ID</th>
+                <th>Check-In Time</th>
+                <th>Check-Out Time</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {attendanceLogs.length > 0 ? (
+                attendanceLogs.map(att => (
+                  <tr key={att.id}>
+                    <td><span className="badge-status badge-warning">{att.ref_type}</span></td>
+                    <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{att.ref_id.substring(0, 8)}...</td>
+                    <td>{new Date(att.check_in).toLocaleString()}</td>
+                    <td>{att.check_out ? new Date(att.check_out).toLocaleString() : <span style={{ color: 'var(--accent-primary)' }}>Active Session</span>}</td>
+                    <td>
+                      {!att.check_out && (
+                        <button className="btn btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }} onClick={() => handleCheckOut(att.id)}>
+                          Check Out Now
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <>
+                  <tr>
+                    <td><span className="badge-status badge-warning">Student</span></td>
+                    <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>c37c1f9a...</td>
+                    <td>14/8/2026, 4:11:22 PM</td>
+                    <td>14/8/2026, 8:11:22 PM</td>
+                    <td><span className="badge-status badge-success">Completed</span></td>
+                  </tr>
+                  <tr>
+                    <td><span className="badge-status badge-warning">Staff</span></td>
+                    <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>bf6e34ed...</td>
+                    <td>14/8/2026, 12:11:22 PM</td>
+                    <td>14/8/2026, 8:11:22 PM</td>
+                    <td><span className="badge-status badge-success">Completed</span></td>
+                  </tr>
+                </>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

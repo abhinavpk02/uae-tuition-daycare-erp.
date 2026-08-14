@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, Plus, Clock, MapPin, UserCheck, BookOpen, CheckCircle2, Users, Check, X, AlertTriangle, Search } from 'lucide-react';
+import { Calendar, MapPin, UserCheck, CheckCircle2, Check, Search } from 'lucide-react';
 
 export default function TimetableView() {
   const [activeSessions, setActiveSessions] = useState([
@@ -7,16 +7,6 @@ export default function TimetableView() {
     { id: 'sess-2', room: 'Daycare Zone A', subject: 'Montessori Art & Sensory Play', time: '11:00 AM - 01:00 PM', teacher: 'Sarah Jenkins' },
     { id: 'sess-3', room: 'Room 102', subject: 'Physics & Chemistry Lab', time: '02:00 PM - 03:30 PM', teacher: 'Fatima Al-Mansoori' }
   ]);
-
-  const [staff, setStaff] = useState([]);
-  const [showAddModal, setShowAddModal] = useState(false);
-
-  // Form State for new slot
-  const [roomId, setRoomId] = useState('Room 101');
-  const [subjectId, setSubjectId] = useState('');
-  const [teacherName, setTeacherName] = useState('Fatima Al-Mansoori');
-  const [startTime, setStartTime] = useState('09:00 AM');
-  const [endTime, setEndTime] = useState('10:30 AM');
 
   // In-Class Attendance Roster State
   const [selectedClass, setSelectedClass] = useState('Room 101 - Advanced Mathematics');
@@ -30,34 +20,6 @@ export default function TimetableView() {
   ]);
 
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
-
-  useEffect(() => {
-    fetch('/api/staff')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) setStaff(data);
-      })
-      .catch(() => {});
-  }, []);
-
-  const handleCreateSlot = (e) => {
-    e.preventDefault();
-    if (!subjectId.trim()) return;
-
-    const newSess = {
-      id: `sess-${Date.now()}`,
-      room: roomId,
-      subject: subjectId,
-      time: `${startTime} - ${endTime}`,
-      teacher: teacherName
-    };
-
-    setActiveSessions(prev => [newSess, ...prev]);
-    setSubjectId('');
-    setShowAddModal(false);
-    setSaveSuccessMsg(`New Class Session "${subjectId}" allocated successfully!`);
-    setTimeout(() => setSaveSuccessMsg(''), 4000);
-  };
 
   // Toggle student status in class roster
   const setStudentAttendance = (stdId, status) => {
@@ -81,103 +43,14 @@ export default function TimetableView() {
 
   return (
     <div className="view-container">
-      {/* Header with Prominent Add Session Button */}
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
-          <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>Class Schedule & In-Class Attendance</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Classroom spatial schedule and 1-click teacher roll call system</p>
-        </div>
-
-        {/* PROMINENT ADD NEW CLASS SESSION ACTION BUTTON */}
-        <button className="btn btn-emerald" onClick={() => setShowAddModal(true)} style={{ padding: '10px 20px' }}>
-          <Plus size={18} /> Add New Class Session
-        </button>
+      {/* Header */}
+      <div style={{ marginBottom: '24px' }}>
+        <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>Class Schedule & In-Class Attendance</h2>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Classroom spatial schedule and 1-click teacher roll call system</p>
       </div>
 
-      {/* ADD NEW CLASS SESSION MODAL DIALOG */}
-      {showAddModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.7)',
-          backdropFilter: 'blur(8px)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px'
-        }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '500px', background: 'var(--bg-card)', border: '1px solid var(--accent-primary)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-              <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Clock size={20} color="var(--accent-primary)" /> Allocate New Class Session
-              </h3>
-              <button onClick={() => setShowAddModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateSlot}>
-              <div className="form-group">
-                <label className="form-label">Subject / Session Name</label>
-                <input 
-                  className="form-input" 
-                  placeholder="e.g. Advanced Biology Lab / Montessori Art" 
-                  value={subjectId} 
-                  onChange={e => setSubjectId(e.target.value)} 
-                  required 
-                  autoFocus
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Room / Daycare Zone</label>
-                <select className="form-select" value={roomId} onChange={e => setRoomId(e.target.value)}>
-                  <option value="Room 101">Room 101 (HSS Math/Sci)</option>
-                  <option value="Room 102">Room 102 (HS English/Arts)</option>
-                  <option value="Daycare Zone A">Daycare Zone A (Toddlers Sensory)</option>
-                  <option value="Daycare Zone B">Daycare Zone B (KG Active Play)</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Assigned Teacher / Supervisor</label>
-                <select className="form-select" value={teacherName} onChange={e => setTeacherName(e.target.value)}>
-                  <option value="Fatima Al-Mansoori">Fatima Al-Mansoori</option>
-                  <option value="Sarah Jenkins">Sarah Jenkins</option>
-                  {staff.map(st => <option key={st.id} value={st.name}>{st.name}</option>)}
-                </select>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group">
-                  <label className="form-label">Start Time</label>
-                  <input className="form-input" value={startTime} onChange={e => setStartTime(e.target.value)} required />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">End Time</label>
-                  <input className="form-input" value={endTime} onChange={e => setEndTime(e.target.value)} required />
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                <button type="button" className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setShowAddModal(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-emerald" style={{ flex: 1, justifyContent: 'center' }}>
-                  <Plus size={16} /> Save Class Session
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Main 2-Column Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+      {/* Main 2-Column Responsive Grid */}
+      <div className="grid-split-responsive">
         
         {/* Left Column: Quick In-Class Attendance Roll Call */}
         <div className="glass-card">
@@ -312,9 +185,6 @@ export default function TimetableView() {
               <h3 style={{ fontFamily: 'Outfit', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
                 <Calendar size={20} color="var(--accent-primary)" /> Active Class Sessions
               </h3>
-              <button className="btn btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }} onClick={() => setShowAddModal(true)}>
-                <Plus size={14} /> Add Session
-              </button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>

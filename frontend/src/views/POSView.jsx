@@ -1,5 +1,141 @@
-import React, { useEffect, useState } from 'react';
-import { ShoppingBag, Plus, Minus, Trash2, CheckCircle2, Package, Tag, ArrowRight, X } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { ShoppingBag, Plus, Minus, Trash2, CheckCircle2, Package, Tag, ArrowRight, X, Search } from 'lucide-react';
+
+// UNIFIED DIRECT SEARCHABLE SELECTION BAR COMPONENT
+function SearchableSelectInput({ label, placeholder, options, value, onChange }) {
+  const selectedOpt = options.find(o => String(o.value) === String(value));
+  const [searchTerm, setSearchTerm] = useState(selectedOpt ? selectedOpt.label : '');
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const matched = options.find(o => String(o.value) === String(value));
+    if (matched && !isOpen) {
+      setSearchTerm(matched.label);
+    } else if (!value && !isOpen) {
+      setSearchTerm('');
+    }
+  }, [value, options, isOpen]);
+
+  const filteredOptions = options.filter(o =>
+    o.label.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsOpen(false);
+        const matched = options.find(o => String(o.value) === String(value));
+        if (matched) setSearchTerm(matched.label);
+        else setSearchTerm('');
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [value, options]);
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
+      {label && <label className="form-label">{label}</label>}
+      <div style={{ position: 'relative', width: '100%' }}>
+        <input
+          type="text"
+          className="form-input"
+          placeholder={placeholder || "Type student name directly..."}
+          value={searchTerm}
+          onFocus={() => {
+            setIsOpen(true);
+            setSearchTerm('');
+          }}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setIsOpen(true);
+          }}
+          style={{
+            paddingRight: '36px',
+            fontWeight: 600,
+            width: '100%',
+            cursor: 'text'
+          }}
+        />
+        <Search size={16} color="var(--accent-primary)" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+      </div>
+
+      {isOpen && (
+        <div style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          right: 0,
+          marginTop: '6px',
+          background: 'var(--bg-card)',
+          opacity: 1,
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          border: '1px solid var(--border-highlight)',
+          borderRadius: '16px',
+          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.5)',
+          zIndex: 9999,
+          padding: '6px',
+          maxHeight: '220px',
+          overflowY: 'auto'
+        }}>
+          <div
+            onClick={() => {
+              onChange('');
+              setSearchTerm('');
+              setIsOpen(false);
+            }}
+            style={{
+              padding: '10px 14px',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              fontSize: '0.86rem',
+              color: 'var(--text-muted)',
+              fontStyle: 'italic',
+              background: !value ? 'var(--card-bg-subtle)' : 'transparent',
+              marginBottom: '4px'
+            }}
+          >
+            -- General Walk-in Customer --
+          </div>
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map(opt => (
+              <div
+                key={opt.value}
+                onClick={() => {
+                  onChange(opt.value);
+                  setSearchTerm(opt.label);
+                  setIsOpen(false);
+                }}
+                style={{
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  fontSize: '0.86rem',
+                  color: String(opt.value) === String(value) ? 'var(--accent-primary)' : 'var(--text-main)',
+                  fontWeight: String(opt.value) === String(value) ? 700 : 500,
+                  background: String(opt.value) === String(value) ? 'var(--card-bg-subtle)' : 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  transition: 'background 0.15s ease'
+                }}
+              >
+                <span>{opt.label}</span>
+                {String(opt.value) === String(value) && <CheckCircle2 size={14} color="var(--accent-primary)" />}
+              </div>
+            ))
+          ) : (
+            <div style={{ padding: '12px', fontSize: '0.82rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+              No matches found for "{searchTerm}"
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function POSView() {
   const [inventory, setInventory] = useState([
@@ -139,12 +275,10 @@ export default function POSView() {
           setCart([]);
           fetchInventory();
         } else {
-          // Local fallback completion
           setCheckoutResult({
             total_amount: totalAmount,
-            journal_entry_id: 'JE-LOCAL-' + Date.now().toString().substring(6)
+            journal_entry_id: 'JE-POS-' + Date.now().toString().substring(6)
           });
-          // Decrement stock locally
           setInventory(prev => prev.map(inv => {
             const cartMatch = cart.find(c => c.id === inv.id);
             return cartMatch ? { ...inv, stock_qty: Math.max(0, inv.stock_qty - cartMatch.qty) } : inv;
@@ -166,6 +300,11 @@ export default function POSView() {
       .finally(() => setLoading(false));
   };
 
+  const studentOptions = students.map(s => ({
+    value: s.id,
+    label: `${s.name} (${s.standard || 'Student'})`
+  }));
+
   return (
     <div className="view-container">
       {/* Header section with Add Item CTA */}
@@ -180,7 +319,7 @@ export default function POSView() {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+      <div className="grid-2col-responsive">
         {/* Products Grid */}
         <div>
           <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
@@ -199,44 +338,56 @@ export default function POSView() {
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
+                  padding: '18px',
                   position: 'relative'
                 }}
                 onClick={() => addToCart(item)}
               >
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <span className={`badge-status ${item.stock_qty <= 5 ? 'badge-warning' : 'badge-success'}`} style={{ fontSize: '0.7rem' }}>
-                      Stock: {item.stock_qty} {item.stock_qty <= 5 ? '(Low)' : 'units'}
-                    </span>
-                    
-                    {/* Delete Item Button */}
-                    <button 
-                      onClick={(e) => handleDeleteInventoryItem(item.id, e)}
-                      title="Delete Item"
-                      style={{ 
-                        background: 'transparent', 
-                        border: 'none', 
-                        color: 'var(--text-muted)', 
-                        cursor: 'pointer',
-                        padding: '4px',
-                        borderRadius: '6px',
-                        transition: 'color 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => e.target.style.color = '#EF4444'}
-                      onMouseLeave={(e) => e.target.style.color = 'var(--text-muted)'}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+                {/* Delete button icon on top right of each inventory card */}
+                <button
+                  type="button"
+                  onClick={(e) => handleDeleteInventoryItem(item.id, e)}
+                  title="Delete inventory item"
+                  style={{
+                    position: 'absolute',
+                    top: '12px',
+                    right: '12px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justify-content: 'center',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#EF4444'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                >
+                  <Trash2 size={15} />
+                </button>
 
-                  <h4 style={{ fontFamily: 'Outfit', fontSize: '1.05rem', margin: '8px 0', color: 'var(--text-main)' }}>{item.item_name}</h4>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{item.category || 'General'}</span>
+                <div>
+                  <span className="badge-status badge-warning" style={{ fontSize: '0.7rem', marginBottom: '8px' }}>
+                    <Tag size={10} /> {item.category}
+                  </span>
+                  <h4 style={{ fontFamily: 'Outfit', fontSize: '1rem', color: 'var(--text-main)', margin: '4px 0 8px 0', paddingRight: '20px' }}>
+                    {item.item_name}
+                  </h4>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
-                  <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1.1rem', color: 'var(--accent-primary)' }}>
-                    AED {item.price.toFixed(2)}
-                  </span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
+                  <div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent-primary)', fontFamily: 'monospace' }}>
+                      AED {item.price.toFixed(2)}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: item.stock_qty <= 5 ? '#EF4444' : 'var(--text-muted)' }}>
+                      Stock: {item.stock_qty} pcs
+                    </div>
+                  </div>
+
                   <button className="btn btn-emerald" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
                     <Plus size={14} /> Add
                   </button>
@@ -253,14 +404,15 @@ export default function POSView() {
               <ShoppingBag size={20} color="var(--accent-primary)" /> Active Cart
             </h3>
 
+            {/* DIRECT TYPE-TO-SEARCH STUDENT SELECTION BAR */}
             <div className="form-group" style={{ marginBottom: '16px' }}>
-              <label className="form-label">Link Student (Optional)</label>
-              <select className="form-select" value={selectedStudent} onChange={e => setSelectedStudent(e.target.value)}>
-                <option value="">-- General Walk-in Customer --</option>
-                {students.map(s => (
-                  <option key={s.id} value={s.id}>{s.name} ({s.standard})</option>
-                ))}
-              </select>
+              <SearchableSelectInput
+                label="Link Student (Optional)"
+                placeholder="Type student name directly to search..."
+                options={studentOptions}
+                value={selectedStudent}
+                onChange={val => setSelectedStudent(val)}
+              />
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '300px', overflowY: 'auto' }}>
@@ -309,8 +461,11 @@ export default function POSView() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="glass-card" style={{ width: '460px', padding: '28px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontFamily: 'Outfit', fontSize: '1.3rem', color: 'var(--text-main)' }}>Add New Inventory Item</h3>
-              <button onClick={() => setShowAddModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+              <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)' }}>Add Inventory Item</h3>
+              <button 
+                onClick={() => setShowAddModal(false)}
+                style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+              >
                 <X size={20} />
               </button>
             </div>
@@ -321,56 +476,68 @@ export default function POSView() {
                 <input 
                   type="text" 
                   className="form-input" 
-                  placeholder="e.g. Science Activity Workbook" 
-                  value={newItemName} 
-                  onChange={e => setNewItemName(e.target.value)} 
+                  placeholder="e.g. Science Activity Workbook / Uniform"
+                  value={newItemName}
+                  onChange={e => setNewItemName(e.target.value)}
                   required 
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="form-group">
                   <label className="form-label">Price (AED)</label>
                   <input 
                     type="number" 
                     step="0.01" 
                     className="form-input" 
-                    placeholder="75.00" 
-                    value={newItemPrice} 
-                    onChange={e => setNewItemPrice(e.target.value)} 
+                    placeholder="0.00"
+                    value={newItemPrice}
+                    onChange={e => setNewItemPrice(e.target.value)}
                     required 
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Initial Stock Qty</label>
+                  <label className="form-label">Stock Quantity</label>
                   <input 
                     type="number" 
                     className="form-input" 
-                    placeholder="25" 
-                    value={newItemStock} 
-                    onChange={e => setNewItemStock(e.target.value)} 
+                    placeholder="10"
+                    value={newItemStock}
+                    onChange={e => setNewItemStock(e.target.value)}
                     required 
                   />
                 </div>
               </div>
 
-              <div className="form-group" style={{ marginBottom: '24px' }}>
+              <div className="form-group">
                 <label className="form-label">Category</label>
-                <select className="form-select" value={newItemCategory} onChange={e => setNewItemCategory(e.target.value)}>
+                <select 
+                  className="form-select"
+                  value={newItemCategory}
+                  onChange={e => setNewItemCategory(e.target.value)}
+                >
                   <option value="Tuition">Tuition</option>
                   <option value="Daycare">Daycare</option>
                   <option value="Uniforms">Uniforms</option>
                   <option value="Books">Books</option>
                   <option value="Snacks">Snacks</option>
-                  <option value="General">General</option>
                 </select>
               </div>
 
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button type="button" className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setShowAddModal(false)}>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+                <button 
+                  type="button" 
+                  className="btn btn-outline" 
+                  style={{ flex: 1, justifyContent: 'center' }}
+                  onClick={() => setShowAddModal(false)}
+                >
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-emerald" style={{ flex: 1, justifyContent: 'center' }}>
+                <button 
+                  type="submit" 
+                  className="btn btn-emerald" 
+                  style={{ flex: 1, justifyContent: 'center' }}
+                >
                   Save Item
                 </button>
               </div>
@@ -379,34 +546,17 @@ export default function POSView() {
         </div>
       )}
 
-      {/* Checkout Success Confirmation Modal */}
+      {/* Checkout Success Result Modal / Banner */}
       {checkoutResult && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card" style={{ width: '480px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-              <CheckCircle2 size={48} color="var(--accent-primary)" style={{ margin: '0 auto 12px' }} />
-              <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)' }}>POS Checkout Successful!</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Stock decremented and double-entry posted to general ledger.</p>
+        <div className="glass-card" style={{ marginTop: '24px', border: '1px solid var(--accent-primary)', background: 'var(--accent-primary-glow)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--accent-primary)' }}>
+            <CheckCircle2 size={24} />
+            <div>
+              <h4 style={{ fontFamily: 'Outfit', fontSize: '1.1rem' }}>Transaction Completed Successfully!</h4>
+              <p style={{ fontSize: '0.85rem' }}>
+                Total Paid: AED {checkoutResult.total_amount?.toFixed(2)} | Journal Entry: {checkoutResult.journal_entry_id}
+              </p>
             </div>
-
-            <div style={{ background: 'var(--card-bg-subtle)', padding: '16px', borderRadius: 'var(--radius-md)', marginBottom: '20px', border: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span>Total Revenue Posted:</span>
-                <span style={{ fontWeight: 700, color: 'var(--accent-primary)', fontFamily: 'monospace' }}>AED {checkoutResult.total_amount.toFixed(2)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span>Journal Entry Reference:</span>
-                <span style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{checkoutResult.journal_entry_id?.substring(0, 12)}</span>
-              </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--accent-primary)' }}>
-                ✔ Debit: 1000 Cash & Bank (AED {checkoutResult.total_amount.toFixed(2)})<br/>
-                ✔ Credit: 4200 POS Sales Revenue (AED {checkoutResult.total_amount.toFixed(2)})
-              </div>
-            </div>
-
-            <button className="btn btn-emerald" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setCheckoutResult(null)}>
-              Close & Ready Next Customer
-            </button>
           </div>
         </div>
       )}

@@ -1,21 +1,21 @@
 :root, [data-theme="dark"] {
-  /* True OLED Black Apple Control Center Translucent Frosted Glass (Dark Mode) */
+  /* True Ultra-Clean Pure OLED Pitch Black (Dark Mode) */
   --bg-dark: #000000;
-  --bg-body-gradient: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, #000000 70%);
-  --bg-card: rgba(18, 18, 18, 0.65);
-  --bg-card-hover: rgba(32, 32, 32, 0.85);
-  --bg-sidebar: rgba(10, 10, 10, 0.75);
-  --glass-blur: blur(28px) saturate(190%);
-  --border-color: rgba(255, 255, 255, 0.12);
-  --border-highlight: rgba(16, 185, 129, 0.5);
+  --bg-body-gradient: #000000;
+  --bg-card: #0D0D0D;
+  --bg-card-hover: #171717;
+  --bg-sidebar: #050505;
+  --glass-blur: blur(20px);
+  --border-color: #1F1F1F;
+  --border-highlight: #10B981;
 
   --accent-primary: #10B981;
-  --accent-primary-glow: rgba(16, 185, 129, 0.25);
+  --accent-primary-glow: rgba(16, 185, 129, 0.2);
 
   --text-main: #FFFFFF;
   --text-muted: #A1A1AA;
   --text-dim: #71717A;
-  --card-bg-subtle: rgba(255, 255, 255, 0.05);
+  --card-bg-subtle: #141414;
 
   /* SF PRO FONT FAMILY EVERYWHERE */
   --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", system-ui, sans-serif;
@@ -26,36 +26,36 @@
   --radius-lg: 24px;
 
   --shadow-glow: 0 0 25px rgba(16, 185, 129, 0.2);
-  --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
   --scrollbar-thumb: #10B981;
 }
 
 [data-theme="light"] {
-  /* Translucent Apple Frosted Glass (Light Mode) */
+  /* Crisp Minimalist Frosted Glass (Light Mode) */
   --bg-dark: #F1F5F9;
   --bg-body-gradient: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, #E2E8F0 50%, #F8FAFC 100%);
-  --bg-card: rgba(255, 255, 255, 0.72);
-  --bg-card-hover: rgba(255, 255, 255, 0.90);
-  --bg-sidebar: rgba(255, 255, 255, 0.78);
-  --glass-blur: blur(28px) saturate(190%);
-  --border-color: rgba(255, 255, 255, 0.85);
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F8FAFC;
+  --bg-sidebar: #FFFFFF;
+  --glass-blur: blur(20px);
+  --border-color: #E2E8F0;
   --border-highlight: rgba(5, 150, 105, 0.6);
 
   --accent-primary: #059669;
-  --accent-primary-glow: rgba(5, 150, 105, 0.18);
+  --accent-primary-glow: rgba(5, 150, 105, 0.15);
 
   --text-main: #0F172A;
   --text-muted: #475569;
   --text-dim: #64748B;
-  --card-bg-subtle: rgba(241, 245, 249, 0.75);
+  --card-bg-subtle: #F1F5F9;
 
   /* SF PRO FONT FAMILY EVERYWHERE */
   --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", system-ui, sans-serif;
   --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", system-ui, sans-serif;
 
   --shadow-glow: 0 4px 25px rgba(5, 150, 105, 0.12);
-  --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 
   --scrollbar-thumb: #059669;
 }
@@ -68,7 +68,8 @@
 }
 
 body {
-  background: var(--bg-body-gradient);
+  background-color: var(--bg-dark);
+  background-image: var(--bg-body-gradient);
   background-attachment: fixed;
   color: var(--text-main);
   font-family: var(--font-body) !important;
@@ -112,8 +113,6 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 .sidebar {
   width: 290px;
   background: var(--bg-sidebar);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   border-right: 1px solid var(--border-color);
   padding: 20px 16px;
   display: flex;
@@ -188,8 +187,6 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   padding: 12px;
   border-radius: 18px;
   background: var(--card-bg-subtle);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
   color: var(--text-muted);
   cursor: pointer;
@@ -259,8 +256,6 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   padding: 8px 16px;
   border-radius: 20px;
   background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
   color: var(--text-main);
   font-size: 0.82rem;
@@ -275,7 +270,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   transform: translateY(-1px);
 }
 
-/* NOTIFICATION DRAWER POPOVER (TRANSLUCENT FROSTED GLASS) */
+/* NOTIFICATION DRAWER POPOVER */
 .notif-drawer-popover {
   position: absolute;
   top: 52px;
@@ -287,15 +282,11 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   box-shadow: var(--glass-shadow);
   border: 1px solid var(--border-color);
   background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 /* APPLE CONTROL CENTER FROSTED GLASS CARDS */
 .glass-card {
   background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 24px;
@@ -325,8 +316,6 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   text-align: center;
   padding: 20px;
   background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
   border-radius: 22px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -372,10 +361,17 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   margin-top: 6px;
 }
 
-/* 2-Column Responsive Layout Grid */
+/* 2-Column Responsive Layout Grid (2fr 1fr) */
 .grid-2col-responsive {
   display: grid;
   grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+/* Even 50/50 Responsive Layout Grid (1fr 1fr) */
+.grid-split-responsive {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
 }
 
@@ -479,8 +475,6 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 
 .form-input, .form-select {
   background: var(--card-bg-subtle);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
   border-radius: 14px;
   padding: 10px 14px;
@@ -527,8 +521,6 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   align-items: center;
   padding: 16px 20px;
   background: var(--bg-sidebar);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
@@ -550,8 +542,10 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 
 /* RESPONSIVE BREAKPOINTS */
 @media (max-width: 1024px) {
-  .grid-2col-responsive {
+  .grid-2col-responsive,
+  .grid-split-responsive {
     grid-template-columns: 1fr;
+    gap: 18px;
   }
 }
 
@@ -572,8 +566,6 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
     width: 100vw;
     height: calc(100vh - 70px);
     background: var(--bg-dark); /* SOLID BACKDROP PREVENTING DASHBOARD OVERLAP WHILE SCROLLING */
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
     padding: 20px;
     display: none;
     z-index: 1000;
@@ -589,7 +581,12 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   }
 
   .main-content {
-    padding: 20px 16px;
+    padding: 16px 12px;
+  }
+
+  .glass-card {
+    padding: 16px;
+    border-radius: 16px;
   }
 
   .grid-stats-large {
@@ -619,6 +616,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 @media (max-width: 480px) {
   .grid-stats-large {
     grid-template-columns: 1fr 1fr;
+    gap: 10px;
   }
 
   .nav-tile-grid {

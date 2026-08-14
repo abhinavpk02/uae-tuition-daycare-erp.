@@ -67,7 +67,7 @@ export default function AssetsView() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+      <div className="grid-2col-responsive">
         
         {/* Fixed Assets Table */}
         <div className="glass-card">
