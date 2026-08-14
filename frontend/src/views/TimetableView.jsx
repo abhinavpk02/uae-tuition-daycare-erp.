@@ -107,7 +107,7 @@ export default function TimetableView() {
           zIndex: 1000,
           display: 'flex',
           alignItems: 'center',
-          justify-content: 'center',
+          justifyContent: 'center',
           padding: '20px'
         }}>
           <div className="glass-card" style={{ width: '100%', maxWidth: '500px', background: 'var(--bg-card)', border: '1px solid var(--accent-primary)' }}>
@@ -303,11 +303,11 @@ export default function TimetableView() {
           </button>
         </div>
 
-        {/* Right Column: Active Scheduled Activity Slots & Quick Add Form */}
+        {/* Right Column: Active Scheduled Activity Slots */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
           {/* Active Class Sessions Card */}
-          <div className="glass-card">
+          <div className="glass-card" style={{ height: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h3 style={{ fontFamily: 'Outfit', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
                 <Calendar size={20} color="var(--accent-primary)" /> Active Class Sessions
@@ -317,9 +317,9 @@ export default function TimetableView() {
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {activeSessions.map(sess => (
-                <div key={sess.id} style={{ padding: '14px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                <div key={sess.id} style={{ padding: '16px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                     <span className="badge-status badge-success"><MapPin size={12} /> {sess.room}</span>
                     <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>{sess.time}</span>
@@ -331,54 +331,6 @@ export default function TimetableView() {
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Quick Class Session Allocation Card */}
-          <div className="glass-card">
-            <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
-              <Clock size={20} color="var(--accent-primary)" /> Allocate Class Session
-            </h3>
-
-            <form onSubmit={handleCreateSlot}>
-              <div className="form-group">
-                <label className="form-label">Subject / Activity Name</label>
-                <input className="form-input" placeholder="e.g. Advanced Chemistry Lab" value={subjectId} onChange={e => setSubjectId(e.target.value)} required />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Room / Daycare Zone</label>
-                <select className="form-select" value={roomId} onChange={e => setRoomId(e.target.value)}>
-                  <option value="Room 101">Room 101 (HSS Math/Sci)</option>
-                  <option value="Room 102">Room 102 (HS English/Arts)</option>
-                  <option value="Daycare Zone A">Daycare Zone A (Toddlers)</option>
-                  <option value="Daycare Zone B">Daycare Zone B (KG Active Play)</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Assigned Teacher / Supervisor</label>
-                <select className="form-select" value={teacherName} onChange={e => setTeacherName(e.target.value)}>
-                  <option value="Fatima Al-Mansoori">Fatima Al-Mansoori</option>
-                  <option value="Sarah Jenkins">Sarah Jenkins</option>
-                  {staff.map(st => <option key={st.id} value={st.name}>{st.name}</option>)}
-                </select>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group">
-                  <label className="form-label">Start Time</label>
-                  <input className="form-input" value={startTime} onChange={e => setStartTime(e.target.value)} required />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">End Time</label>
-                  <input className="form-input" value={endTime} onChange={e => setEndTime(e.target.value)} required />
-                </div>
-              </div>
-
-              <button type="submit" className="btn btn-emerald" style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }}>
-                <Plus size={16} /> Save Class Session
-              </button>
-            </form>
           </div>
 
         </div>
