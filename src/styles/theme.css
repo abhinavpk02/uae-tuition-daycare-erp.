@@ -1,66 +1,52 @@
 :root, [data-theme="dark"] {
-  /* Ultra-Minimalist 2-Color Theme Palette (Dark Mode) */
-  --bg-dark: #070A12;
-  --bg-card: #0F172A;
-  --bg-card-hover: #1E293B;
-  --bg-sidebar: #05070E;
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-highlight: rgba(16, 185, 129, 0.4);
+  /* Apple Control Center Frosted Glass (Dark Mode) */
+  --bg-dark: #060913;
+  --bg-card: rgba(15, 23, 42, 0.48);
+  --bg-card-hover: rgba(30, 41, 59, 0.65);
+  --bg-sidebar: rgba(10, 14, 26, 0.55);
+  --glass-blur: blur(28px) saturate(190%);
+  --border-color: rgba(255, 255, 255, 0.12);
+  --border-highlight: rgba(16, 185, 129, 0.5);
 
-  /* Primary Accent Color 1: Emerald Green */
   --accent-primary: #10B981;
-  --accent-primary-glow: rgba(16, 185, 129, 0.2);
-
-  /* Primary Neutral Color 2: High-Contrast Crisp Text/Borders */
-  --accent-secondary: #F9FAFB;
-  --accent-emerald: #10B981;
-  --accent-gold: #10B981;
-  --accent-blue: #10B981;
-  --accent-cyan: #10B981;
-  --accent-purple: #10B981;
+  --accent-primary-glow: rgba(16, 185, 129, 0.25);
 
   --text-main: #F9FAFB;
   --text-muted: #9CA3AF;
   --text-dim: #6B7280;
-  --card-bg-subtle: rgba(255, 255, 255, 0.03);
+  --card-bg-subtle: rgba(255, 255, 255, 0.05);
 
   --font-heading: 'Outfit', sans-serif;
   --font-body: 'Inter', sans-serif;
 
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
 
-  --shadow-glow: 0 0 25px rgba(16, 185, 129, 0.15);
+  --shadow-glow: 0 0 25px rgba(16, 185, 129, 0.2);
+  --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 [data-theme="light"] {
-  /* Ultra-Minimalist 2-Color Theme Palette (Light Mode) */
-  --bg-dark: #F8FAFC;
-  --bg-card: #FFFFFF;
-  --bg-card-hover: #F1F5F9;
-  --bg-sidebar: #FFFFFF;
-  --border-color: #E2E8F0;
-  --border-highlight: rgba(5, 150, 105, 0.4);
+  /* Apple Control Center Frosted Glass (Light Mode) */
+  --bg-dark: #E2E8F0;
+  --bg-card: rgba(255, 255, 255, 0.65);
+  --bg-card-hover: rgba(255, 255, 255, 0.85);
+  --bg-sidebar: rgba(255, 255, 255, 0.7);
+  --glass-blur: blur(28px) saturate(190%);
+  --border-color: rgba(255, 255, 255, 0.8);
+  --border-highlight: rgba(5, 150, 105, 0.5);
 
-  /* Primary Accent Color 1: Emerald Green */
   --accent-primary: #059669;
-  --accent-primary-glow: rgba(5, 150, 105, 0.15);
-
-  /* Primary Neutral Color 2: High-Contrast Slate Text/Borders */
-  --accent-secondary: #0F172A;
-  --accent-emerald: #059669;
-  --accent-gold: #059669;
-  --accent-blue: #059669;
-  --accent-cyan: #059669;
-  --accent-purple: #059669;
+  --accent-primary-glow: rgba(5, 150, 105, 0.18);
 
   --text-main: #0F172A;
   --text-muted: #475569;
   --text-dim: #64748B;
-  --card-bg-subtle: #F1F5F9;
+  --card-bg-subtle: rgba(255, 255, 255, 0.45);
 
   --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 * {
@@ -71,6 +57,9 @@
 
 body {
   background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%);
   color: var(--text-main);
   font-family: var(--font-body);
   line-height: 1.5;
@@ -102,10 +91,12 @@ body {
   position: relative;
 }
 
-/* Sidebar Navigation (Desktop) */
+/* Sidebar Navigation (Apple Control Center Glass) */
 .sidebar {
   width: 290px;
   background: var(--bg-sidebar);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-right: 1px solid var(--border-color);
   padding: 20px 16px;
   display: flex;
@@ -117,6 +108,7 @@ body {
   overflow-y: auto;
   z-index: 100;
   transition: all 0.3s ease;
+  box-shadow: var(--glass-shadow);
 }
 
 .brand-header {
@@ -132,12 +124,12 @@ body {
   width: 44px;
   height: 44px;
   background: var(--accent-primary);
-  border-radius: var(--radius-md);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 4px 14px var(--accent-primary-glow);
   flex-shrink: 0;
 }
 
@@ -157,7 +149,7 @@ body {
   letter-spacing: 0.08em;
 }
 
-/* PERFECT 1:1 SQUARE TILE NAVIGATION GRID */
+/* PERFECT 1:1 APPLE CONTROL CENTER SQUARE TILE NAV */
 .nav-tile-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -177,28 +169,31 @@ body {
   align-items: center;
   justify-content: center;
   padding: 12px;
-  border-radius: 16px;
+  border-radius: 18px;
   background: var(--card-bg-subtle);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .nav-tile-btn:hover {
   color: var(--text-main);
   background: var(--bg-card-hover);
   border-color: var(--border-highlight);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  transform: scale(1.03);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .nav-tile-btn.active {
   color: var(--accent-primary);
   background: var(--bg-card);
   border: 2px solid var(--accent-primary);
-  box-shadow: 0 0 20px var(--accent-primary-glow);
+  box-shadow: 0 0 24px var(--accent-primary-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .nav-tile-btn.active svg {
@@ -248,13 +243,15 @@ body {
   padding: 8px 16px;
   border-radius: 20px;
   background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
   color: var(--text-main);
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: var(--glass-shadow);
 }
 
 .theme-toggle-btn:hover {
@@ -264,6 +261,7 @@ body {
 
 .badge-uae {
   background: var(--card-bg-subtle);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   color: var(--text-main);
   padding: 6px 14px;
@@ -275,15 +273,16 @@ body {
   gap: 6px;
 }
 
-/* Cards & Glass Panels */
+/* APPLE CONTROL CENTER FROSTED GLASS CARDS */
 .glass-card {
   background: var(--bg-card);
-  backdrop-filter: blur(12px);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 24px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  box-shadow: var(--glass-shadow);
 }
 
 .glass-card:hover {
@@ -298,9 +297,9 @@ body {
   margin-bottom: 28px;
 }
 
-/* PERFECT 1:1 SQUARE KPI STAT CARD */
+/* PERFECT 1:1 APPLE FROSTED GLASS KPI SQUARE CARD */
 .stat-card-square {
-  aspect-ratio: 1 / 1; /* PERFECT 1:1 SQUARE ASPECT RATIO */
+  aspect-ratio: 1 / 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -308,16 +307,18 @@ body {
   text-align: center;
   padding: 20px;
   background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-color);
-  border-radius: 20px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+  border-radius: 22px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--glass-shadow);
 }
 
 .stat-card-square:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px) scale(1.02);
   border-color: var(--accent-primary);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .stat-icon-square {
@@ -501,6 +502,8 @@ body {
   align-items: center;
   padding: 16px 20px;
   background: var(--bg-sidebar);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
@@ -544,6 +547,8 @@ body {
     width: 100%;
     height: calc(100vh - 70px);
     background: var(--bg-sidebar);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
     padding: 20px;
     display: none;
     z-index: 105;
