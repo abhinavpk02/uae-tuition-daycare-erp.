@@ -1,10 +1,11 @@
 :root, [data-theme="dark"] {
   /* True OLED Black Apple Control Center Glass (Dark Mode) */
   --bg-dark: #000000;
-  --bg-card: rgba(18, 18, 18, 0.65);
+  --bg-body-gradient: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.12) 0%, #000000 70%);
+  --bg-card: rgba(18, 18, 18, 0.68);
   --bg-card-hover: rgba(32, 32, 32, 0.85);
-  --bg-sidebar: rgba(0, 0, 0, 0.75);
-  --glass-blur: blur(28px) saturate(190%);
+  --bg-sidebar: rgba(10, 10, 10, 0.78);
+  --glass-blur: blur(32px) saturate(200%);
   --border-color: rgba(255, 255, 255, 0.12);
   --border-highlight: rgba(16, 185, 129, 0.5);
 
@@ -14,7 +15,7 @@
   --text-main: #FFFFFF;
   --text-muted: #A1A1AA;
   --text-dim: #71717A;
-  --card-bg-subtle: rgba(255, 255, 255, 0.05);
+  --card-bg-subtle: rgba(255, 255, 255, 0.06);
 
   /* SF PRO FONT FAMILY EVERYWHERE */
   --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", system-ui, sans-serif;
@@ -31,14 +32,15 @@
 }
 
 [data-theme="light"] {
-  /* Clean Apple Frosted Glass (Light Mode) */
-  --bg-dark: #F8FAFC;
-  --bg-card: #FFFFFF;
-  --bg-card-hover: #F1F5F9;
-  --bg-sidebar: #FFFFFF;
-  --glass-blur: blur(28px) saturate(190%);
-  --border-color: #E2E8F0;
-  --border-highlight: rgba(5, 150, 105, 0.5);
+  /* Translucent Apple Frosted Glass (Light Mode) */
+  --bg-dark: #F1F5F9;
+  --bg-body-gradient: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, #E2E8F0 50%, #F8FAFC 100%);
+  --bg-card: rgba(255, 255, 255, 0.72);
+  --bg-card-hover: rgba(255, 255, 255, 0.90);
+  --bg-sidebar: rgba(255, 255, 255, 0.78);
+  --glass-blur: blur(32px) saturate(200%);
+  --border-color: rgba(255, 255, 255, 0.85);
+  --border-highlight: rgba(5, 150, 105, 0.6);
 
   --accent-primary: #059669;
   --accent-primary-glow: rgba(5, 150, 105, 0.18);
@@ -46,14 +48,14 @@
   --text-main: #0F172A;
   --text-muted: #475569;
   --text-dim: #64748B;
-  --card-bg-subtle: #F1F5F9;
+  --card-bg-subtle: rgba(241, 245, 249, 0.75);
 
   /* SF PRO FONT FAMILY EVERYWHERE */
   --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", system-ui, sans-serif;
   --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", system-ui, sans-serif;
 
-  --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-glow: 0 4px 25px rgba(5, 150, 105, 0.12);
+  --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.95);
 
   --scrollbar-thumb: #059669;
 }
@@ -66,13 +68,14 @@
 }
 
 body {
-  background-color: var(--bg-dark);
+  background: var(--bg-body-gradient);
+  background-attachment: fixed;
   color: var(--text-main);
   font-family: var(--font-body) !important;
   line-height: 1.5;
   min-height: 100vh;
   overflow-x: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background 0.3s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -105,7 +108,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   position: relative;
 }
 
-/* Sidebar Navigation (Apple Control Center OLED Glass) */
+/* Sidebar Navigation (Apple Control Center OLED & Light Translucent Glass) */
 .sidebar {
   width: 290px;
   background: var(--bg-sidebar);
