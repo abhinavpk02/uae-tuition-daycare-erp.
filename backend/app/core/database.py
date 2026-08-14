@@ -8,43 +8,57 @@ try:
 except ImportError:
     pass
 
-# Support Turso Database environment variables (TURSO_DATABASE_URL & TURSO_AUTH_TOKEN)
+# Determine Database Connection URL
 TURSO_DB_URL = os.getenv("TURSO_DATABASE_URL")
 TURSO_TOKEN = os.getenv("TURSO_AUTH_TOKEN")
+ENV_DB_URL = os.getenv("DATABASE_URL")
 
-if TURSO_DB_URL:
-    DATABASE_URL = TURSO_DB_URL
+target_url = None
 
-# Default to /tmp/erp.db on Vercel serverless environment if no DATABASE_URL provided
-if not DATABASE_URL:
-    if os.getenv("VERCEL"):
-        DATABASE_URL = "sqlite+aiosqlite:////tmp/erp.db"
+if os.getenv("VERCEL"):
+    # On Vercel Serverless, default to /tmp/erp.db unless explicit PostgreSQL or supported DB URL is set
+    if ENV_DB_URL and ("postgres" in ENV_DB_URL):
+        target_url = ENV_DB_URL
     else:
-        DATABASE_URL = "sqlite+aiosqlite:///./erp.db"
+        target_url = "sqlite+aiosqlite:////tmp/erp.db"
+else:
+    if TURSO_DB_URL:
+        target_url = TURSO_DB_URL
+    elif ENV_DB_URL:
+        target_url = ENV_DB_URL
+    else:
+        target_url = "sqlite+aiosqlite:///./erp.db"
 
-# 1. Convert Turso libsql:// or https:// to sqlite+libsql:// format for SQLAlchemy
-if DATABASE_URL.startswith("libsql://"):
-    DATABASE_URL = DATABASE_URL.replace("libsql://", "sqlite+libsql://", 1)
-elif DATABASE_URL.startswith("https://") and "turso.io" in DATABASE_URL:
-    DATABASE_URL = DATABASE_URL.replace("https://", "sqlite+libsql://", 1)
+# 1. Format Turso URLs if applicable
+if target_url.startswith("libsql://"):
+    target_url = target_url.replace("libsql://", "sqlite+libsql://", 1)
+elif target_url.startswith("https://") and "turso.io" in target_url:
+    target_url = target_url.replace("https://", "sqlite+libsql://", 1)
 
-# Append Turso Auth Token if set in environment
-if TURSO_TOKEN and "turso.io" in DATABASE_URL and "authToken=" not in DATABASE_URL:
-    delimiter = "&" if "?" in DATABASE_URL else "?"
-    DATABASE_URL = f"{DATABASE_URL}{delimiter}authToken={TURSO_TOKEN}"
+if TURSO_TOKEN and "turso.io" in target_url and "authToken=" not in target_url:
+    delimiter = "&" if "?" in target_url else "?"
+    target_url = f"{target_url}{delimiter}authToken={TURSO_TOKEN}"
 
-# 2. Convert standard PostgreSQL URLs to asyncpg
-if DATABASE_URL.startswith("postgresql://"):
-    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
-elif DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+# 2. Format PostgreSQL URLs
+if target_url.startswith("postgresql://"):
+    target_url = target_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+elif target_url.startswith("postgres://"):
+    target_url = target_url.replace("postgres://", "postgresql+asyncpg://", 1)
 
-engine = create_async_engine(
-    DATABASE_URL,
-    echo=False,
-    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
-)
-
+try:
+    engine = create_async_engine(
+        target_url,
+        echo=False,
+        connect_args={"check_same_thread": False} if "sqlite" in target_url else {}
+    )
+except Exception:
+    # Safe fallback for serverless sandbox
+    target_url = "sqlite+aiosqlite:////tmp/erp.db"
+    engine = create_async_engine(
+        target_url,
+        echo=False,
+        connect_args={"check_same_thread": False}
+    )
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
