@@ -48,7 +48,15 @@ export default function AddStudentModal({ isOpen, onClose, onSuccess }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
     })
-      .then(res => res.json().then(data => ({ ok: res.ok, data })))
+      .then(async (res) => {
+        let data = {};
+        try {
+          data = await res.json();
+        } catch {
+          data = { detail: `HTTP Error ${res.status}: Unable to process student registration request` };
+        }
+        return { ok: res.ok, data };
+      })
       .then(({ ok, data }) => {
         if (ok && data.status === 'success') {
           setToastMsg('Student added successfully!');
@@ -62,6 +70,7 @@ export default function AddStudentModal({ isOpen, onClose, onSuccess }) {
       })
       .catch(err => setErrorMsg(err.message))
       .finally(() => setLoading(false));
+
   };
 
   return (

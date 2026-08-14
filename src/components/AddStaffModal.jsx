@@ -63,7 +63,15 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess, creatorRole 
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
-      .then(res => res.json().then(data => ({ ok: res.ok, data })))
+      .then(async (res) => {
+        let data = {};
+        try {
+          data = await res.json();
+        } catch {
+          data = { detail: `HTTP Error ${res.status}: Unable to process staff onboarding request` };
+        }
+        return { ok: res.ok, data };
+      })
       .then(({ ok, data }) => {
         if (ok && data.status === 'success') {
           setToastMsg('Staff member onboarded successfully!');
@@ -77,6 +85,7 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess, creatorRole 
       })
       .catch(err => setErrorMsg(err.message))
       .finally(() => setLoading(false));
+
   };
 
   return (
