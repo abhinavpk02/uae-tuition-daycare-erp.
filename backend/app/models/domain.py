@@ -245,3 +245,15 @@ class InvoiceItem(Base):
     amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
 
     invoice: Mapped["Invoice"] = relationship("Invoice", back_populates="items")
+
+
+# 5. RBAC Permissions Management
+class RolePermission(Base):
+    __tablename__ = "role_permissions"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    role: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
+    manage_students_staff: Mapped[bool] = mapped_column(Boolean, default=True)
+    admissions_onboarding: Mapped[bool] = mapped_column(Boolean, default=True)
+    operational_details: Mapped[bool] = mapped_column(Boolean, default=True)
+

@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 
 from app.core.database import init_db
-from app.api import auth, students, staff, attendance, billing_pos, accounting, reports, timetable, assets
+from app.api import auth, students, staff, attendance, billing_pos, accounting, reports, timetable, assets, roles
 from seed_data import seed
 
 app = FastAPI(
@@ -32,6 +32,8 @@ app.include_router(accounting.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
 app.include_router(timetable.router, prefix="/api")
 app.include_router(assets.router, prefix="/api")
+app.include_router(roles.router, prefix="/api")
+
 
 
 @app.on_event("startup")

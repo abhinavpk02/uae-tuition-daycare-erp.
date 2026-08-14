@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, ShieldCheck, ShoppingBag, Clock, Users, 
-  Building2, Globe, Sparkles, Calendar, Coins, UserCheck 
+  Building2, Globe, Sparkles, Calendar, Coins, UserCheck, Lock 
 } from 'lucide-react';
 
 import DashboardView from './views/DashboardView';
@@ -12,6 +12,7 @@ import StudentsView from './views/StudentsView';
 import AssetsView from './views/AssetsView';
 import TimetableView from './views/TimetableView';
 import ParentPortalView from './views/ParentPortalView';
+import RBACManagementView from './views/RBACManagementView';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -24,8 +25,6 @@ export default function App() {
       setCurrentView('parent-portal');
     } else if (newRole === 'Teacher') {
       setCurrentView('attendance');
-    } else if (newRole === 'Admin') {
-      setCurrentView('dashboard');
     } else {
       setCurrentView('dashboard');
     }
@@ -35,7 +34,7 @@ export default function App() {
   const canAccess = (viewKey) => {
     if (activeRole === 'SuperAdmin') return true;
     if (activeRole === 'Admin') {
-      return ['dashboard', 'accounting', 'pos', 'students', 'assets'].includes(viewKey);
+      return ['dashboard', 'accounting', 'pos', 'students', 'assets', 'rbac'].includes(viewKey);
     }
     if (activeRole === 'Teacher') {
       return ['attendance', 'timetable', 'students'].includes(viewKey);
@@ -80,6 +79,17 @@ export default function App() {
                   onClick={() => setCurrentView('dashboard')}
                 >
                   <LayoutDashboard size={18} /> Executive Dashboard
+                </button>
+              </li>
+            )}
+
+            {canAccess('rbac') && (
+              <li className="nav-item">
+                <button 
+                  className={currentView === 'rbac' ? 'active' : ''} 
+                  onClick={() => setCurrentView('rbac')}
+                >
+                  <Lock size={18} /> RBAC Permissions
                 </button>
               </li>
             )}
@@ -179,7 +189,7 @@ export default function App() {
           </div>
           <div className="header-actions">
             <div className="badge-status badge-warning" style={{ fontSize: '0.8rem', padding: '6px 14px' }}>
-              RBAC Role: {activeRole}
+              RBAC Mode: {activeRole}
             </div>
             <div className="badge-status badge-success" style={{ fontSize: '0.8rem', padding: '6px 14px' }}>
               <Sparkles size={14} /> 100% Audit Balanced
@@ -190,6 +200,7 @@ export default function App() {
         {/* View Router with Access Protection */}
         {currentView === 'parent-portal' && canAccess('parent-portal') && <ParentPortalView />}
         {currentView === 'dashboard' && canAccess('dashboard') && <DashboardView onNavigate={setCurrentView} />}
+        {currentView === 'rbac' && canAccess('rbac') && <RBACManagementView />}
         {currentView === 'accounting' && canAccess('accounting') && <AccountingView />}
         {currentView === 'pos' && canAccess('pos') && <POSView />}
         {currentView === 'attendance' && canAccess('attendance') && <AttendanceDaycareView />}
