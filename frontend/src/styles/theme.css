@@ -60,6 +60,13 @@
   --scrollbar-thumb: #059669;
 }
 
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden !important;
+  box-sizing: border-box;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -75,7 +82,6 @@ body {
   font-family: var(--font-body) !important;
   line-height: 1.5;
   min-height: 100vh;
-  overflow-x: hidden;
   transition: background 0.3s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -107,6 +113,9 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   display: flex;
   min-height: 100vh;
   position: relative;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 /* Sidebar Navigation (Translucent Frosted Glass) */
@@ -230,6 +239,14 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   padding: 28px 36px;
   overflow-y: auto;
   min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.view-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .header-bar {
@@ -292,6 +309,9 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   padding: 24px;
   transition: all 0.3s ease;
   box-shadow: var(--glass-shadow);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .glass-card:hover {
@@ -301,9 +321,12 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 /* Enlarged Stat Cards Grid */
 .grid-stats-large {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 20px;
   margin-bottom: 28px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* PERFECT 1:1 APPLE OLED FROSTED GLASS KPI SQUARE CARD */
@@ -320,6 +343,8 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   border-radius: 22px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--glass-shadow);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .stat-card-square:hover {
@@ -366,6 +391,9 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Even 50/50 Responsive Layout Grid (1fr 1fr) */
@@ -373,13 +401,18 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Tables */
 .table-responsive-wrapper {
   width: 100%;
+  max-width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
 }
 
 .custom-table {
@@ -525,6 +558,8 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   position: sticky;
   top: 0;
   z-index: 110;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .mobile-menu-toggle {
@@ -552,6 +587,9 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 @media (max-width: 768px) {
   .app-container {
     flex-direction: column;
+    width: 100vw;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   .mobile-header-bar {
@@ -581,21 +619,59 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   }
 
   .main-content {
-    padding: 16px 12px;
+    padding: 16px 12px !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
   }
 
   .glass-card {
-    padding: 16px;
+    padding: 16px 12px !important;
     border-radius: 16px;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 
+  /* EXECUTIVE KPI CARDS PERFECT 2-COLUMN EQUAL SMARTPHONE GRID */
   .grid-stats-large {
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .stat-card-square {
+    width: 100% !important;
+    max-width: 100% !important;
+    aspect-ratio: auto !important; /* HEIGHT ADJUSTS DYNAMICALLY */
+    min-height: 140px !important;
+    padding: 14px 8px !important;
+    box-sizing: border-box !important;
+  }
+
+  .stat-icon-square {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .stat-val-square {
+    font-size: 1.35rem !important;
+  }
+
+  .stat-lbl-square {
+    font-size: 0.65rem !important;
+    line-height: 1.15 !important;
   }
 
   .nav-tile-grid {
-    grid-template-columns: repeat(2, 1fr); /* 2 COLUMNS IN PORTRAIT MOBILE VIEW MATCHING SCREENSHOT 2 */
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
 
@@ -614,9 +690,13 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 }
 
 @media (max-width: 480px) {
+  .main-content {
+    padding: 12px 10px !important;
+  }
+
   .grid-stats-large {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
   }
 
   .nav-tile-grid {
