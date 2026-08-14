@@ -25,6 +25,8 @@
 
   --shadow-glow: 0 0 25px rgba(16, 185, 129, 0.2);
   --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  --scrollbar-thumb: #10B981;
 }
 
 [data-theme="light"] {
@@ -47,6 +49,8 @@
 
   --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.06);
   --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+  --scrollbar-thumb: #059669;
 }
 
 * {
@@ -65,20 +69,20 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Scrollbar */
+/* Scrollbar (Emerald Green across modes) */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-dark);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1F293D;
-  border-radius: 4px;
+  background: var(--scrollbar-thumb);
+  border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-primary);
+  filter: brightness(1.2);
 }
 
 /* App Layout */
