@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Gauge, ShieldCheck, ShoppingBag, Clock, Users, 
-  Building2, Sparkles, Calendar, Coins, UserCheck, Lock, UserPlus, BookOpen, Menu, X, Sun, Moon, Bot, Bell, AlertTriangle, DollarSign 
+  Building2, Sparkles, Calendar, Coins, UserCheck, Lock, Settings, UserPlus, BookOpen, Menu, X, Sun, Moon, Bot, Bell, AlertTriangle, DollarSign 
 } from 'lucide-react';
 
 import DashboardView from './views/DashboardView';
@@ -145,6 +145,7 @@ export default function App() {
               </div>
             )}
 
+            {/* 1. EXEC DASHBOARD */}
             {canAccess('dashboard') && (
               <div className="nav-tile-item">
                 <button 
@@ -157,66 +158,7 @@ export default function App() {
               </div>
             )}
 
-            {canAccess('rbac') && (
-              <div className="nav-tile-item">
-                <button 
-                  className={`nav-tile-btn ${currentView === 'rbac' ? 'active' : ''}`} 
-                  onClick={() => handleNavClick('rbac')}
-                >
-                  <Lock size={26} />
-                  <span className="nav-tile-label">Permissions</span>
-                </button>
-              </div>
-            )}
-
-            {canAccess('students') && (
-              <div className="nav-tile-item">
-                <button 
-                  className={`nav-tile-btn ${currentView === 'students' ? 'active' : ''}`} 
-                  onClick={() => handleNavClick('students')}
-                >
-                  <Users size={26} />
-                  <span className="nav-tile-label">Student Dir</span>
-                </button>
-              </div>
-            )}
-
-            {canAccess('staff') && (
-              <div className="nav-tile-item">
-                <button 
-                  className={`nav-tile-btn ${currentView === 'staff' ? 'active' : ''}`} 
-                  onClick={() => handleNavClick('staff')}
-                >
-                  <UserPlus size={26} />
-                  <span className="nav-tile-label">Staff Dir</span>
-                </button>
-              </div>
-            )}
-
-            {canAccess('accounting') && (
-              <div className="nav-tile-item">
-                <button 
-                  className={`nav-tile-btn ${currentView === 'accounting' ? 'active' : ''}`} 
-                  onClick={() => handleNavClick('accounting')}
-                >
-                  <BookOpen size={26} />
-                  <span className="nav-tile-label">Ledger</span>
-                </button>
-              </div>
-            )}
-
-            {canAccess('pos') && (
-              <div className="nav-tile-item">
-                <button 
-                  className={`nav-tile-btn ${currentView === 'pos' ? 'active' : ''}`} 
-                  onClick={() => handleNavClick('pos')}
-                >
-                  <ShoppingBag size={26} />
-                  <span className="nav-tile-label">POS Terminal</span>
-                </button>
-              </div>
-            )}
-
+            {/* 2. RFID / DAYCARE (MOVED TO 2nd POSITION) */}
             {canAccess('attendance') && (
               <div className="nav-tile-item">
                 <button 
@@ -229,6 +171,59 @@ export default function App() {
               </div>
             )}
 
+            {/* 3. STUDENT DIR */}
+            {canAccess('students') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'students' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('students')}
+                >
+                  <Users size={26} />
+                  <span className="nav-tile-label">Student Dir</span>
+                </button>
+              </div>
+            )}
+
+            {/* 4. STAFF DIR */}
+            {canAccess('staff') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'staff' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('staff')}
+                >
+                  <UserPlus size={26} />
+                  <span className="nav-tile-label">Staff Dir</span>
+                </button>
+              </div>
+            )}
+
+            {/* 5. LEDGER */}
+            {canAccess('accounting') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'accounting' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('accounting')}
+                >
+                  <BookOpen size={26} />
+                  <span className="nav-tile-label">Ledger</span>
+                </button>
+              </div>
+            )}
+
+            {/* 6. POS TERMINAL */}
+            {canAccess('pos') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'pos' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('pos')}
+                >
+                  <ShoppingBag size={26} />
+                  <span className="nav-tile-label">POS Terminal</span>
+                </button>
+              </div>
+            )}
+
+            {/* 7. ROOM TIMETABLE */}
             {canAccess('timetable') && (
               <div className="nav-tile-item">
                 <button 
@@ -241,6 +236,7 @@ export default function App() {
               </div>
             )}
 
+            {/* 8. FIXED ASSETS */}
             {canAccess('assets') && (
               <div className="nav-tile-item">
                 <button 
@@ -253,7 +249,20 @@ export default function App() {
               </div>
             )}
 
-            {/* AI ASSISTANT TAB AT THE VERY LAST POSITION */}
+            {/* 9. SETTINGS (RENAMED FROM PERMISSIONS, MOVED TO 2nd-TO-LAST POSITION) */}
+            {canAccess('rbac') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'rbac' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('rbac')}
+                >
+                  <Settings size={26} />
+                  <span className="nav-tile-label">Settings</span>
+                </button>
+              </div>
+            )}
+
+            {/* 10. AI ASSISTANT (LAST POSITION) */}
             {canAccess('ai-assistant') && (
               <div className="nav-tile-item">
                 <button 
