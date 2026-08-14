@@ -20,7 +20,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [activeRole, setActiveRole] = useState('SuperAdmin');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [theme, setTheme] = useState('dark');
+  const [theme, setTheme] = useState('light'); // DEFAULT TO LIGHT MODE ON INITIAL LAUNCH
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
 
   // Automatically start with 2-column square grid open on mobile launch
