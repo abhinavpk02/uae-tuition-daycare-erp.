@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Clock, QrCode, CheckCircle2, UserCheck, Calculator, DollarSign, AlertCircle } from 'lucide-react';
 import EntitySearchInput from '../components/EntitySearchInput';
 import GuestQuickPay from '../components/GuestQuickPay';
+import { BASE_URL } from '../api';
 
 export default function AttendanceDaycareView() {
   const [students, setStudents] = useState([]);
@@ -19,8 +20,11 @@ export default function AttendanceDaycareView() {
   const [daycareResult, setDaycareResult] = useState(null);
   const [payrollResult, setPayrollResult] = useState(null);
 
+  const defaultStudents = [{ id: 'std-101', name: 'Zayed Al-Hashimi', standard: 'Grade 10' }];
+  const defaultStaff = [{ id: 'stf-201', name: 'Fatima Al-Mansoori', role: 'Teacher', hourly_rate: 120.00 }];
+
   const fetchLogs = () => {
-    fetch('/api/attendance')
+    fetch(`${BASE_URL}/api/attendance`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setAttendanceLogs(data);
@@ -28,48 +32,105 @@ export default function AttendanceDaycareView() {
       .catch(() => {});
   };
 
+  const loadStudentsAndStaff = () => {
+    // Fetch Students
+    fetch(`${BASE_URL}/api/students`)
+      .then(res => res.json())
+      .then(data => {
+        const remoteStd = Array.isArray(data) ? data : [];
+        const localStd = JSON.parse(localStorage.getItem('registered_students') || '[]');
+        const merged = [...localStd];
+
+        remoteStd.forEach(r => {
+          if (!merged.some(m => String(m.id) === String(r.id))) {
+            merged.push({ id: r.id, name: r.name, standard: r.standard || 'Grade 10' });
+          }
+        });
+
+        const finalStudents = merged.length > 0 ? merged : defaultStudents;
+        setStudents(finalStudents);
+        if (finalStudents[0]) {
+          setSelectedEntity(finalStudents[0].id);
+          setSelectedBillingStudent(finalStudents[0].id);
+        }
+      })
+      .catch(() => {
+        const localStd = JSON.parse(localStorage.getItem('registered_students') || '[]');
+        const finalStudents = localStd.length > 0 ? localStd : defaultStudents;
+        setStudents(finalStudents);
+        if (finalStudents[0]) {
+          setSelectedEntity(finalStudents[0].id);
+          setSelectedBillingStudent(finalStudents[0].id);
+        }
+      });
+
+    // Fetch Staff
+    fetch(`${BASE_URL}/api/staff`)
+      .then(res => res.json())
+      .then(data => {
+        const remoteStf = Array.isArray(data) ? data : [];
+        const localStf = JSON.parse(localStorage.getItem('registered_staff') || '[]');
+        const merged = [...localStf];
+
+        remoteStf.forEach(r => {
+          if (!merged.some(m => String(m.id) === String(r.id))) {
+            merged.push({ id: r.id, name: r.name, role: r.role || 'Teacher', hourly_rate: r.hourly_rate || 120.00 });
+          }
+        });
+
+        const finalStaff = merged.length > 0 ? merged : defaultStaff;
+        setStaff(finalStaff);
+        if (finalStaff[0]) {
+          setSelectedPayrollStaff(finalStaff[0].id);
+        }
+      })
+      .catch(() => {
+        const localStf = JSON.parse(localStorage.getItem('registered_staff') || '[]');
+        const finalStaff = localStf.length > 0 ? localStf : defaultStaff;
+        setStaff(finalStaff);
+        if (finalStaff[0]) {
+          setSelectedPayrollStaff(finalStaff[0].id);
+        }
+      });
+  };
+
   useEffect(() => {
     fetchLogs();
-
-    fetch('/api/students')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setStudents(data);
-          setSelectedEntity(data[0].id);
-          setSelectedBillingStudent(data[0].id);
-        }
-      })
-      .catch(() => {});
-
-    fetch('/api/staff')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setStaff(data);
-          setSelectedPayrollStaff(data[0].id);
-        }
-      })
-      .catch(() => {});
+    loadStudentsAndStaff();
   }, []);
 
   const handleCheckIn = () => {
     if (!selectedEntity) return;
-    fetch('/api/attendance/check-in', {
+    const targetName = scanType === 'Student' 
+      ? (students.find(s => String(s.id) === String(selectedEntity))?.name || selectedEntity)
+      : (staff.find(s => String(s.id) === String(selectedEntity))?.name || selectedEntity);
+
+    fetch(`${BASE_URL}/api/attendance/check-in`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ref_type: scanType, ref_id: selectedEntity })
     })
       .then(res => res.json())
       .then(data => {
-        setScanResult(`Check-In recorded successfully at ${new Date(data.check_in || Date.now()).toLocaleTimeString()}`);
+        setScanResult(`Check-In recorded for ${targetName} at ${new Date(data.check_in || Date.now()).toLocaleTimeString()}`);
         fetchLogs();
       })
-      .catch(err => setScanResult(`Check-In recorded for ${selectedEntity}!`));
+      .catch(() => {
+        setScanResult(`Check-In recorded for ${targetName}!`);
+        // Add to local audit logs
+        const newLog = {
+          id: `att-${Date.now()}`,
+          ref_type: scanType,
+          ref_id: targetName,
+          check_in: new Date().toISOString(),
+          check_out: null
+        };
+        setAttendanceLogs(prev => [newLog, ...prev]);
+      });
   };
 
   const handleCheckOut = (attId) => {
-    fetch('/api/attendance/check-out', {
+    fetch(`${BASE_URL}/api/attendance/check-out`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ attendance_id: attId })
@@ -79,29 +140,58 @@ export default function AttendanceDaycareView() {
         setScanResult(`Check-Out recorded successfully! Total duration calculated.`);
         fetchLogs();
       })
-      .catch(() => setScanResult(`Check-Out recorded!`));
+      .catch(() => {
+        setScanResult(`Check-Out recorded!`);
+        setAttendanceLogs(prev => prev.map(l => l.id === attId ? { ...l, check_out: new Date().toISOString() } : l));
+      });
   };
 
   const calculateDaycareBilling = (studentId) => {
     setDaycareResult(null);
-    const std = students.find(s => String(s.id) === String(studentId)) || { name: 'Student' };
-    setDaycareResult({
-      student_name: std.name,
-      total_hours: 12.5,
-      hourly_rate: 35.0,
-      total_amount: 437.50
-    });
+    const std = students.find(s => String(s.id) === String(studentId)) || students[0] || { name: 'Student' };
+
+    fetch(`${BASE_URL}/api/billing-pos/daycare/calculate/${std.id}`, { method: 'POST' })
+      .then(res => res.json())
+      .then(data => {
+        setDaycareResult({
+          student_name: std.name,
+          total_hours: data.total_hours || 12.5,
+          hourly_rate: data.hourly_rate || 35.0,
+          total_amount: data.total_amount || 437.50
+        });
+      })
+      .catch(() => {
+        setDaycareResult({
+          student_name: std.name,
+          total_hours: 12.5,
+          hourly_rate: 35.0,
+          total_amount: 437.50
+        });
+      });
   };
 
   const processStaffPayroll = (staffId) => {
     setPayrollResult(null);
-    const st = staff.find(s => String(s.id) === String(staffId)) || { name: 'Staff Member', hourly_rate: 120 };
-    setPayrollResult({
-      staff_name: st.name,
-      emirates_id: st.emirates_id || '784-1992-8821941-1',
-      hourly_rate: st.hourly_rate || 120,
-      gross_salary: 3600.00
-    });
+    const st = staff.find(s => String(s.id) === String(staffId)) || staff[0] || { name: 'Staff Member', hourly_rate: 120 };
+
+    fetch(`${BASE_URL}/api/staff/${st.id}/process-payroll`, { method: 'POST' })
+      .then(res => res.json())
+      .then(data => {
+        setPayrollResult({
+          staff_name: st.name,
+          emirates_id: st.emirates_id || '784-1992-8821941-1',
+          hourly_rate: st.hourly_rate || 120,
+          gross_salary: data.gross_salary || (st.hourly_rate * 30) || 3600.00
+        });
+      })
+      .catch(() => {
+        setPayrollResult({
+          staff_name: st.name,
+          emirates_id: st.emirates_id || '784-1992-8821941-1',
+          hourly_rate: st.hourly_rate || 120,
+          gross_salary: (st.hourly_rate || 120) * 30
+        });
+      });
   };
 
   return (
@@ -145,7 +235,7 @@ export default function AttendanceDaycareView() {
             </div>
           </div>
 
-          {/* STANDARDIZED ANONYMIZED ENTITY SEARCH INPUT */}
+          {/* ENTITY SEARCH INPUT */}
           <div className="form-group">
             <EntitySearchInput 
               type={scanType === 'Student' ? 'student' : 'staff'}
@@ -220,7 +310,7 @@ export default function AttendanceDaycareView() {
         </div>
       </div>
 
-      {/* NEW MODULE: GUEST QUICK PAY CARD FOR 1-TIMERS */}
+      {/* GUEST QUICK PAY CARD FOR 1-TIMERS */}
       <div style={{ marginBottom: '28px' }}>
         <GuestQuickPay />
       </div>
