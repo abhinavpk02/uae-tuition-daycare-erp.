@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ShieldCheck, Plus, FileText, PieChart, Scale, ArrowDownRight, ArrowUpRight, CheckCircle2, X } from 'lucide-react';
+import SearchableSelectInput from '../components/SearchableSelectInput';
 
 export default function AccountingView() {
   const [activeTab, setActiveTab] = useState('trial-balance');
@@ -8,66 +9,51 @@ export default function AccountingView() {
   // Robust default state to guarantee ledger works 100%
   const [trialBalance, setTrialBalance] = useState({
     is_balanced: true,
-    grand_total_debit: 125400.0,
-    grand_total_credit: 125400.0,
+    grand_total_debit: 154200.0,
+    grand_total_credit: 154200.0,
     accounts: [
-      { code: '1000', name: 'Petty Cash & Bank (AED)', type: 'Asset', total_debit: 85400.0, total_credit: 0.0, net_balance: 85400.0 },
-      { code: '1200', name: 'Student Fees Receivable', type: 'Asset', total_debit: 15000.0, total_credit: 0.0, net_balance: 15000.0 },
-      { code: '1500', name: 'Daycare & Tuition Assets', type: 'Asset', total_debit: 25000.0, total_credit: 0.0, net_balance: 25000.0 },
-      { code: '3000', name: 'Owner Equity & Capital', type: 'Equity', total_debit: 0.0, total_credit: 100000.0, net_balance: -100000.0 },
-      { code: '4000', name: 'Tuition Fee Revenue', type: 'Revenue', total_debit: 0.0, total_credit: 20400.0, net_balance: -20400.0 },
-      { code: '4100', name: 'Daycare Hourly Revenue', type: 'Revenue', total_debit: 0.0, total_credit: 5000.0, net_balance: -5000.0 }
+      { account_code: '1000', account_name: 'Cash & Bank Balance', total_debit: 45000.0, total_credit: 0.0, net_balance: 45000.0 },
+      { account_code: '1200', account_name: 'Accounts Receivable (Tuition Dues)', total_debit: 12500.0, total_credit: 0.0, net_balance: 12500.0 },
+      { account_code: '1500', account_name: 'Fixed Assets & Equipment', total_debit: 96700.0, total_credit: 0.0, net_balance: 96700.0 },
+      { account_code: '4000', account_name: 'Tuition Fee Revenue', total_debit: 0.0, total_credit: 89200.0, net_balance: -89200.0 },
+      { account_code: '4100', account_name: 'Daycare Service Revenue', total_debit: 0.0, total_credit: 40000.0, net_balance: -40000.0 },
+      { account_code: '3000', account_name: 'Owner Capital / Retained Earnings', total_debit: 0.0, total_credit: 25000.0, net_balance: -25000.0 }
     ]
   });
 
   const [pnl, setPnl] = useState({
-    total_revenue: 25400.0,
-    total_expense: 4200.0,
-    net_profit: 21200.0,
+    total_revenues: 129200.0,
+    total_expenses: 34500.0,
+    net_profit: 94700.0,
     revenues: [
-      { code: '4000', name: 'Tuition Fee Revenue', amount: 20400.0 },
-      { code: '4100', name: 'Daycare Hourly Revenue', amount: 5000.0 }
+      { account_code: '4000', account_name: 'Tuition Fee Revenue', total: 89200.0 },
+      { account_code: '4100', account_name: 'Daycare Service Revenue', total: 40000.0 }
     ],
     expenses: [
-      { code: '5000', name: 'Teacher & Staff Salaries', amount: 3500.0 },
-      { code: '5100', name: 'Facility Rent & Utilities', amount: 700.0 }
-    ]
-  });
-
-  const [balanceSheet, setBalanceSheet] = useState({
-    is_balanced: true,
-    total_assets: 125400.0,
-    total_equity_liabilities: 125400.0,
-    assets: [
-      { code: '1000', name: 'Petty Cash & Bank (AED)', amount: 85400.0 },
-      { code: '1200', name: 'Student Fees Receivable', amount: 15000.0 },
-      { code: '1500', name: 'Daycare & Tuition Assets', amount: 25000.0 }
-    ],
-    equity_liabilities: [
-      { code: '3000', name: 'Owner Equity & Capital', amount: 100000.0 },
-      { code: '3900', name: 'Retained Earnings / Net Profit', amount: 25400.0 }
+      { account_code: '5000', account_name: 'Staff Payroll Expense', total: 24500.0 },
+      { account_code: '5100', account_name: 'Facility Maintenance & Utilities', total: 10000.0 }
     ]
   });
 
   const [journalEntries, setJournalEntries] = useState([
     {
       id: 'JE-1001',
-      date: '2026-08-14T10:00:00Z',
-      description: 'Initial Owner Capital Injection',
+      date: '2026-08-14T09:30:00Z',
+      description: 'Purchase of Tuition & Daycare Equipment',
       ref_module: 'Manual',
       lines: [
-        { account_code: '1000', debit: 100000.0, credit: 0.0 },
-        { account_code: '3000', debit: 0.0, credit: 100000.0 }
+        { account_code: '1500', debit: 1250.0, credit: 0.0 },
+        { account_code: '1000', debit: 0.0, credit: 1250.0 }
       ]
     },
     {
       id: 'JE-1002',
-      date: '2026-08-14T11:30:00Z',
-      description: 'Purchase of Tuition & Daycare Equipment Assets',
+      date: '2026-08-14T11:00:00Z',
+      description: 'Initial Owner Capital Injection',
       ref_module: 'Manual',
       lines: [
-        { account_code: '1500', debit: 25000.0, credit: 0.0 },
-        { account_code: '1000', debit: 0.0, credit: 25000.0 }
+        { account_code: '1000', debit: 25000.0, credit: 0.0 },
+        { account_code: '3000', debit: 0.0, credit: 25000.0 }
       ]
     },
     {
@@ -100,11 +86,6 @@ export default function AccountingView() {
       .then(data => { if (data && data.revenues) setPnl(data); })
       .catch(() => {});
 
-    fetch('/api/reports/balance-sheet')
-      .then(res => res.json())
-      .then(data => { if (data && data.assets) setBalanceSheet(data); })
-      .catch(() => {});
-
     fetch('/api/accounting/journal-entries')
       .then(res => res.json())
       .then(data => { if (Array.isArray(data) && data.length > 0) setJournalEntries(data); })
@@ -117,15 +98,11 @@ export default function AccountingView() {
 
   const handleCreateEntry = (e) => {
     e.preventDefault();
-    setFormMsg('');
     const val = parseFloat(amount);
-    if (!val || val <= 0) {
-      setFormMsg('Please enter a valid amount');
-      return;
-    }
+    if (!val || val <= 0) return;
 
     const newEntry = {
-      id: 'JE-MANUAL-' + Date.now().toString().substring(6),
+      id: 'JE-' + Date.now().toString().substring(7),
       date: new Date().toISOString(),
       description: desc || 'Manual Ledger Adjustment',
       ref_module: 'Manual',
@@ -135,17 +112,16 @@ export default function AccountingView() {
       ]
     };
 
-    // Update local state immediately
     setJournalEntries(prev => [newEntry, ...prev]);
 
-    // Recalculate trial balance locally
+    // Update Trial Balance state in real time
     setTrialBalance(prev => {
       const updatedAccounts = prev.accounts.map(acc => {
-        if (acc.code === debitAcc) {
+        if (acc.account_code === debitAcc) {
           const newDebit = acc.total_debit + val;
           return { ...acc, total_debit: newDebit, net_balance: newDebit - acc.total_credit };
         }
-        if (acc.code === creditAcc) {
+        if (acc.account_code === creditAcc) {
           const newCredit = acc.total_credit + val;
           return { ...acc, total_credit: newCredit, net_balance: acc.total_debit - newCredit };
         }
@@ -174,114 +150,196 @@ export default function AccountingView() {
       })
     }).catch(() => {});
 
-    setShowModal(false);
+    setFormMsg('Journal Entry posted & General Ledger updated!');
     setDesc('');
+    setAmount('500');
+    setTimeout(() => {
+      setFormMsg('');
+      setShowModal(false);
+    }, 1200);
   };
 
   return (
     <div className="view-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+      {/* Header */}
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>Double-Entry General Ledger & Reports</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Strict auditability with real-time Debit = Credit validation</p>
+          <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>General Ledger & Financial Accounting</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Double-entry bookkeeping system with real-time Trial Balance verification</p>
         </div>
+
         <button className="btn btn-emerald" onClick={() => setShowModal(true)}>
           <Plus size={18} /> New Journal Entry
         </button>
       </div>
 
-      {/* Tabs Navigation */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
-        <button className={`btn ${activeTab === 'trial-balance' ? 'btn-emerald' : 'btn-outline'}`} onClick={() => setActiveTab('trial-balance')}>
+      {/* Ledger Verification Status Card */}
+      <div className="glass-card" style={{ marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'var(--accent-primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)' }}>
+              <Scale size={24} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)' }}>Ledger Audit Status:</h3>
+                {trialBalance.is_balanced ? (
+                  <span className="badge-status badge-success" style={{ fontSize: '0.85rem' }}>
+                    <ShieldCheck size={14} /> 100% Balanced
+                  </span>
+                ) : (
+                  <span className="badge-status badge-warning" style={{ fontSize: '0.85rem', color: '#EF4444', borderColor: '#EF4444' }}>
+                    Imbalance Detected
+                  </span>
+                )}
+              </div>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: '2px' }}>
+                Total Debits equal Total Credits across all Chart of Accounts
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '24px', fontFamily: 'monospace' }}>
+            <div>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>TOTAL DEBITS</span>
+              <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
+                AED {trialBalance.grand_total_debit.toFixed(2)}
+              </span>
+            </div>
+            <div>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>TOTAL CREDITS</span>
+              <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                AED {trialBalance.grand_total_credit.toFixed(2)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs Bar */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
+        <button 
+          className={`btn ${activeTab === 'trial-balance' ? 'btn-emerald' : 'btn-outline'}`}
+          onClick={() => setActiveTab('trial-balance')}
+        >
           <Scale size={16} /> Trial Balance
         </button>
-        <button className={`btn ${activeTab === 'pnl' ? 'btn-emerald' : 'btn-outline'}`} onClick={() => setActiveTab('pnl')}>
-          <PieChart size={16} /> Profit & Loss
+        <button 
+          className={`btn ${activeTab === 'journal-entries' ? 'btn-emerald' : 'btn-outline'}`}
+          onClick={() => setActiveTab('journal-entries')}
+        >
+          <FileText size={16} /> Double-Entry Journal Entries ({journalEntries.length})
         </button>
-        <button className={`btn ${activeTab === 'balance-sheet' ? 'btn-emerald' : 'btn-outline'}`} onClick={() => setActiveTab('balance-sheet')}>
-          <ShieldCheck size={16} /> Balance Sheet
-        </button>
-        <button className={`btn ${activeTab === 'ledger' ? 'btn-emerald' : 'btn-outline'}`} onClick={() => setActiveTab('ledger')}>
-          <FileText size={16} /> Journal History
+        <button 
+          className={`btn ${activeTab === 'pnl' ? 'btn-emerald' : 'btn-outline'}`}
+          onClick={() => setActiveTab('pnl')}
+        >
+          <PieChart size={16} /> Profit & Loss Statement
         </button>
       </div>
 
-      {/* 1. Trial Balance Tab */}
+      {/* TAB 1: TRIAL BALANCE */}
       {activeTab === 'trial-balance' && (
         <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)' }}>Trial Balance (Chart of Accounts Rollup)</h3>
-            <span className="badge-status badge-success">
-              <CheckCircle2 size={14} /> Double-Entry Constraint Balanced
-            </span>
-          </div>
-
+          <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', color: 'var(--text-main)' }}>Chart of Accounts - Trial Balance Breakdown</h3>
           <div className="table-responsive-wrapper">
             <table className="custom-table">
               <thead>
                 <tr>
                   <th>Code</th>
                   <th>Account Name</th>
-                  <th>Type</th>
-                  <th style={{ textAlign: 'right' }}>Total Debit (AED)</th>
-                  <th style={{ textAlign: 'right' }}>Total Credit (AED)</th>
-                  <th style={{ textAlign: 'right' }}>Net Balance (AED)</th>
+                  <th>Total Debit (AED)</th>
+                  <th>Total Credit (AED)</th>
+                  <th>Net Balance (AED)</th>
                 </tr>
               </thead>
               <tbody>
                 {trialBalance.accounts.map(acc => (
-                  <tr key={acc.code}>
-                    <td style={{ fontFamily: 'monospace', fontWeight: 600, color: 'var(--accent-primary)' }}>{acc.code}</td>
-                    <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{acc.name}</td>
-                    <td><span className="badge-status badge-warning">{acc.type}</span></td>
-                    <td style={{ textAlign: 'right', fontFamily: 'monospace' }}>{acc.total_debit.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                    <td style={{ textAlign: 'right', fontFamily: 'monospace' }}>{acc.total_credit.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                    <td style={{ textAlign: 'right', fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-primary)' }}>
-                      {acc.net_balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  <tr key={acc.account_code}>
+                    <td style={{ fontFamily: 'monospace', fontWeight: 700 }}>{acc.account_code}</td>
+                    <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{acc.account_name}</td>
+                    <td style={{ fontFamily: 'monospace', color: acc.total_debit > 0 ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+                      {acc.total_debit > 0 ? acc.total_debit.toFixed(2) : '-'}
+                    </td>
+                    <td style={{ fontFamily: 'monospace', color: acc.total_credit > 0 ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                      {acc.total_credit > 0 ? acc.total_credit.toFixed(2) : '-'}
+                    </td>
+                    <td style={{ fontFamily: 'monospace', fontWeight: 700, color: acc.net_balance >= 0 ? 'var(--accent-primary)' : '#EF4444' }}>
+                      {acc.net_balance.toFixed(2)}
                     </td>
                   </tr>
                 ))}
               </tbody>
-              <tfoot>
-                <tr style={{ fontWeight: 700, background: 'var(--card-bg-subtle)', borderTop: '2px solid var(--accent-primary)' }}>
-                  <td colSpan="3">GRAND TOTALS</td>
-                  <td style={{ textAlign: 'right', fontFamily: 'monospace' }}>AED {trialBalance.grand_total_debit.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                  <td style={{ textAlign: 'right', fontFamily: 'monospace' }}>AED {trialBalance.grand_total_credit.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                  <td style={{ textAlign: 'right', color: 'var(--accent-primary)' }}>0.00 (Balanced)</td>
-                </tr>
-              </tfoot>
             </table>
           </div>
         </div>
       )}
 
-      {/* 2. Profit & Loss Statement Tab */}
+      {/* TAB 2: JOURNAL ENTRIES LOG */}
+      {activeTab === 'journal-entries' && (
+        <div className="glass-card">
+          <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', color: 'var(--text-main)' }}>Audit Trail - Double-Entry Journal Entries</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {journalEntries.map(je => (
+              <div key={je.id} style={{ padding: '16px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 800, color: 'var(--accent-primary)', fontSize: '0.95rem' }}>{je.id}</span>
+                    <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{je.description}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className="badge-status badge-warning" style={{ fontSize: '0.7rem' }}>{je.ref_module}</span>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                      {new Date(je.date).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Lines table inside each entry */}
+                <table style={{ width: '100%', fontSize: '0.82rem', borderCollapse: 'collapse', marginTop: '8px' }}>
+                  <thead>
+                    <tr style={{ color: 'var(--text-muted)', textAlign: 'left', borderBottom: '1px dashed var(--border-color)' }}>
+                      <th style={{ padding: '4px 0' }}>Account Code</th>
+                      <th style={{ padding: '4px 0' }}>Debit (AED)</th>
+                      <th style={{ padding: '4px 0' }}>Credit (AED)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {je.lines.map((line, idx) => (
+                      <tr key={idx} style={{ borderBottom: idx < je.lines.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                        <td style={{ padding: '6px 0', fontFamily: 'monospace', color: 'var(--text-main)' }}>{line.account_code}</td>
+                        <td style={{ padding: '6px 0', fontFamily: 'monospace', color: line.debit > 0 ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+                          {line.debit > 0 ? line.debit.toFixed(2) : '-'}
+                        </td>
+                        <td style={{ padding: '6px 0', fontFamily: 'monospace', color: line.credit > 0 ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                          {line.credit > 0 ? line.credit.toFixed(2) : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: PROFIT & LOSS */}
       {activeTab === 'pnl' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div className="grid-split-responsive">
           <div className="glass-card">
             <h3 style={{ fontFamily: 'Outfit', color: 'var(--accent-primary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ArrowUpRight size={20} /> Revenues
+              <ArrowUpRight size={20} /> Revenues (Income)
             </h3>
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Revenue Stream</th>
-                  <th style={{ textAlign: 'right' }}>Amount (AED)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pnl.revenues.map(r => (
-                  <tr key={r.code}>
-                    <td style={{ fontFamily: 'monospace' }}>{r.code}</td>
-                    <td style={{ fontWeight: 600 }}>{r.name}</td>
-                    <td style={{ textAlign: 'right', fontFamily: 'monospace', fontWeight: 600, color: 'var(--accent-primary)' }}>{r.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div style={{ marginTop: '16px', textAlign: 'right', fontWeight: 700, fontSize: '1.1rem', color: 'var(--accent-primary)' }}>
-              Total Revenue: AED {pnl.total_revenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            {pnl.revenues.map(r => (
+              <div key={r.account_code} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--border-color)' }}>
+                <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{r.account_name}</span>
+                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-primary)' }}>AED {r.total.toFixed(2)}</span>
+              </div>
+            ))}
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 0 0 0', marginTop: '12px', fontSize: '1.05rem', fontWeight: 800 }}>
+              <span>Total Revenue:</span>
+              <span style={{ fontFamily: 'monospace', color: 'var(--accent-primary)' }}>AED {pnl.total_revenues.toFixed(2)}</span>
             </div>
           </div>
 
@@ -289,98 +347,28 @@ export default function AccountingView() {
             <h3 style={{ fontFamily: 'Outfit', color: '#EF4444', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ArrowDownRight size={20} /> Expenses
             </h3>
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Expense Category</th>
-                  <th style={{ textAlign: 'right' }}>Amount (AED)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pnl.expenses.map(e => (
-                  <tr key={e.code}>
-                    <td style={{ fontFamily: 'monospace' }}>{e.code}</td>
-                    <td style={{ fontWeight: 600 }}>{e.name}</td>
-                    <td style={{ textAlign: 'right', fontFamily: 'monospace', fontWeight: 600, color: '#EF4444' }}>{e.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div style={{ marginTop: '16px', textAlign: 'right', fontWeight: 700, fontSize: '1.1rem', color: '#EF4444' }}>
-              Total Expenses: AED {pnl.total_expense.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 3. Balance Sheet Tab */}
-      {activeTab === 'balance-sheet' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-          <div className="glass-card">
-            <h3 style={{ fontFamily: 'Outfit', color: 'var(--accent-primary)', marginBottom: '16px' }}>Assets</h3>
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Asset Name</th>
-                  <th style={{ textAlign: 'right' }}>Balance (AED)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {balanceSheet.assets.map(a => (
-                  <tr key={a.code}>
-                    <td style={{ fontFamily: 'monospace' }}>{a.code}</td>
-                    <td style={{ fontWeight: 600 }}>{a.name}</td>
-                    <td style={{ textAlign: 'right', fontFamily: 'monospace', fontWeight: 600 }}>{a.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="glass-card">
-            <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)', marginBottom: '16px' }}>Liabilities & Owner Equity</h3>
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Equity / Liability</th>
-                  <th style={{ textAlign: 'right' }}>Balance (AED)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {balanceSheet.equity_liabilities.map(l => (
-                  <tr key={l.code}>
-                    <td style={{ fontFamily: 'monospace' }}>{l.code}</td>
-                    <td style={{ fontWeight: 600 }}>{l.name}</td>
-                    <td style={{ textAlign: 'right', fontFamily: 'monospace', fontWeight: 600 }}>{l.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* 4. Journal History Tab */}
-      {activeTab === 'ledger' && (
-        <div className="glass-card">
-          <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', color: 'var(--text-main)' }}>Double-Entry Journal Log</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {journalEntries.map(entry => (
-              <div key={entry.id} style={{ padding: '16px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{entry.description}</span>
-                  <span className="badge-status badge-warning">{entry.ref_module}</span>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  <span>Ref ID: {entry.id}</span>
-                  <span>{new Date(entry.date).toLocaleString()}</span>
-                </div>
+            {pnl.expenses.map(e => (
+              <div key={e.account_code} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--border-color)' }}>
+                <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{e.account_name}</span>
+                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#EF4444' }}>AED {e.total.toFixed(2)}</span>
               </div>
             ))}
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 0 0 0', marginTop: '12px', fontSize: '1.05rem', fontWeight: 800 }}>
+              <span>Total Expenses:</span>
+              <span style={{ fontFamily: 'monospace', color: '#EF4444' }}>AED {pnl.total_expenses.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div className="glass-card" style={{ gridColumn: '1 / -1', background: 'var(--card-bg-subtle)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h4 style={{ fontFamily: 'Outfit', fontSize: '1.2rem', color: 'var(--text-main)' }}>Net Profit / Period Balance</h4>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>Total Revenues minus Total Operating Expenses</p>
+              </div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 800, fontFamily: 'monospace', color: pnl.net_profit >= 0 ? 'var(--accent-primary)' : '#EF4444' }}>
+                AED {pnl.net_profit.toFixed(2)}
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -403,33 +391,49 @@ export default function AccountingView() {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div className="form-group">
-                  <label className="form-label">Debit Account</label>
-                  <select className="form-select" value={debitAcc} onChange={e => setDebitAcc(e.target.value)}>
-                    <option value="1000">1000 Cash & Bank</option>
-                    <option value="1200">1200 Student Receivables</option>
-                    <option value="1500">1500 Fixed Assets</option>
-                  </select>
-                </div>
+                <SearchableSelectInput
+                  label="Debit Account"
+                  placeholder="Search debit account..."
+                  options={[
+                    { value: '1000', label: '1000 - Cash & Bank Balance' },
+                    { value: '1200', label: '1200 - Accounts Receivable (Tuition Dues)' },
+                    { value: '1500', label: '1500 - Fixed Assets & Equipment' }
+                  ]}
+                  value={debitAcc}
+                  onChange={val => setDebitAcc(val)}
+                />
 
-                <div className="form-group">
-                  <label className="form-label">Credit Account</label>
-                  <select className="form-select" value={creditAcc} onChange={e => setCreditAcc(e.target.value)}>
-                    <option value="4000">4000 Tuition Revenue</option>
-                    <option value="4100">4100 Daycare Revenue</option>
-                    <option value="3000">3000 Owner Capital</option>
-                  </select>
-                </div>
+                <SearchableSelectInput
+                  label="Credit Account"
+                  placeholder="Search credit account..."
+                  options={[
+                    { value: '4000', label: '4000 - Tuition Fee Revenue' },
+                    { value: '4100', label: '4100 - Daycare Service Revenue' },
+                    { value: '3000', label: '3000 - Owner Equity & Capital' }
+                  ]}
+                  value={creditAcc}
+                  onChange={val => setCreditAcc(val)}
+                />
               </div>
 
               <div className="form-group" style={{ marginBottom: '24px' }}>
-                <label className="form-label">Amount (AED)</label>
-                <input type="number" step="0.01" className="form-input" value={amount} onChange={e => setAmount(e.target.value)} required />
+                <label className="form-label">Transaction Amount (AED)</label>
+                <input type="number" step="0.01" className="form-input" placeholder="500.00" value={amount} onChange={e => setAmount(e.target.value)} required />
               </div>
 
+              {formMsg && (
+                <div style={{ padding: '10px', background: 'var(--accent-primary-glow)', borderRadius: '8px', color: 'var(--accent-primary)', fontSize: '0.85rem', marginBottom: '16px', fontWeight: 600 }}>
+                  {formMsg}
+                </div>
+              )}
+
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button type="button" className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-emerald" style={{ flex: 1, justifyContent: 'center' }}>Post Entry</button>
+                <button type="button" className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setShowModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-emerald" style={{ flex: 1, justifyContent: 'center' }}>
+                  Post Entry
+                </button>
               </div>
             </form>
           </div>

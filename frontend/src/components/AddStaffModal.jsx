@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, User, Phone, Mail, Calendar, Shield, DollarSign, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import SearchableSelectInput from './SearchableSelectInput';
 
 export default function AddStaffModal({ isOpen, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -170,15 +171,18 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }) {
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Assigned Role *</label>
-              <select className="form-select" name="role" value={formData.role} onChange={handleChange}>
-                <option value="Teacher">Teacher / Supervisor</option>
-                <option value="Admin">Admin Staff</option>
-                <option value="Accountant">Accountant</option>
-                <option value="DaycareCaregiver">Daycare Caregiver</option>
-              </select>
-            </div>
+            <SearchableSelectInput
+              label="Assigned Role *"
+              placeholder="Search staff role..."
+              options={[
+                { value: 'Teacher', label: 'Teacher / Supervisor' },
+                { value: 'Admin', label: 'Admin Staff' },
+                { value: 'Accountant', label: 'Accountant' },
+                { value: 'DaycareCaregiver', label: 'Daycare Caregiver' }
+              ]}
+              value={formData.role}
+              onChange={val => setFormData(prev => ({ ...prev, role: val }))}
+            />
           </div>
 
           <div className="form-group">

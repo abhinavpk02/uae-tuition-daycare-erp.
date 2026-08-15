@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, MapPin, UserCheck, CheckCircle2, Check, Search } from 'lucide-react';
+import SearchableSelectInput from '../components/SearchableSelectInput';
 
 export default function TimetableView() {
   const [activeSessions, setActiveSessions] = useState([
@@ -111,14 +112,16 @@ export default function TimetableView() {
           </div>
 
           <div className="form-group" style={{ marginBottom: '12px' }}>
-            <label className="form-label">Select Active Class / Room Session</label>
-            <select className="form-select" value={selectedClass} onChange={e => setSelectedClass(e.target.value)}>
-              {activeSessions.map(s => (
-                <option key={s.id} value={`${s.room} - ${s.subject}`}>
-                  {s.room} - {s.subject} ({s.time})
-                </option>
-              ))}
-            </select>
+            <SearchableSelectInput
+              label="Select Active Class / Room Session"
+              placeholder="Search active classroom session..."
+              options={activeSessions.map(s => ({
+                value: `${s.room} - ${s.subject}`,
+                label: `${s.room} - ${s.subject} (${s.time})`
+              }))}
+              value={selectedClass}
+              onChange={val => setSelectedClass(val)}
+            />
           </div>
 
           {/* SEARCH STUDENT IN CLASS ROSTER */}

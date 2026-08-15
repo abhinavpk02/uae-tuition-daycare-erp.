@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { UserCheck, Clock, FileText, Download, ShieldCheck, DollarSign, Calendar } from 'lucide-react';
+import SearchableSelectInput from '../components/SearchableSelectInput';
 
 export default function ParentPortalView() {
   const [students, setStudents] = useState([]);
@@ -42,18 +43,17 @@ export default function ParentPortalView() {
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Welcome, Mohammed Al-Hashimi | Child Attendance, Daycare Usage & Tax Invoices</p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>Select Child:</label>
-          <select 
-            className="form-select" 
-            style={{ width: '220px', background: '#0F172A', border: '1px solid var(--accent-emerald)', color: '#FFF', fontWeight: 600 }}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '240px' }}>
+          <SearchableSelectInput
+            label="Select Child"
+            placeholder="Search child..."
+            options={students.map(s => ({
+              value: s.id,
+              label: `${s.name} (${s.standard})`
+            }))}
             value={selectedStudent}
-            onChange={e => setSelectedStudent(e.target.value)}
-          >
-            {students.map(s => (
-              <option key={s.id} value={s.id}>{s.name} ({s.standard})</option>
-            ))}
-          </select>
+            onChange={val => setSelectedStudent(val)}
+          />
         </div>
       </div>
 

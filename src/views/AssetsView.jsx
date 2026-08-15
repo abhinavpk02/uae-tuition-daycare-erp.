@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Building2, Plus, TrendingDown, CheckCircle2 } from 'lucide-react';
+import SearchableSelectInput from '../components/SearchableSelectInput';
 
 export default function AssetsView() {
   const [assets, setAssets] = useState([]);
@@ -109,15 +110,18 @@ export default function AssetsView() {
           </h3>
 
           <form onSubmit={handleAddAsset}>
-            <div className="form-group">
-              <label className="form-label">Category</label>
-              <select className="form-select" value={category} onChange={e => setCategory(e.target.value)}>
-                <option value="Technology">Technology & Hardware</option>
-                <option value="Facility">Facility & Furniture</option>
-                <option value="Transportation">Student Bus Shuttle</option>
-                <option value="Daycare">Daycare Play Equipment</option>
-              </select>
-            </div>
+            <SearchableSelectInput
+              label="Category"
+              placeholder="Search asset category..."
+              options={[
+                { value: 'Technology', label: 'Technology & Hardware' },
+                { value: 'Facility', label: 'Facility & Furniture' },
+                { value: 'Transportation', label: 'Student Bus Shuttle' },
+                { value: 'Daycare', label: 'Daycare Play Equipment' }
+              ]}
+              value={category}
+              onChange={val => setCategory(val)}
+            />
 
             <div className="form-group">
               <label className="form-label">Item Name</label>

@@ -1,139 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ShoppingBag, Plus, Minus, Trash2, CheckCircle2, Package, Tag, ArrowRight, X, Search } from 'lucide-react';
-
-// UNIFIED DIRECT SEARCHABLE SELECTION BAR COMPONENT
-function SearchableSelectInput({ label, placeholder, options, value, onChange }) {
-  const selectedOpt = options.find(o => String(o.value) === String(value));
-  const [searchTerm, setSearchTerm] = useState(selectedOpt ? selectedOpt.label : '');
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    const matched = options.find(o => String(o.value) === String(value));
-    if (matched && !isOpen) {
-      setSearchTerm(matched.label);
-    } else if (!value && !isOpen) {
-      setSearchTerm('');
-    }
-  }, [value, options, isOpen]);
-
-  const filteredOptions = options.filter(o =>
-    o.label.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsOpen(false);
-        const matched = options.find(o => String(o.value) === String(value));
-        if (matched) setSearchTerm(matched.label);
-        else setSearchTerm('');
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [value, options]);
-
-  return (
-    <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
-      {label && <label className="form-label">{label}</label>}
-      <div style={{ position: 'relative', width: '100%' }}>
-        <input
-          type="text"
-          className="form-input"
-          placeholder={placeholder || "Type student name directly..."}
-          value={searchTerm}
-          onFocus={() => {
-            setIsOpen(true);
-            setSearchTerm('');
-          }}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setIsOpen(true);
-          }}
-          style={{
-            paddingRight: '36px',
-            fontWeight: 600,
-            width: '100%',
-            cursor: 'text'
-          }}
-        />
-        <Search size={16} color="var(--accent-primary)" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-      </div>
-
-      {isOpen && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          left: 0,
-          right: 0,
-          marginTop: '6px',
-          background: 'var(--bg-card)',
-          opacity: 1,
-          border: '1px solid var(--border-highlight)',
-          borderRadius: '16px',
-          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.5)',
-          zIndex: 9999,
-          padding: '6px',
-          maxHeight: '220px',
-          overflowY: 'auto'
-        }}>
-          <div
-            onClick={() => {
-              onChange('');
-              setSearchTerm('');
-              setIsOpen(false);
-            }}
-            style={{
-              padding: '10px 14px',
-              borderRadius: '10px',
-              cursor: 'pointer',
-              fontSize: '0.86rem',
-              color: 'var(--text-muted)',
-              fontStyle: 'italic',
-              background: !value ? 'var(--card-bg-subtle)' : 'transparent',
-              marginBottom: '4px'
-            }}
-          >
-            -- General Walk-in Customer --
-          </div>
-          {filteredOptions.length > 0 ? (
-            filteredOptions.map(opt => (
-              <div
-                key={opt.value}
-                onClick={() => {
-                  onChange(opt.value);
-                  setSearchTerm(opt.label);
-                  setIsOpen(false);
-                }}
-                style={{
-                  padding: '10px 14px',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                  fontSize: '0.86rem',
-                  color: String(opt.value) === String(value) ? 'var(--accent-primary)' : 'var(--text-main)',
-                  fontWeight: String(opt.value) === String(value) ? 700 : 500,
-                  background: String(opt.value) === String(value) ? 'var(--card-bg-subtle)' : 'transparent',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  transition: 'background 0.15s ease'
-                }}
-              >
-                <span>{opt.label}</span>
-                {String(opt.value) === String(value) && <CheckCircle2 size={14} color="var(--accent-primary)" />}
-              </div>
-            ))
-          ) : (
-            <div style={{ padding: '12px', fontSize: '0.82rem', color: 'var(--text-muted)', textAlign: 'center' }}>
-              No matches found for "{searchTerm}"
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
+import SearchableSelectInput from '../components/SearchableSelectInput';
 
 export default function POSView() {
   const [inventory, setInventory] = useState([
@@ -298,10 +165,21 @@ export default function POSView() {
       .finally(() => setLoading(false));
   };
 
-  const studentOptions = students.map(s => ({
-    value: s.id,
-    label: `${s.name} (${s.standard || 'Student'})`
-  }));
+  const studentOptions = [
+    { value: '', label: '-- General Walk-in Customer --' },
+    ...students.map(s => ({
+      value: s.id,
+      label: `${s.name} (${s.standard || 'Student'})`
+    }))
+  ];
+
+  const categoryOptions = [
+    { value: 'Tuition', label: 'Tuition Course Books' },
+    { value: 'Daycare', label: 'Daycare Uniforms & Supplies' },
+    { value: 'Uniforms', label: 'Student Apparel & Uniforms' },
+    { value: 'Books', label: 'Library & Activity Books' },
+    { value: 'Snacks', label: 'Daycare Snacks & Refreshments' }
+  ];
 
   return (
     <div className="view-container">
@@ -507,20 +385,13 @@ export default function POSView() {
                 </div>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Category</label>
-                <select 
-                  className="form-select"
-                  value={newItemCategory}
-                  onChange={e => setNewItemCategory(e.target.value)}
-                >
-                  <option value="Tuition">Tuition</option>
-                  <option value="Daycare">Daycare</option>
-                  <option value="Uniforms">Uniforms</option>
-                  <option value="Books">Books</option>
-                  <option value="Snacks">Snacks</option>
-                </select>
-              </div>
+              <SearchableSelectInput
+                label="Category"
+                placeholder="Search item category..."
+                options={categoryOptions}
+                value={newItemCategory}
+                onChange={val => setNewItemCategory(val)}
+              />
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
                 <button 

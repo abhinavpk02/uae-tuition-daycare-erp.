@@ -15,6 +15,7 @@ import TimetableView from './views/TimetableView';
 import ParentPortalView from './views/ParentPortalView';
 import RBACManagementView from './views/RBACManagementView';
 import AIAssistantView from './views/AIAssistantView';
+import SearchableSelectInput from './components/SearchableSelectInput';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -283,17 +284,16 @@ export default function App() {
           <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             Active RBAC Mode:
           </div>
-          <select 
-            className="form-select" 
-            style={{ width: '100%', fontSize: '0.8rem', padding: '8px' }}
+          <SearchableSelectInput 
+            options={[
+              { value: 'SuperAdmin', label: 'SuperAdmin (Full Access)' },
+              { value: 'Admin', label: 'Admin / Accountant' },
+              { value: 'Teacher', label: 'Teacher / Staff' },
+              { value: 'Parent', label: 'Parent Portal' }
+            ]}
             value={activeRole}
-            onChange={e => handleRoleChange(e.target.value)}
-          >
-            <option value="SuperAdmin">SuperAdmin (Full Access)</option>
-            <option value="Admin">Admin / Accountant</option>
-            <option value="Teacher">Teacher / Staff</option>
-            <option value="Parent">Parent Portal</option>
-          </select>
+            onChange={val => handleRoleChange(val)}
+          />
         </div>
       </aside>
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ShieldCheck, Plus, FileText, PieChart, Scale, ArrowDownRight, ArrowUpRight, CheckCircle2, X } from 'lucide-react';
+import SearchableSelectInput from '../components/SearchableSelectInput';
 
 export default function AccountingView() {
   const [activeTab, setActiveTab] = useState('trial-balance');
@@ -403,23 +404,29 @@ export default function AccountingView() {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div className="form-group">
-                  <label className="form-label">Debit Account</label>
-                  <select className="form-select" value={debitAcc} onChange={e => setDebitAcc(e.target.value)}>
-                    <option value="1000">1000 Cash & Bank</option>
-                    <option value="1200">1200 Student Receivables</option>
-                    <option value="1500">1500 Fixed Assets</option>
-                  </select>
-                </div>
+                <SearchableSelectInput
+                  label="Debit Account"
+                  placeholder="Search debit account..."
+                  options={[
+                    { value: '1000', label: '1000 - Cash & Bank Balance' },
+                    { value: '1200', label: '1200 - Accounts Receivable (Tuition Dues)' },
+                    { value: '1500', label: '1500 - Fixed Assets & Equipment' }
+                  ]}
+                  value={debitAcc}
+                  onChange={val => setDebitAcc(val)}
+                />
 
-                <div className="form-group">
-                  <label className="form-label">Credit Account</label>
-                  <select className="form-select" value={creditAcc} onChange={e => setCreditAcc(e.target.value)}>
-                    <option value="4000">4000 Tuition Revenue</option>
-                    <option value="4100">4100 Daycare Revenue</option>
-                    <option value="3000">3000 Owner Capital</option>
-                  </select>
-                </div>
+                <SearchableSelectInput
+                  label="Credit Account"
+                  placeholder="Search credit account..."
+                  options={[
+                    { value: '4000', label: '4000 - Tuition Fee Revenue' },
+                    { value: '4100', label: '4100 - Daycare Service Revenue' },
+                    { value: '3000', label: '3000 - Owner Equity & Capital' }
+                  ]}
+                  value={creditAcc}
+                  onChange={val => setCreditAcc(val)}
+                />
               </div>
 
               <div className="form-group" style={{ marginBottom: '24px' }}>
