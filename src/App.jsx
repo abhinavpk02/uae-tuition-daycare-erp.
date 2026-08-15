@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Gauge, ShieldCheck, ShoppingBag, Clock, Users, 
+  LayoutGrid, Gauge, ShieldCheck, ShoppingBag, Clock, Users, 
   Sparkles, Calendar, Coins, UserCheck, Lock, Settings, UserPlus, BookOpen, Menu, X, Sun, Moon, Bot, Bell 
 } from 'lucide-react';
 
@@ -88,13 +88,25 @@ export default function App() {
             {theme === 'dark' ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#3B82F6" />}
           </button>
           
+          {/* 4-GRID ICON BUTTON FOR MOBILE MENU OVERLAY */}
           <button 
             className="mobile-menu-toggle" 
             onClick={() => setIsMobileMenuOpen(true)}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', width: 'auto', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 700 }}
+            title="Open Control Panel"
+            style={{ 
+              width: '40px', 
+              height: '40px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              borderRadius: '12px',
+              background: 'var(--card-bg-subtle)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-main)',
+              cursor: 'pointer'
+            }}
           >
-            <Menu size={18} />
-            <span>Side Panel</span>
+            <LayoutGrid size={20} />
           </button>
         </div>
       </div>
@@ -280,7 +292,7 @@ export default function App() {
       {/* MAIN CONTENT AREA */}
       <main className="main-content">
         
-        {/* CLEAN MAIN CONTENT HEADER BAR (WITHOUT SIDE PANEL BUTTON) */}
+        {/* CLEAN MAIN CONTENT HEADER BAR */}
         <header className="header-bar">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span className="badge-status badge-success" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
@@ -313,6 +325,7 @@ export default function App() {
               <span style={{ position: 'absolute', top: '8px', right: '8px', width: '8px', height: '8px', background: '#EF4444', borderRadius: '50%' }}></span>
             </button>
 
+            {/* Desktop Theme Switcher */}
             <button 
               onClick={toggleTheme} 
               className="theme-toggle-btn" 
