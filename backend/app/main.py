@@ -13,10 +13,15 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS configuration for frontend interaction
+# STRICT CORS Origins Configuration: Only https://daycare-portal.vercel.app and http://localhost:3000
+origins = [
+    "https://daycare-portal.vercel.app",
+    "http://localhost:3000"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,8 +41,6 @@ app.include_router(roles.router, prefix="/api")
 app.include_router(v1_endpoints.router, prefix="/api")
 
 
-
-
 @app.on_event("startup")
 async def startup_event():
     # Initialize schema and seed data if database is new
@@ -54,4 +57,3 @@ async def favicon():
 @app.get("/api/health")
 async def health_check():
     return {"status": "online", "system": "UAE Tuition & Daycare ERP"}
-

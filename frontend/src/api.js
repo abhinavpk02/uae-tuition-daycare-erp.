@@ -9,7 +9,11 @@ const getBaseUrl = () => {
   if (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) {
     return process.env.REACT_APP_API_URL;
   }
-  return 'http://localhost:8000';
+  // Production default target: https://daycare-portal.vercel.app or local port 3000 proxy
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return 'https://daycare-portal.vercel.app';
+  }
+  return 'http://localhost:3000';
 };
 
 export const BASE_URL = getBaseUrl().replace(/\/$/, '');
