@@ -22,8 +22,11 @@ export default function POSView() {
   const fetchInventory = () => {
     fetch('/api/pos/items')
       .then(res => res.json())
-      .then(data => { if (Array.isArray(data)) setInventory(data); })
-      .catch(() => {});
+      .then(data => {
+        if (Array.isArray(data)) setInventory(data);
+        else setInventory([]);
+      })
+      .catch(() => setInventory([]));
   };
 
   const fetchStudents = () => {
@@ -31,8 +34,9 @@ export default function POSView() {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setStudents(data);
+        else setStudents([]);
       })
-      .catch(() => {});
+      .catch(() => setStudents([]));
   };
 
   useEffect(() => {
