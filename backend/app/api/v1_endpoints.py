@@ -1,3 +1,4 @@
+import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -5,7 +6,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from decimal import Decimal
 
-from app.core.database import get_db
+from app.core.database import get_db, init_db
 from app.models.domain import Student, ProfileParent, User, UserRole, ProfileStaff, StudentProgram, RefModule, ChartOfAccounts, AccountType
 from app.services.accounting_engine import AccountingEngine
 
@@ -16,7 +17,7 @@ class StudentV1Create(BaseModel):
     name: str = Field(..., min_length=2, example="Zayed Al-Hashimi")
     dob: Optional[str] = Field(None, example="2012-05-14")
     standard: str = Field(..., example="Grade 10")
-    program: StudentProgram = Field(StudentProgram.Both, example="Both")
+    program: Optional[str] = Field("Both", example="Both")
     parent_phone: str = Field(..., example="+971 50 123 4567")
     parent_email: str = Field(..., example="parent@uaeerp.ae")
     creator_role: Optional[str] = Field("SuperAdmin", example="SuperAdmin")
@@ -43,12 +44,18 @@ class GuestPayRequest(BaseModel):
 @router.post("/students", status_code=status.HTTP_201_CREATED)
 async def create_student_v1(payload: StudentV1Create, db: AsyncSession = Depends(get_db)):
     try:
+        # Guarantee DB schema initialization
+        try:
+            await init_db()
+        except Exception:
+            pass
+
         # Strict Rule: Only SuperAdmin and Admin can register new student entries
         creator = payload.creator_role or "SuperAdmin"
         if creator not in ['SuperAdmin', 'Admin']:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, 
-                detail=f"Access Denied: {creator} role cannot create student entries. Only SuperAdmin and Admin are authorized."
+                detail=f"Access Denied: {creator} role cannot create student entries."
             )
 
         # 1. Lookup or create Parent User & ProfileParent
@@ -57,6 +64,7 @@ async def create_student_v1(payload: StudentV1Create, db: AsyncSession = Depends
 
         if not parent_user:
             parent_user = User(
+                id=str(uuid.uuid4()),
                 email=payload.parent_email,
                 hash="parent123",
                 role=UserRole.Parent,
@@ -70,19 +78,29 @@ async def create_student_v1(payload: StudentV1Create, db: AsyncSession = Depends
 
         if not parent_profile:
             parent_profile = ProfileParent(
+                id=str(uuid.uuid4()),
                 user_id=parent_user.id,
                 phone=payload.parent_phone
             )
             db.add(parent_profile)
             await db.flush()
 
+        # Resolve StudentProgram enum safely
+        prog_str = str(payload.program or "Both")
+        prog_enum = StudentProgram.Both
+        if "Tuition" in prog_str and "Daycare" not in prog_str:
+            prog_enum = StudentProgram.Tuition
+        elif "Daycare" in prog_str and "Tuition" not in prog_str:
+            prog_enum = StudentProgram.Daycare
+
         # 2. Create Student Record
         student = Student(
+            id=str(uuid.uuid4()),
             parent_id=parent_profile.id,
             name=payload.name,
             dob=payload.dob,
             standard=payload.standard,
-            program=payload.program
+            program=prog_enum
         )
         db.add(student)
         await db.commit()
@@ -95,7 +113,7 @@ async def create_student_v1(payload: StudentV1Create, db: AsyncSession = Depends
                 "id": student.id,
                 "name": student.name,
                 "standard": student.standard,
-                "program": student.program.value,
+                "program": student.program.value if hasattr(student.program, 'value') else str(student.program),
                 "parent_phone": parent_profile.phone,
                 "parent_email": parent_user.email
             }
@@ -110,15 +128,18 @@ async def create_student_v1(payload: StudentV1Create, db: AsyncSession = Depends
 @router.post("/staff", status_code=status.HTTP_201_CREATED)
 async def create_staff_v1(payload: StaffV1Create, db: AsyncSession = Depends(get_db)):
     try:
-        # Strict Rule: Only SuperAdmin and Admin can register staff entries
+        try:
+            await init_db()
+        except Exception:
+            pass
+
         creator = payload.creator_role or "SuperAdmin"
         if creator not in ['SuperAdmin', 'Admin']:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, 
-                detail=f"Access Denied: {creator} role cannot create staff entries. Only SuperAdmin and Admin are authorized."
+                detail=f"Access Denied: {creator} role cannot create staff entries."
             )
 
-        # 1. Check existing email or Emirates ID
         email_check = await db.execute(select(User).where(User.email == payload.email))
         if email_check.scalar_one_or_none():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Staff email is already registered")
@@ -127,11 +148,10 @@ async def create_staff_v1(payload: StaffV1Create, db: AsyncSession = Depends(get
         if eid_check.scalar_one_or_none():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Emirates ID is already registered")
 
-        # Resolve UserRole Enum
         role_enum = UserRole.Admin if payload.role == "Admin" else UserRole.Teacher
 
-        # 2. Create Staff User
         user = User(
+            id=str(uuid.uuid4()),
             email=payload.email,
             hash="staff123",
             role=role_enum,
@@ -140,8 +160,8 @@ async def create_staff_v1(payload: StaffV1Create, db: AsyncSession = Depends(get
         db.add(user)
         await db.flush()
 
-        # 3. Create Staff Profile
         staff_profile = ProfileStaff(
+            id=str(uuid.uuid4()),
             user_id=user.id,
             name=payload.name,
             dob=payload.dob,
@@ -162,7 +182,7 @@ async def create_staff_v1(payload: StaffV1Create, db: AsyncSession = Depends(get
                 "name": staff_profile.name,
                 "email": payload.email,
                 "emirates_id": staff_profile.emirates_id,
-                "role": user.role.value,
+                "role": user.role.value if hasattr(user.role, 'value') else str(user.role),
                 "hourly_rate": float(staff_profile.hourly_rate)
             }
         }
@@ -175,14 +195,12 @@ async def create_staff_v1(payload: StaffV1Create, db: AsyncSession = Depends(get
 
 @router.post("/billing/guest-pay", status_code=status.HTTP_201_CREATED)
 async def process_guest_payment(payload: GuestPayRequest, db: AsyncSession = Depends(get_db)):
-    """
-    Guest Quick Payment Endpoint for 1-Timers (Drop-in Daycare, Registration Fee, POS Item).
-    Bypasses `students` and `invoices` tables entirely.
-    Directly writes a double-entry JournalEntry and LedgerLines:
-      - Debit: Cash / Bank Balance (1000)
-      - Credit: Revenue Account (4100 / 4000 / 4200)
-    """
     try:
+        try:
+            await init_db()
+        except Exception:
+            pass
+
         rev_code = "4100"
         if payload.service_type == "Registration Fee":
             rev_code = "4000"
