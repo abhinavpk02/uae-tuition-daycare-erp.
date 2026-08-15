@@ -87,7 +87,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-tile-label {
+h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
   font-family: var(--font-heading) !important;
   letter-spacing: -0.015em;
   color: var(--text-main);
@@ -220,14 +220,14 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
 }
 
 .nav-tile-btn.active {
-  color: var(--bg-dark);
-  background: var(--text-main);
-  border: 2px solid var(--text-main);
-  box-shadow: 0 0 20px var(--accent-primary-glow);
+  color: var(--bg-dark) !important;
+  background: var(--text-main) !important;
+  border: 2px solid var(--text-main) !important;
+  box-shadow: 0 0 20px var(--accent-primary-glow) !important;
 }
 
 .nav-tile-btn.active svg {
-  color: var(--bg-dark);
+  color: var(--bg-dark) !important;
 }
 
 .nav-tile-label {
@@ -238,6 +238,11 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   letter-spacing: 0.04em;
   margin-top: 8px;
   line-height: 1.15;
+  color: var(--text-muted);
+}
+
+.nav-tile-btn.active .nav-tile-label {
+  color: var(--bg-dark) !important;
 }
 
 /* Main Workspace */
