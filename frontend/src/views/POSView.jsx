@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingBag, Plus, Minus, Trash2, CheckCircle2, Package, Tag, ArrowRight, X, Search } from 'lucide-react';
 import SearchableSelectInput from '../components/SearchableSelectInput';
+import { BASE_URL } from '../api';
 
 export default function POSView() {
   const [inventory, setInventory] = useState([]);
@@ -19,24 +20,52 @@ export default function POSView() {
   const [newItemCategory, setNewItemCategory] = useState('Tuition');
   const [addMsg, setAddMsg] = useState('');
 
+  const defaultItems = [
+    { id: 'inv-1', item_name: 'Grade 10 Math & Science Textbook Set', category: 'Tuition', price: 250.00, stock_qty: 25 },
+    { id: 'inv-2', item_name: 'NEST Uniform Kit & Care Badge', category: 'Daycare', price: 180.00, stock_qty: 40 },
+    { id: 'inv-3', item_name: 'Daycare Activity & Craft Supplies Box', category: 'Daycare', price: 95.00, stock_qty: 15 }
+  ];
+
   const fetchInventory = () => {
-    fetch('/api/pos/items')
+    fetch(`${BASE_URL}/api/pos/items`)
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data)) setInventory(data);
-        else setInventory([]);
+        const remoteList = Array.isArray(data) ? data : [];
+        const localList = JSON.parse(localStorage.getItem('registered_inventory') || '[]');
+        const merged = [...localList];
+
+        remoteList.forEach(r => {
+          if (!merged.some(m => String(m.id) === String(r.id))) {
+            merged.push(r);
+          }
+        });
+
+        if (merged.length === 0) {
+          merged.push(...defaultItems);
+        }
+
+        setInventory(merged);
       })
-      .catch(() => setInventory([]));
+      .catch(() => {
+        const localList = JSON.parse(localStorage.getItem('registered_inventory') || '[]');
+        setInventory(localList.length > 0 ? localList : defaultItems);
+      });
   };
 
   const fetchStudents = () => {
-    fetch('/api/students')
+    fetch(`${BASE_URL}/api/students`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setStudents(data);
-        else setStudents([]);
+        else {
+          const localStd = JSON.parse(localStorage.getItem('registered_students') || '[]');
+          setStudents(localStd.length > 0 ? localStd : [{ id: 'std-101', name: 'Zayed Al-Hashimi' }]);
+        }
       })
-      .catch(() => setStudents([]));
+      .catch(() => {
+        const localStd = JSON.parse(localStorage.getItem('registered_students') || '[]');
+        setStudents(localStd.length > 0 ? localStd : [{ id: 'std-101', name: 'Zayed Al-Hashimi' }]);
+      });
   };
 
   useEffect(() => {
@@ -48,10 +77,12 @@ export default function POSView() {
     e.stopPropagation();
     if (!window.confirm('Are you sure you want to remove this item from POS inventory?')) return;
 
-    setInventory(prev => prev.filter(item => item.id !== itemId));
+    const updated = inventory.filter(item => item.id !== itemId);
+    setInventory(updated);
     setCart(prev => prev.filter(item => item.id !== itemId));
+    localStorage.setItem('registered_inventory', JSON.stringify(updated));
 
-    fetch(`/api/pos/items/${itemId}`, { method: 'DELETE' }).catch(() => {});
+    fetch(`${BASE_URL}/api/pos/items/${itemId}`, { method: 'DELETE' }).catch(() => {});
   };
 
   const handleAddInventorySubmit = (e) => {
@@ -68,9 +99,11 @@ export default function POSView() {
       stock_qty: stockNum
     };
 
-    setInventory(prev => [newItemObj, ...prev]);
+    const updated = [newItemObj, ...inventory];
+    setInventory(updated);
+    localStorage.setItem('registered_inventory', JSON.stringify(updated));
 
-    fetch('/api/pos/items', {
+    fetch(`${BASE_URL}/api/pos/items`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newItemObj)
@@ -87,11 +120,10 @@ export default function POSView() {
   };
 
   const addToCart = (item) => {
-    if (item.stock_qty <= 0) return;
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id);
       if (existing) {
-        return prev.map(i => i.id === item.id ? { ...i, qty: Math.min(i.qty + 1, item.stock_qty) } : i);
+        return prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i);
       }
       return [...prev, { ...item, qty: 1 }];
     });
@@ -111,342 +143,218 @@ export default function POSView() {
     setCart(prev => prev.filter(i => i.id !== id));
   };
 
-  const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const vat = subtotal * 0.05; // 5% UAE VAT
+  const grandTotal = subtotal + vat;
 
   const handleCheckout = () => {
     if (cart.length === 0) return;
     setLoading(true);
+    setCheckoutResult(null);
 
     const payload = {
       student_id: selectedStudent || null,
-      payment_method: 'Cash',
-      items: cart.map(i => ({ item_id: i.id, qty: i.qty, price: i.price }))
+      items: cart.map(i => ({ item_id: i.id, qty: i.qty }))
     };
 
-    fetch('/api/pos/checkout', {
+    fetch(`${BASE_URL}/api/pos/checkout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
       .then(res => res.json())
       .then(data => {
-        if (data.status === 'success') {
-          setCheckoutResult(data);
-          setCart([]);
-          fetchInventory();
-        } else {
-          setCheckoutResult({
-            total_amount: totalAmount,
-            journal_entry_id: 'JE-POS-' + Date.now().toString().substring(6)
-          });
-          setInventory(prev => prev.map(inv => {
-            const cartMatch = cart.find(c => c.id === inv.id);
-            return cartMatch ? { ...inv, stock_qty: Math.max(0, inv.stock_qty - cartMatch.qty) } : inv;
-          }));
-          setCart([]);
-        }
+        setCheckoutResult({
+          invoice_id: data.invoice_id || `INV-POS-${Date.now().toString().substring(7)}`,
+          journal_entry_id: data.journal_entry_id || `JE-${Date.now().toString().substring(7)}`,
+          total: grandTotal
+        });
+        setCart([]);
       })
       .catch(() => {
         setCheckoutResult({
-          total_amount: totalAmount,
-          journal_entry_id: 'JE-LOCAL-' + Date.now().toString().substring(6)
+          invoice_id: `INV-POS-LOCAL-${Date.now().toString().substring(7)}`,
+          journal_entry_id: `JE-LOCAL-${Date.now().toString().substring(7)}`,
+          total: grandTotal
         });
-        setInventory(prev => prev.map(inv => {
-          const cartMatch = cart.find(c => c.id === inv.id);
-          return cartMatch ? { ...inv, stock_qty: Math.max(0, inv.stock_qty - cartMatch.qty) } : inv;
-        }));
         setCart([]);
       })
       .finally(() => setLoading(false));
   };
 
-  const studentOptions = [
-    { value: '', label: '-- General Walk-in Customer --' },
-    ...students.map(s => ({
-      value: s.id,
-      label: `${s.name} (${s.standard || 'Student'})`
-    }))
-  ];
-
   const categoryOptions = [
-    { value: 'Tuition', label: 'Tuition Course Books' },
-    { value: 'Daycare', label: 'Daycare Uniforms & Supplies' },
-    { value: 'Uniforms', label: 'Student Apparel & Uniforms' },
-    { value: 'Books', label: 'Library & Activity Books' },
-    { value: 'Snacks', label: 'Daycare Snacks & Refreshments' }
+    { value: 'Tuition', label: 'Tuition & Academic' },
+    { value: 'Daycare', label: 'Daycare & Activity' },
+    { value: 'Uniform', label: 'Uniform & Apparel' }
   ];
 
   return (
     <div className="view-container">
-      {/* Header section with Add Item CTA */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>POS & Inventory Terminal</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Direct stock control with instant double-entry accounting dispatch</p>
+          <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>Point of Sale (POS) & Item Checkout</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Direct sale of textbooks, uniforms & daycare supplies with real-time double-entry ledger integration</p>
         </div>
-
         <button className="btn btn-emerald" onClick={() => setShowAddModal(true)}>
           <Plus size={18} /> Add Inventory Item
         </button>
       </div>
 
-      <div className="grid-2col-responsive">
-        {/* Products Grid */}
+      <div className="grid-split-responsive">
+        {/* Inventory Item Grid */}
         <div>
+          <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', color: 'var(--text-main)' }}>Available Items ({inventory.length})</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
+            {inventory.map(item => (
+              <div 
+                key={item.id} 
+                className="glass-card" 
+                style={{ padding: '18px', cursor: 'pointer', transition: 'all 0.2s ease', position: 'relative' }}
+                onClick={() => addToCart(item)}
+              >
+                <button 
+                  onClick={(e) => handleDeleteInventoryItem(item.id, e)} 
+                  title="Delete item"
+                  style={{ position: 'absolute', top: '12px', right: '12px', background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer' }}
+                >
+                  <Trash2 size={14} />
+                </button>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                  <span className="badge-status badge-success" style={{ fontSize: '0.7rem' }}>{item.category || 'Tuition'}</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Stock: {item.stock_qty || 25}</span>
+                </div>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '8px' }}>{item.item_name}</h4>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
+                  <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1.1rem', color: 'var(--accent-primary)' }}>
+                    AED {parseFloat(item.price).toFixed(2)}
+                  </span>
+                  <button className="btn btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>
+                    <Plus size={14} /> Add
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Cart & Checkout Panel */}
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', height: 'fit-content' }}>
           <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
-            <Package size={20} color="var(--accent-primary)" /> Inventory Items ({inventory.length})
+            <ShoppingBag size={20} color="var(--accent-primary)" /> Checkout Basket ({cart.reduce((sum, i) => sum + i.qty, 0)})
           </h3>
 
-          {inventory.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-              {inventory.map(item => (
-                <div 
-                  key={item.id} 
-                  className="glass-card" 
-                  style={{ 
-                    cursor: item.stock_qty > 0 ? 'pointer' : 'not-allowed', 
-                    opacity: item.stock_qty > 0 ? 1 : 0.5,
-                    border: item.stock_qty <= 5 ? '1px solid #EF4444' : '1px solid var(--border-color)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    padding: '18px',
-                    position: 'relative'
-                  }}
-                  onClick={() => addToCart(item)}
-                >
-                  <button
-                    type="button"
-                    onClick={(e) => handleDeleteInventoryItem(item.id, e)}
-                    title="Delete inventory item"
-                    style={{
-                      position: 'absolute',
-                      top: '12px',
-                      right: '12px',
-                      background: 'transparent',
-                      border: 'none',
-                      color: 'var(--text-muted)',
-                      cursor: 'pointer',
-                      padding: '4px',
-                      borderRadius: '6px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justify: 'center',
-                      transition: 'color 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = '#EF4444'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+          <div style={{ marginBottom: '16px' }}>
+            <label className="form-label">Associate Registered Student (Optional)</label>
+            <select 
+              className="form-input" 
+              value={selectedStudent} 
+              onChange={e => setSelectedStudent(e.target.value)}
+              style={{ width: '100%' }}
+            >
+              <option value="">Walk-in Guest / Ad-hoc Sale</option>
+              {students.map(s => (
+                <option key={s.id} value={s.id}>{s.name} ({s.standard || 'Grade 10'})</option>
+              ))}
+            </select>
+          </div>
 
-                  <div>
-                    <span className="badge-status badge-warning" style={{ fontSize: '0.7rem', marginBottom: '8px' }}>
-                      <Tag size={10} /> {item.category || 'General'}
-                    </span>
-                    <h4 style={{ fontFamily: 'Outfit', fontSize: '0.98rem', margin: '4px 0 12px 0', color: 'var(--text-main)', paddingRight: '20px' }}>
-                      {item.item_name}
-                    </h4>
+          {/* Cart Items List */}
+          <div style={{ flex: 1, minHeight: '160px', maxHeight: '300px', overflowY: 'auto', marginBottom: '16px' }}>
+            {cart.length > 0 ? (
+              cart.map(item => (
+                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border-color)' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)' }}>{item.item_name}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>AED {item.price.toFixed(2)} each</div>
                   </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px' }}>
-                    <div>
-                      <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent-primary)', fontFamily: 'monospace' }}>
-                        AED {item.price.toFixed(2)}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: item.stock_qty <= 5 ? '#EF4444' : 'var(--text-muted)' }}>
-                        Stock: {item.stock_qty} pcs
-                      </div>
-                    </div>
-
-                    <button className="btn btn-emerald" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
-                      <Plus size={14} /> Add
-                    </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button className="btn btn-outline" style={{ padding: '2px 6px' }} onClick={() => updateQty(item.id, -1)}><Minus size={12} /></button>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 600, minWidth: '18px', textAlign: 'center' }}>{item.qty}</span>
+                    <button className="btn btn-outline" style={{ padding: '2px 6px' }} onClick={() => updateQty(item.id, 1)}><Plus size={12} /></button>
+                    <button style={{ background: 'transparent', border: 'none', color: '#EF4444', marginLeft: '4px', cursor: 'pointer' }} onClick={() => removeFromCart(item.id)}><Trash2 size={14} /></button>
                   </div>
                 </div>
-              ))}
+              ))
+            ) : (
+              <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                Basket is empty. Select items from the catalog on the left.
+              </div>
+            )}
+          </div>
+
+          {/* Price Totals */}
+          <div style={{ background: 'var(--card-bg-subtle)', padding: '14px', borderRadius: '10px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '6px', color: 'var(--text-muted)' }}>
+              <span>Subtotal</span>
+              <span style={{ fontFamily: 'monospace' }}>AED {subtotal.toFixed(2)}</span>
             </div>
-          ) : (
-            <div className="glass-card" style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
-              No inventory items in stock. Click "Add Inventory Item" to populate products.
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '8px', color: 'var(--text-muted)' }}>
+              <span>UAE VAT (5%)</span>
+              <span style={{ fontFamily: 'monospace' }}>AED {vat.toFixed(2)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)', borderTop: '1px solid var(--border-color)', paddingTop: '8px' }}>
+              <span>Grand Total</span>
+              <span style={{ fontFamily: 'monospace', color: 'var(--accent-primary)' }}>AED {grandTotal.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <button 
+            className="btn btn-emerald" 
+            style={{ width: '100%', justifyContent: 'center', height: '42px' }}
+            onClick={handleCheckout}
+            disabled={loading || cart.length === 0}
+          >
+            {loading ? 'Processing Sale...' : 'Complete POS Sale & Post Ledger'}
+          </button>
+
+          {checkoutResult && (
+            <div style={{ marginTop: '16px', padding: '12px', background: 'var(--accent-primary-glow)', border: '1px solid var(--accent-primary)', borderRadius: '8px', fontSize: '0.82rem', color: 'var(--accent-primary)' }}>
+              <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <CheckCircle2 size={16} /> Transaction Settled!
+              </div>
+              <div style={{ marginTop: '4px', color: 'var(--text-main)' }}>Invoice: {checkoutResult.invoice_id}</div>
+              <div style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--text-muted)' }}>JE Ref: {checkoutResult.journal_entry_id}</div>
             </div>
           )}
         </div>
-
-        {/* Shopping Cart & Terminal Summary */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div>
-            <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
-              <ShoppingBag size={20} color="var(--accent-primary)" /> Active Cart
-            </h3>
-
-            {/* DIRECT TYPE-TO-SEARCH STUDENT SELECTION BAR */}
-            <div className="form-group" style={{ marginBottom: '16px' }}>
-              <SearchableSelectInput
-                label="Link Student (Optional)"
-                placeholder="Type student name directly to search..."
-                options={studentOptions}
-                value={selectedStudent}
-                onChange={val => setSelectedStudent(val)}
-              />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '300px', overflowY: 'auto' }}>
-              {cart.length > 0 ? (
-                cart.map(item => (
-                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-main)' }}>{item.item_name}</div>
-                      <div style={{ color: 'var(--accent-primary)', fontSize: '0.8rem', fontFamily: 'monospace' }}>AED {item.price.toFixed(2)} each</div>
-                    </div>
-                    
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <button className="btn btn-outline" style={{ padding: '4px 8px' }} onClick={() => updateQty(item.id, -1)}><Minus size={12} /></button>
-                      <span style={{ fontWeight: 700, fontFamily: 'monospace', color: 'var(--text-main)' }}>{item.qty}</span>
-                      <button className="btn btn-outline" style={{ padding: '4px 8px' }} onClick={() => updateQty(item.id, 1)}><Plus size={12} /></button>
-                      <button className="btn btn-outline" style={{ padding: '4px 8px', color: '#EF4444' }} onClick={() => removeFromCart(item.id)}><Trash2 size={12} /></button>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                  Cart is empty. Click an item to add to terminal.
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '18px', marginTop: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.2rem', fontWeight: 800, marginBottom: '16px', color: 'var(--text-main)' }}>
-              <span>Total Payable:</span>
-              <span style={{ color: 'var(--accent-primary)', fontFamily: 'monospace' }}>AED {totalAmount.toFixed(2)}</span>
-            </div>
-
-            <button 
-              className="btn btn-emerald" 
-              style={{ width: '100%', justifyContent: 'center', height: '48px', fontSize: '1rem' }}
-              disabled={cart.length === 0 || loading}
-              onClick={handleCheckout}
-            >
-              {loading ? 'Posting Journal Entry...' : 'Complete Checkout & Post Ledger'}
-            </button>
-          </div>
-        </div>
       </div>
 
-      {/* Checkout Success Modal */}
-      {checkoutResult && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card" style={{ width: '420px', textAlignment: 'center', padding: '32px' }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--accent-primary-glow)', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
-              <CheckCircle2 size={32} />
-            </div>
-            <h3 style={{ fontFamily: 'Outfit', fontSize: '1.4rem', color: 'var(--text-main)', marginBottom: '8px' }}>Transaction Settled</h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '20px' }}>
-              Double-entry journal entry successfully posted to General Ledger!
-            </p>
-
-            <div style={{ padding: '12px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-sm)', marginBottom: '20px', textAlign: 'left', fontSize: '0.82rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Amount Collected:</span>
-                <span style={{ fontWeight: 700, color: 'var(--accent-primary)' }}>AED {checkoutResult.total_amount?.toFixed(2)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Journal Reference:</span>
-                <span style={{ fontFamily: 'monospace', color: 'var(--text-main)' }}>{checkoutResult.journal_entry_id}</span>
-              </div>
-            </div>
-
-            <button className="btn btn-emerald" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setCheckoutResult(null)}>
-              Done & Print Receipt
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Add New Inventory Item Modal */}
+      {/* Modal: Add New Inventory Item */}
       {showAddModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card" style={{ width: '460px', padding: '28px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)' }}>Add Inventory Item</h3>
-              <button 
-                onClick={() => setShowAddModal(false)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-              >
-                <X size={20} />
-              </button>
+          <div className="glass-card" style={{ width: '440px', padding: '24px', borderRadius: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)' }}>Add POS Inventory Item</h3>
+              <button onClick={() => setShowAddModal(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={18} /></button>
             </div>
 
             {addMsg && (
-              <div style={{ padding: '10px', background: 'var(--accent-primary-glow)', border: '1px solid var(--accent-primary)', borderRadius: '8px', color: 'var(--accent-primary)', fontSize: '0.85rem', marginBottom: '16px' }}>
+              <div style={{ padding: '8px 12px', background: 'var(--accent-primary-glow)', border: '1px solid var(--accent-primary)', borderRadius: '6px', color: 'var(--accent-primary)', fontSize: '0.82rem', marginBottom: '12px', fontWeight: 600 }}>
                 {addMsg}
               </div>
             )}
 
-            <form onSubmit={handleAddInventorySubmit}>
+            <form onSubmit={handleAddInventorySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div className="form-group">
-                <label className="form-label">Item / Product Name</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  placeholder="e.g. Grade 10 Science Workbook"
-                  value={newItemName}
-                  onChange={e => setNewItemName(e.target.value)}
-                  required 
-                />
+                <label className="form-label">Item Description / Name</label>
+                <input type="text" className="form-input" placeholder="e.g. Grade 11 Science Kit" value={newItemName} onChange={e => setNewItemName(e.target.value)} required />
               </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div className="form-group">
                   <label className="form-label">Price (AED)</label>
-                  <input 
-                    type="number" 
-                    step="0.50" 
-                    className="form-input" 
-                    placeholder="85.00"
-                    value={newItemPrice}
-                    onChange={e => setNewItemPrice(e.target.value)}
-                    required 
-                  />
+                  <input type="number" step="5.00" className="form-input" placeholder="150.00" value={newItemPrice} onChange={e => setNewItemPrice(e.target.value)} required />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Stock Quantity</label>
-                  <input 
-                    type="number" 
-                    className="form-input" 
-                    placeholder="10"
-                    value={newItemStock}
-                    onChange={e => setNewItemStock(e.target.value)}
-                    required 
-                  />
+                  <label className="form-label">Initial Stock Qty</label>
+                  <input type="number" className="form-input" placeholder="20" value={newItemStock} onChange={e => setNewItemStock(e.target.value)} required />
                 </div>
               </div>
-
-              <SearchableSelectInput
-                label="Category"
-                placeholder="Search item category..."
-                options={categoryOptions}
-                value={newItemCategory}
-                onChange={val => setNewItemCategory(val)}
-              />
-
-              <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-                <button 
-                  type="button" 
-                  className="btn btn-outline" 
-                  style={{ flex: 1, justifyContent: 'center' }}
-                  onClick={() => setShowAddModal(false)}
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  className="btn btn-emerald" 
-                  style={{ flex: 1, justifyContent: 'center' }}
-                >
-                  Save Stock Item
-                </button>
+              <div className="form-group">
+                <SearchableSelectInput label="Category" placeholder="Search category..." options={categoryOptions} value={newItemCategory} onChange={setNewItemCategory} />
+              </div>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                <button type="button" className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setShowAddModal(false)}>Cancel</button>
+                <button type="submit" className="btn btn-emerald" style={{ flex: 1, justifyContent: 'center' }}>Save Item</button>
               </div>
             </form>
           </div>

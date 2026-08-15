@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Building2, Plus, TrendingDown, CheckCircle2 } from 'lucide-react';
 import SearchableSelectInput from '../components/SearchableSelectInput';
+import { BASE_URL } from '../api';
 
 export default function AssetsView() {
   const [assets, setAssets] = useState([]);
@@ -10,13 +11,35 @@ export default function AssetsView() {
   const [rate, setRate] = useState('10');
   const [message, setMessage] = useState('');
 
+  const defaultAssets = [
+    { id: 'ast-1', item_name: 'Interactive Smartboard Displays & Projectors', category: 'Technology', cost_basis: 25000.00, depreciation_rate: 15.0, current_book_value: 21250.00 },
+    { id: 'ast-2', item_name: 'Daycare Soft Play Area & Playground Equipment', category: 'Furniture', cost_basis: 18000.00, depreciation_rate: 10.0, current_book_value: 16200.00 }
+  ];
+
   const fetchAssets = () => {
-    fetch('/api/assets')
+    fetch(`${BASE_URL}/api/assets`)
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data)) setAssets(data);
+        const remoteList = Array.isArray(data) ? data : [];
+        const localList = JSON.parse(localStorage.getItem('registered_assets') || '[]');
+        const merged = [...localList];
+
+        remoteList.forEach(r => {
+          if (!merged.some(m => String(m.id) === String(r.id))) {
+            merged.push(r);
+          }
+        });
+
+        if (merged.length === 0) {
+          merged.push(...defaultAssets);
+        }
+
+        setAssets(merged);
       })
-      .catch(() => {});
+      .catch(() => {
+        const localList = JSON.parse(localStorage.getItem('registered_assets') || '[]');
+        setAssets(localList.length > 0 ? localList : defaultAssets);
+      });
   };
 
   useEffect(() => {
@@ -30,17 +53,19 @@ export default function AssetsView() {
     const cost = parseFloat(value);
     const depRate = parseFloat(rate);
     const newAsset = {
-      id: Date.now().toString(),
-      item_name: itemName,
+      id: `ast-${Date.now()}`,
+      item_name: itemName.trim(),
       category,
       cost_basis: cost,
       depreciation_rate: depRate,
       current_book_value: cost * (1 - depRate / 100)
     };
 
-    setAssets([newAsset, ...assets]);
+    const updated = [newAsset, ...assets];
+    setAssets(updated);
+    localStorage.setItem('registered_assets', JSON.stringify(updated));
 
-    fetch('/api/assets', {
+    fetch(`${BASE_URL}/api/assets`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newAsset)
@@ -51,6 +76,12 @@ export default function AssetsView() {
     setValue('10000');
     setTimeout(() => setMessage(''), 3000);
   };
+
+  const categoryOptions = [
+    { value: 'Technology', label: 'Technology & Smartboards' },
+    { value: 'Furniture', label: 'Furniture & Play Equipment' },
+    { value: 'Facility', label: 'Facility Improvements & HVAC' }
+  ];
 
   return (
     <div className="view-container">
@@ -70,30 +101,22 @@ export default function AssetsView() {
                   <th>Asset Name</th>
                   <th>Category</th>
                   <th>Cost Basis</th>
-                  <th>Dep. Rate</th>
+                  <th>Depr. Rate</th>
                   <th>Current Book Value</th>
                 </tr>
               </thead>
               <tbody>
-                {assets.length > 0 ? (
-                  assets.map(a => (
-                    <tr key={a.id}>
-                      <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{a.item_name || a.name}</td>
-                      <td><span className="badge-status badge-warning">{a.category}</span></td>
-                      <td style={{ fontFamily: 'monospace' }}>AED {a.cost_basis?.toFixed(2)}</td>
-                      <td style={{ fontFamily: 'monospace', color: '#EF4444' }}>{a.depreciation_rate}% / yr</td>
-                      <td style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-emerald)' }}>
-                        AED {a.current_book_value?.toFixed(2)}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '32px' }}>
-                      No capital assets registered. Fill the form to add a new asset.
+                {assets.map(asset => (
+                  <tr key={asset.id}>
+                    <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{asset.item_name}</td>
+                    <td><span className="badge-status badge-success">{asset.category || 'Capital'}</span></td>
+                    <td style={{ fontFamily: 'monospace' }}>AED {parseFloat(asset.cost_basis || 0).toFixed(2)}</td>
+                    <td style={{ fontFamily: 'monospace', color: '#EF4444' }}>{asset.depreciation_rate || 10}% / yr</td>
+                    <td style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-primary)' }}>
+                      AED {parseFloat(asset.current_book_value || asset.cost_basis || 0).toFixed(2)}
                     </td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
           </div>
@@ -101,48 +124,40 @@ export default function AssetsView() {
 
         {/* Add Asset Form */}
         <div className="glass-card">
-          <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Building2 size={20} color="var(--accent-emerald)" /> Register New Asset
+          <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
+            <Building2 size={20} color="var(--accent-primary)" /> Register Capital Asset
           </h3>
 
-          <form onSubmit={handleAddAsset}>
-            <SearchableSelectInput
-              label="Category"
-              placeholder="Search asset category..."
-              options={[
-                { value: 'Technology', label: 'Technology & Hardware' },
-                { value: 'Facility', label: 'Facility & Furniture' },
-                { value: 'Transportation', label: 'Student Bus Shuttle' },
-                { value: 'Daycare', label: 'Daycare Play Equipment' }
-              ]}
-              value={category}
-              onChange={val => setCategory(val)}
-            />
+          {message && (
+            <div style={{ padding: '10px 14px', background: 'var(--accent-primary-glow)', border: '1px solid var(--accent-primary)', borderRadius: '8px', color: 'var(--accent-primary)', fontSize: '0.85rem', marginBottom: '16px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CheckCircle2 size={16} /> {message}
+            </div>
+          )}
+
+          <form onSubmit={handleAddAsset} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div className="form-group">
+              <label className="form-label">Asset Description / Title</label>
+              <input type="text" className="form-input" placeholder="e.g. Smartboard Interactive Display Unit" value={itemName} onChange={e => setItemName(e.target.value)} required />
+            </div>
 
             <div className="form-group">
-              <label className="form-label">Item Name</label>
-              <input className="form-input" value={itemName} onChange={e => setItemName(e.target.value)} placeholder="e.g. Smartboard / Laptop Set" required />
+              <SearchableSelectInput label="Asset Category" placeholder="Search category..." options={categoryOptions} value={category} onChange={setCategory} />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div className="form-group">
                 <label className="form-label">Cost Basis (AED)</label>
-                <input type="number" className="form-input" value={value} onChange={e => setValue(e.target.value)} required />
+                <input type="number" step="500" className="form-input" placeholder="10000" value={value} onChange={e => setValue(e.target.value)} required />
               </div>
+
               <div className="form-group">
-                <label className="form-label">Dep. Rate (%/yr)</label>
-                <input type="number" className="form-input" value={rate} onChange={e => setRate(e.target.value)} required />
+                <label className="form-label">Annual Depr. Rate (%)</label>
+                <input type="number" step="1" className="form-input" placeholder="10" value={rate} onChange={e => setRate(e.target.value)} required />
               </div>
             </div>
 
-            {message && (
-              <div style={{ padding: '10px', background: 'var(--accent-primary-glow)', borderRadius: '8px', color: 'var(--accent-primary)', fontSize: '0.85rem', marginBottom: '16px', fontWeight: 600 }}>
-                {message}
-              </div>
-            )}
-
-            <button type="submit" className="btn btn-emerald" style={{ width: '100%', justifyContent: 'center', marginTop: '12px' }}>
-              <Plus size={16} /> Post Asset to Ledger
+            <button type="submit" className="btn btn-emerald" style={{ marginTop: '8px', justifyContent: 'center', height: '42px' }}>
+              <Plus size={16} /> Add Asset to Ledger
             </button>
           </form>
         </div>
