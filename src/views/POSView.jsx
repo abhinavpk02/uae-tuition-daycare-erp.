@@ -212,19 +212,37 @@ export default function POSView() {
                 style={{ padding: '18px', cursor: 'pointer', transition: 'all 0.2s ease', position: 'relative' }}
                 onClick={() => addToCart(item)}
               >
-                <button 
-                  onClick={(e) => handleDeleteInventoryItem(item.id, e)} 
-                  title="Delete item"
-                  style={{ position: 'absolute', top: '12px', right: '12px', background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer' }}
-                >
-                  <Trash2 size={14} />
-                </button>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                {/* Header Row: Category Badge on left, Stock & Delete Button on right */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                   <span className="badge-status badge-success" style={{ fontSize: '0.7rem' }}>{item.category || 'Tuition'}</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Stock: {item.stock_qty || 25}</span>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+                      Stock: {item.stock_qty || 25}
+                    </span>
+                    <button 
+                      onClick={(e) => handleDeleteInventoryItem(item.id, e)} 
+                      title="Delete item"
+                      style={{ 
+                        background: 'rgba(239, 68, 68, 0.1)', 
+                        border: '1px solid rgba(239, 68, 68, 0.2)', 
+                        borderRadius: '6px', 
+                        color: '#EF4444', 
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '4px'
+                      }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
                 </div>
+
                 <h4 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '8px' }}>{item.item_name}</h4>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
+                
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '14px' }}>
                   <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1.1rem', color: 'var(--accent-primary)' }}>
                     AED {parseFloat(item.price).toFixed(2)}
                   </span>
