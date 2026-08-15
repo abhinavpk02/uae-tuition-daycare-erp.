@@ -124,7 +124,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
   position: relative;
 }
 
-/* 100% FIXED & UNMOVING LEFT SIDEBAR NAVIGATION */
+/* 100% FIXED & UNMOVING LEFT SIDEBAR NAVIGATION (NO INTERNAL SCROLL) */
 .sidebar {
   width: 280px;
   min-width: 280px;
@@ -141,7 +141,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  overflow: hidden !important; /* UNMOVING FRAME */
+  overflow: hidden !important; /* ZERO UNWANTED SCROLLING IN SIDEBAR */
   z-index: 100;
   transition: all 0.3s ease;
   box-shadow: var(--glass-shadow);
@@ -187,14 +187,10 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
   letter-spacing: 0.08em;
 }
 
-/* COMPACT TABS WRAPPER INSIDE SIDEBAR */
+/* TABS WRAPPER INSIDE SIDEBAR - ZERO SCROLLING */
 .nav-tile-wrapper {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 2px;
-  margin-right: -2px;
-  scrollbar-width: thin;
+  overflow: hidden !important; /* ZERO SCROLLING IN TABS WRAPPER */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -634,7 +630,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
   border: 1px solid var(--border-color);
 }
 
-/* Mobile Header & Overlay Drawer */
+/* Mobile Header Bar */
 .mobile-header-bar {
   display: none;
   justify-content: space-between;
@@ -692,26 +688,9 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
     display: flex;
   }
 
+  /* HIDE SIDEBAR COMPLETELY IN MOBILE VERSION UNTIL DESKTOP MODE IS SWITCHED */
   .sidebar {
-    position: fixed;
-    top: 70px;
-    left: 0;
-    right: 0;
-    width: 100vw;
-    max-width: 100vw;
-    height: calc(100vh - 70px);
-    background: var(--bg-dark);
-    padding: 20px;
-    display: none;
-    z-index: 1000;
-  }
-
-  .sidebar .brand-header {
     display: none !important;
-  }
-
-  .sidebar.mobile-open {
-    display: flex;
   }
 
   .main-content {
