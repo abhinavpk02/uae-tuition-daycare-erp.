@@ -720,13 +720,8 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
     display: flex;
   }
 
-  /* HIDE SIDEBAR ON MOBILE BY DEFAULT */
+  /* SIDEBAR TAKES OVER 100% OF MOBILE VIEWPORT ON ENTRY (MATCHES REFERENCE SCREENSHOT 100%) */
   .sidebar {
-    display: none !important;
-  }
-
-  /* WHEN OPENED ON MOBILE: SHOW ONLY THE SIDE PANEL TAKING OVER 100% OF SCREEN (ZERO MAIN PANEL PEEKING) */
-  .sidebar.mobile-open {
     display: flex !important;
     position: fixed !important;
     top: 0 !important;
@@ -744,9 +739,16 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
     flex-direction: column !important;
     justify-content: space-between !important;
     box-sizing: border-box !important;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .sidebar.mobile-open .brand-header {
+  /* WHEN OPENED ON MOBILE: SLIDE IN FULL SCREEN SIDE PANEL */
+  .sidebar.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+  .sidebar .brand-header {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
@@ -754,7 +756,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
     margin-bottom: 20px !important;
   }
 
-  .sidebar.mobile-open .mobile-close-btn {
+  .sidebar .mobile-close-btn {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -767,19 +769,19 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
     cursor: pointer !important;
   }
 
-  .sidebar.mobile-open .nav-tile-wrapper {
+  .sidebar .nav-tile-wrapper {
     flex: 1 !important;
     overflow-y: auto !important;
     margin-bottom: 20px !important;
   }
 
-  .sidebar.mobile-open .nav-tile-grid {
+  .sidebar .nav-tile-grid {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 16px !important;
   }
 
-  .sidebar.mobile-open .nav-tile-btn {
+  .sidebar .nav-tile-btn {
     width: 100% !important;
     aspect-ratio: 1 / 1 !important;
     min-height: auto !important;
@@ -788,12 +790,12 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
     border-radius: 22px !important;
   }
 
-  .sidebar.mobile-open .nav-tile-btn svg {
+  .sidebar .nav-tile-btn svg {
     width: 28px !important;
     height: 28px !important;
   }
 
-  .sidebar.mobile-open .nav-tile-label {
+  .sidebar .nav-tile-label {
     font-size: 0.75rem !important;
     margin-top: 8px !important;
   }
