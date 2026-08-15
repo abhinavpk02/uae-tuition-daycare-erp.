@@ -1,6 +1,6 @@
 import os
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy import text
+from sqlalchemy import text, event
 from app.models.domain import Base
 
 try:
@@ -38,7 +38,17 @@ engine = create_async_engine(
     connect_args={"check_same_thread": False}
 )
 
-# 4. Configure AsyncSession Factory
+# 4. Enforce SQLite/Turso Foreign Keys PRAGMA on connect
+@event.listens_for(engine.sync_engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    try:
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON;")
+        cursor.close()
+    except Exception:
+        pass
+
+# 5. Configure AsyncSession Factory
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
     class_=AsyncSession,
