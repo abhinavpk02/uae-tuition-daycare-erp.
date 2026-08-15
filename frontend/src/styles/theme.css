@@ -126,9 +126,9 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
 
 /* 100% FIXED & UNMOVING LEFT SIDEBAR NAVIGATION (NO INTERNAL SCROLL) */
 .sidebar {
-  width: 280px;
-  min-width: 280px;
-  max-width: 280px;
+  width: 250px;
+  min-width: 250px;
+  max-width: 250px;
   height: 100vh;
   max-height: 100vh;
   position: fixed;
@@ -137,7 +137,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
   bottom: 0;
   background: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
-  padding: 16px 14px;
+  padding: 12px 10px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -152,15 +152,15 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding-bottom: 12px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--border-color);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   flex-shrink: 0;
 }
 
 .brand-icon {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   background: var(--text-main);
   border-radius: 12px;
   display: flex;
@@ -173,14 +173,14 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
 
 .brand-title {
   font-family: var(--font-heading) !important;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text-main);
 }
 
 .brand-subtitle {
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   color: var(--text-muted);
   font-weight: 600;
   text-transform: uppercase;
@@ -200,23 +200,25 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
 .nav-tile-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: 6px;
   list-style: none;
 }
 
 .nav-tile-item {
   width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .nav-tile-btn {
   width: 100%;
-  aspect-ratio: unset;
-  min-height: 58px;
+  aspect-ratio: 1 / 1; /* RESTORED ICONIC 1:1 PERFECT SQUARE RATIO */
+  max-height: calc((100vh - 150px) / 6); /* AUTO SCALES SQUARES TO FIT VIEWPORT WITHOUT SCROLLING */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 8px 6px;
+  padding: 6px 4px;
   border-radius: 14px;
   background: var(--card-bg-subtle);
   border: 1px solid var(--border-color);
@@ -224,6 +226,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: center;
+  box-sizing: border-box;
 }
 
 .nav-tile-btn svg {
@@ -256,10 +259,10 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
 
 .nav-tile-label {
   font-family: var(--font-heading) !important;
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   margin-top: 4px;
   line-height: 1.1;
   color: var(--text-muted);
@@ -272,13 +275,13 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
 /* MAIN WORKSPACE - EXCLUSIVELY SCROLLABLE PANEL */
 .main-content {
   flex: 1;
-  margin-left: 280px; /* Offset past 280px fixed sidebar */
+  margin-left: 250px; /* Offset past 250px fixed sidebar */
   height: 100vh;
   max-height: 100vh;
   overflow-y: auto !important; /* ONLY MAIN PANEL SCROLLS */
   padding: 28px 36px;
   min-width: 0;
-  max-width: calc(100vw - 280px);
+  max-width: calc(100vw - 250px);
   box-sizing: border-box;
 }
 
