@@ -1,117 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Clock, QrCode, CheckCircle2, UserCheck, Calculator, DollarSign, AlertCircle, Search } from 'lucide-react';
-
-// UNIFIED DIRECT SEARCHABLE SELECTION BAR COMPONENT
-function SearchableSelectInput({ label, placeholder, options, value, onChange }) {
-  const selectedOpt = options.find(o => String(o.value) === String(value));
-  const [searchTerm, setSearchTerm] = useState(selectedOpt ? selectedOpt.label : '');
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    const matched = options.find(o => String(o.value) === String(value));
-    if (matched && !isOpen) {
-      setSearchTerm(matched.label);
-    }
-  }, [value, options, isOpen]);
-
-  const filteredOptions = options.filter(o =>
-    o.label.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsOpen(false);
-        const matched = options.find(o => String(o.value) === String(value));
-        if (matched) setSearchTerm(matched.label);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [value, options]);
-
-  return (
-    <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
-      {label && <label className="form-label">{label}</label>}
-      <div style={{ position: 'relative', width: '100%' }}>
-        <input
-          type="text"
-          className="form-input"
-          placeholder={placeholder || "Type or click to search student/staff..."}
-          value={searchTerm}
-          onFocus={() => {
-            setIsOpen(true);
-            setSearchTerm('');
-          }}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setIsOpen(true);
-          }}
-          style={{
-            paddingRight: '36px',
-            fontWeight: 600,
-            width: '100%',
-            cursor: 'text'
-          }}
-        />
-        <Search size={16} color="var(--accent-primary)" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-      </div>
-
-      {isOpen && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          left: 0,
-          right: 0,
-          marginTop: '6px',
-          background: 'var(--bg-card)',
-          opacity: 1,
-          border: '1px solid var(--border-highlight)',
-          borderRadius: '16px',
-          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.5)',
-          zIndex: 9999,
-          padding: '6px',
-          maxHeight: '220px',
-          overflowY: 'auto'
-        }}>
-          {filteredOptions.length > 0 ? (
-            filteredOptions.map(opt => (
-              <div
-                key={opt.value}
-                onClick={() => {
-                  onChange(opt.value);
-                  setSearchTerm(opt.label);
-                  setIsOpen(false);
-                }}
-                style={{
-                  padding: '10px 14px',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                  fontSize: '0.86rem',
-                  color: String(opt.value) === String(value) ? 'var(--accent-primary)' : 'var(--text-main)',
-                  fontWeight: String(opt.value) === String(value) ? 700 : 500,
-                  background: String(opt.value) === String(value) ? 'var(--card-bg-subtle)' : 'transparent',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  transition: 'background 0.15s ease'
-                }}
-              >
-                <span>{opt.label}</span>
-                {String(opt.value) === String(value) && <CheckCircle2 size={14} color="var(--accent-primary)" />}
-              </div>
-            ))
-          ) : (
-            <div style={{ padding: '12px', fontSize: '0.82rem', color: 'var(--text-muted)', textAlign: 'center' }}>
-              No matches found for "{searchTerm}"
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
+import React, { useEffect, useState } from 'react';
+import { Clock, QrCode, CheckCircle2, UserCheck, Calculator, DollarSign, AlertCircle } from 'lucide-react';
+import SearchableEntitySelect from '../components/SearchableEntitySelect';
 
 export default function AttendanceDaycareView() {
   const [students, setStudents] = useState([]);
@@ -205,24 +94,14 @@ export default function AttendanceDaycareView() {
 
   const processStaffPayroll = (staffId) => {
     setPayrollResult(null);
-    const st = staff.find(s => String(s.id) === String(staffId)) || { name: 'Fatima Al-Mansoori', hourly_rate: 45 };
+    const st = staff.find(s => String(s.id) === String(staffId)) || { name: 'Fatima Al-Mansoori', hourly_rate: 120 };
     setPayrollResult({
       staff_name: st.name,
-      emirates_id: '784-1992-8821941-1',
-      hourly_rate: st.hourly_rate || 45,
+      emirates_id: st.emirates_id || '784-1992-8821941-1',
+      hourly_rate: st.hourly_rate || 120,
       gross_salary: 3600.00
     });
   };
-
-  const studentOptions = students.map(s => ({
-    value: s.id,
-    label: `${s.name} (${s.standard || 'Student'})`
-  }));
-
-  const staffOptions = staff.map(st => ({
-    value: st.id,
-    label: `${st.name} (AED ${st.hourly_rate || 45}/hr)`
-  }));
 
   return (
     <div className="view-container">
@@ -265,14 +144,18 @@ export default function AttendanceDaycareView() {
             </div>
           </div>
 
-          {/* TYPE-TO-SEARCH DIRECT SELECTION BAR */}
+          {/* STANDARDIZED SEARCHABLE ENTITY SELECT (RFID MODULE) */}
           <div className="form-group">
-            <SearchableSelectInput 
+            <SearchableEntitySelect 
               label={`Search & Select Registered ${scanType}`}
               placeholder={`Type name directly to search ${scanType.toLowerCase()}...`}
-              options={scanType === 'Student' ? studentOptions : staffOptions}
+              data={scanType === 'Student' ? students : staff}
+              formatLabel={(item) => scanType === 'Student' 
+                ? `${item.name} (${item.standard || 'Student'})` 
+                : `${item.name} (AED ${item.hourly_rate || 120}/hr)`
+              }
               value={selectedEntity}
-              onChange={val => setSelectedEntity(val)}
+              onSelect={(item) => setSelectedEntity(item.id)}
             />
           </div>
 
@@ -289,6 +172,8 @@ export default function AttendanceDaycareView() {
 
         {/* Automated Engine Triggers */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          
+          {/* Module 2: Daycare Monthly Billing Calculator Card */}
           <div>
             <h3 style={{ fontFamily: 'Outfit', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
               <Calculator size={20} color="var(--accent-primary)" /> Daycare Monthly Billing Calculator
@@ -298,11 +183,12 @@ export default function AttendanceDaycareView() {
             </p>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: '180px' }}>
-                <SearchableSelectInput 
-                  placeholder="Type student name directly..."
-                  options={students.map(s => ({ value: s.id, label: s.name }))}
+                <SearchableEntitySelect 
+                  placeholder="Search student name..."
+                  data={students}
+                  formatLabel={(s) => `${s.name} (${s.standard || 'Grade 10'}) - 35 AED/hr`}
                   value={selectedBillingStudent}
-                  onChange={val => setSelectedBillingStudent(val)}
+                  onSelect={(item) => setSelectedBillingStudent(item.id)}
                 />
               </div>
               <button className="btn btn-emerald" onClick={() => calculateDaycareBilling(selectedBillingStudent)}>
@@ -313,6 +199,7 @@ export default function AttendanceDaycareView() {
 
           <hr style={{ borderColor: 'var(--border-color)' }} />
 
+          {/* Module 3: Staff Payroll Engine Trigger Card */}
           <div>
             <h3 style={{ fontFamily: 'Outfit', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
               <DollarSign size={20} color="var(--accent-primary)" /> Staff Payroll Engine Trigger
@@ -322,11 +209,12 @@ export default function AttendanceDaycareView() {
             </p>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: '180px' }}>
-                <SearchableSelectInput 
-                  placeholder="Type staff name directly..."
-                  options={staff.map(st => ({ value: st.id, label: st.name }))}
+                <SearchableEntitySelect 
+                  placeholder="Search staff name..."
+                  data={staff}
+                  formatLabel={(st) => `${st.name} (${st.role || 'Teacher'}) - ${st.hourly_rate || 120} AED/hr`}
                   value={selectedPayrollStaff}
-                  onChange={val => setSelectedPayrollStaff(val)}
+                  onSelect={(item) => setSelectedPayrollStaff(item.id)}
                 />
               </div>
               <button className="btn btn-emerald" onClick={() => processStaffPayroll(selectedPayrollStaff)}>
@@ -351,65 +239,66 @@ export default function AttendanceDaycareView() {
       )}
 
       {payrollResult && (
-        <div className="glass-card" style={{ marginBottom: '24px', border: '1px solid var(--accent-primary)' }}>
-          <h3 style={{ fontFamily: 'Outfit', color: 'var(--accent-primary)', marginBottom: '12px' }}>✔ Staff Payroll Processed!</h3>
+        <div className="glass-card" style={{ border: '1px solid var(--accent-primary)' }}>
+          <h3 style={{ fontFamily: 'Outfit', color: 'var(--accent-primary)', marginBottom: '12px' }}>✔ Staff Monthly Payroll Processed!</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px', fontFamily: 'monospace' }}>
             <div>Staff Member: <strong>{payrollResult.staff_name}</strong></div>
             <div>Emirates ID: <strong>{payrollResult.emirates_id}</strong></div>
-            <div>Hourly Rate: <strong>AED {payrollResult.hourly_rate}/hr</strong></div>
+            <div>Pay Rate: <strong>AED {payrollResult.hourly_rate}/hr</strong></div>
             <div>Gross Payout: <strong style={{ color: 'var(--accent-primary)' }}>AED {payrollResult.gross_salary.toFixed(2)}</strong></div>
           </div>
         </div>
       )}
 
-      {/* Live Attendance Logs Table */}
-      <div className="glass-card">
-        <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', color: 'var(--text-main)' }}>Live Check-In / Check-Out Log</h3>
+      {/* Attendance Webhook Audit Trail Log */}
+      <div className="glass-card" style={{ marginTop: '24px' }}>
+        <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', color: 'var(--text-main)' }}>Live Webhook Attendance Stream ({attendanceLogs.length} Scans Logged)</h3>
         <div className="table-responsive-wrapper">
           <table className="custom-table">
             <thead>
               <tr>
-                <th>Ref Type</th>
-                <th>Ref ID</th>
+                <th>Category</th>
+                <th>Entity Reference ID</th>
                 <th>Check-In Time</th>
                 <th>Check-Out Time</th>
+                <th>Status</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {attendanceLogs.length > 0 ? (
-                attendanceLogs.map(att => (
-                  <tr key={att.id}>
-                    <td><span className="badge-status badge-warning">{att.ref_type}</span></td>
-                    <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{att.ref_id.substring(0, 8)}...</td>
-                    <td>{new Date(att.check_in).toLocaleString()}</td>
-                    <td>{att.check_out ? new Date(att.check_out).toLocaleString() : <span style={{ color: 'var(--accent-primary)' }}>Active Session</span>}</td>
+                attendanceLogs.map(log => (
+                  <tr key={log.id}>
+                    <td><span className="badge-status badge-warning">{log.ref_type}</span></td>
+                    <td style={{ fontFamily: 'monospace', fontWeight: 600, color: 'var(--text-main)' }}>{log.ref_id}</td>
+                    <td style={{ color: 'var(--accent-primary)', fontFamily: 'monospace' }}>
+                      {new Date(log.check_in).toLocaleTimeString()}
+                    </td>
+                    <td style={{ color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                      {log.check_out ? new Date(log.check_out).toLocaleTimeString() : 'Active Session'}
+                    </td>
                     <td>
-                      {!att.check_out && (
-                        <button className="btn btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }} onClick={() => handleCheckOut(att.id)}>
-                          Check Out Now
+                      {log.check_out ? (
+                        <span className="badge-status badge-success">Completed</span>
+                      ) : (
+                        <span className="badge-status badge-warning" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B', borderColor: '#F59E0B' }}>On Site</span>
+                      )}
+                    </td>
+                    <td>
+                      {!log.check_out && (
+                        <button className="btn btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={() => handleCheckOut(log.id)}>
+                          Check-Out
                         </button>
                       )}
                     </td>
                   </tr>
                 ))
               ) : (
-                <>
-                  <tr>
-                    <td><span className="badge-status badge-warning">Student</span></td>
-                    <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>c37c1f9a...</td>
-                    <td>14/8/2026, 4:11:22 PM</td>
-                    <td>14/8/2026, 8:11:22 PM</td>
-                    <td><span className="badge-status badge-success">Completed</span></td>
-                  </tr>
-                  <tr>
-                    <td><span className="badge-status badge-warning">Staff</span></td>
-                    <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>bf6e34ed...</td>
-                    <td>14/8/2026, 12:11:22 PM</td>
-                    <td>14/8/2026, 8:11:22 PM</td>
-                    <td><span className="badge-status badge-success">Completed</span></td>
-                  </tr>
-                </>
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '32px' }}>
+                    No attendance logs streamed. Click "Simulate Webhook Scan Check-In" above.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
