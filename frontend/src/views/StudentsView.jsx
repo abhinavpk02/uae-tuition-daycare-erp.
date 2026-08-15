@@ -4,11 +4,11 @@ import AddStudentModal from '../components/AddStudentModal';
 
 export default function StudentsView({ activeRole = 'SuperAdmin' }) {
   const [students, setStudents] = useState([
-    { id: 'std-101', name: 'Zayed Al-Hashimi', standard: 'Grade 10', program: 'Tuition & Daycare', parent_id: 'PRT-882194', due_amount: 140.0, attendance_status: 'Present' },
+    { id: 'std-101', name: 'Zayed Al-Hashimi', standard: 'Grade 10', program: 'Tuition & Daycare', parent_id: 'PRT-882194', due_amount: 0.0, attendance_status: 'Present' },
     { id: 'std-102', name: 'Mariam Al-Hashimi', standard: 'KG 2', program: 'Daycare Only', parent_id: 'PRT-992103', due_amount: 0.0, attendance_status: 'Present' },
-    { id: 'std-103', name: 'Sami Al-Hashimi', standard: 'Grade 4', program: 'Tuition & Daycare', parent_id: 'PRT-332104', due_amount: 0.0, attendance_status: 'Present' },
+    { id: 'std-103', name: 'Sami Al-Nuaimi', standard: 'Grade 4', program: 'Tuition & Daycare', parent_id: 'PRT-332104', due_amount: 140.0, attendance_status: 'Present' },
     { id: 'std-104', name: 'Rashid Al-Maktoum', standard: 'Grade 5', program: 'Tuition Only', parent_id: 'PRT-441092', due_amount: 450.0, attendance_status: 'Absent' },
-    { id: 'std-105', name: 'Fatima Al-Nuaimi', standard: 'Grade 3', program: 'Tuition & Daycare', parent_id: 'PRT-110293', due_amount: 0.0, attendance_status: 'Late' }
+    { id: 'std-105', name: 'Fatima Al-Qassimi', standard: 'Grade 3', program: 'Tuition & Daycare', parent_id: 'PRT-110293', due_amount: 0.0, attendance_status: 'Late' }
   ]);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,34 +21,18 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
   ]);
 
   const fetchStudents = () => {
-    const localSaved = JSON.parse(localStorage.getItem('registered_students') || '[]');
-
     fetch('/api/students')
       .then(res => res.json())
       .then(data => {
-        let combined = Array.isArray(data) && data.length > 0 ? [...data] : [...students];
-
-        localSaved.forEach(ls => {
-          if (!combined.some(c => String(c.id) === String(ls.id) || c.name.toLowerCase() === ls.name.toLowerCase())) {
-            combined.unshift(ls);
-          }
-        });
-
-        setStudents(combined.map(s => ({
-          ...s,
-          due_amount: s.due_amount !== undefined ? s.due_amount : 140.0,
-          attendance_status: s.attendance_status || 'Present'
-        })));
+        if (Array.isArray(data) && data.length > 0) {
+          setStudents(data.map(s => ({
+            ...s,
+            due_amount: s.due_amount !== undefined ? s.due_amount : (s.name.includes('Maktoum') ? 450.0 : s.name.includes('Nuaimi') ? 140.0 : 0.0),
+            attendance_status: s.attendance_status || 'Present'
+          })));
+        }
       })
-      .catch(() => {
-        let combined = [...students];
-        localSaved.forEach(ls => {
-          if (!combined.some(c => String(c.id) === String(ls.id) || c.name.toLowerCase() === ls.name.toLowerCase())) {
-            combined.unshift(ls);
-          }
-        });
-        setStudents(combined);
-      });
+      .catch(() => {});
   };
 
   useEffect(() => {

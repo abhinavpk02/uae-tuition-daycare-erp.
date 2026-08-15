@@ -4,52 +4,105 @@ import SearchableSelectInput from '../components/SearchableSelectInput';
 
 export default function POSView() {
   const [inventory, setInventory] = useState([
-    { id: '1', item_name: 'Daycare Hourly Pass', price: 35.0, stock_qty: 150, category: 'Daycare' },
-    { id: '2', item_name: 'Tuition Registration Fee', price: 150.0, stock_qty: 45, category: 'Tuition' },
-    { id: '3', item_name: 'Daycare Uniform Set (Size 4)', price: 120.0, stock_qty: 2, category: 'Uniforms' },
-    { id: '4', item_name: 'Mathematics Activity Workbook', price: 45.0, stock_qty: 30, category: 'Books' },
-    { id: '5', item_name: 'Organic Snack Pack', price: 15.0, stock_qty: 85, category: 'Snacks' }
+    { id: 'inv-1', item_name: 'Grade 10 Mathematics Course Book', category: 'Books', price: 120.0, stock_qty: 50 },
+    { id: 'inv-2', item_name: 'Daycare Uniform Set (Polo & Shorts)', category: 'Uniforms', price: 150.0, stock_qty: 35 },
+    { id: 'inv-3', item_name: 'Montessori Activity & Arts Kit', category: 'Daycare', price: 75.0, stock_qty: 40 },
+    { id: 'inv-4', item_name: 'Physics & Chemistry Lab Experiment Workbook', category: 'Books', price: 95.0, stock_qty: 30 },
+    { id: 'inv-5', item_name: 'Healthy Daycare Snack & Juice Pack', category: 'Snacks', price: 25.0, stock_qty: 100 }
   ]);
-  const [cart, setCart] = useState([]);
-  const [students, setStudents] = useState([]);
-  const [selectedStudent, setSelectedStudent] = useState('');
-  const [checkoutResult, setCheckoutResult] = useState(null);
-  const [loading, setLoading] = useState(false);
 
-  // New Inventory Item Modal State
+  const [students, setStudents] = useState([
+    { id: 'std-101', name: 'Zayed Al-Hashimi', standard: 'Grade 10' },
+    { id: 'std-102', name: 'Mariam Al-Hashimi', standard: 'KG 2' },
+    { id: 'std-103', name: 'Sami Al-Nuaimi', standard: 'Grade 4' },
+    { id: 'std-104', name: 'Rashid Al-Maktoum', standard: 'Grade 5' },
+    { id: 'std-105', name: 'Fatima Al-Qassimi', standard: 'Grade 3' }
+  ]);
+
+  const [cart, setCart] = useState([]);
+  const [selectedStudent, setSelectedStudent] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [checkoutResult, setCheckoutResult] = useState(null);
+
+  // Add Inventory Item Modal State
   const [showAddModal, setShowAddModal] = useState(false);
   const [newItemName, setNewItemName] = useState('');
   const [newItemPrice, setNewItemPrice] = useState('');
   const [newItemStock, setNewItemStock] = useState('');
   const [newItemCategory, setNewItemCategory] = useState('Tuition');
+  const [addMsg, setAddMsg] = useState('');
 
   const fetchInventory = () => {
-    fetch('/api/billing-pos/inventory')
+    fetch('/api/pos/items')
       .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) setInventory(data);
-      })
+      .then(data => { if (Array.isArray(data) && data.length > 0) setInventory(data); })
       .catch(() => {});
   };
 
-  useEffect(() => {
-    fetchInventory();
-
+  const fetchStudents = () => {
     fetch('/api/students')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) setStudents(data);
       })
       .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchInventory();
+    fetchStudents();
   }, []);
+
+  // One-Click Delete Inventory Item
+  const handleDeleteInventoryItem = (itemId, e) => {
+    e.stopPropagation();
+    if (!window.confirm('Are you sure you want to remove this item from POS inventory?')) return;
+
+    setInventory(prev => prev.filter(item => item.id !== itemId));
+    setCart(prev => prev.filter(item => item.id !== itemId));
+
+    fetch(`/api/pos/items/${itemId}`, { method: 'DELETE' }).catch(() => {});
+  };
+
+  // Add Item to Inventory List & Backend API
+  const handleAddInventorySubmit = (e) => {
+    e.preventDefault();
+    if (!newItemName.trim() || !newItemPrice || !newItemStock) return;
+
+    const priceNum = parseFloat(newItemPrice);
+    const stockNum = parseInt(newItemStock, 10);
+    const newItemObj = {
+      id: `inv-${Date.now()}`,
+      item_name: newItemName.trim(),
+      category: newItemCategory,
+      price: priceNum,
+      stock_qty: stockNum
+    };
+
+    setInventory(prev => [newItemObj, ...prev]);
+
+    fetch('/api/pos/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newItemObj)
+    }).catch(() => {});
+
+    setAddMsg(`Successfully added "${newItemName}" to stock!`);
+    setNewItemName('');
+    setNewItemPrice('');
+    setNewItemStock('');
+    setTimeout(() => {
+      setAddMsg('');
+      setShowAddModal(false);
+    }, 1200);
+  };
 
   const addToCart = (item) => {
     if (item.stock_qty <= 0) return;
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id);
       if (existing) {
-        if (existing.qty >= item.stock_qty) return prev;
-        return prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i);
+        return prev.map(i => i.id === item.id ? { ...i, qty: Math.min(i.qty + 1, item.stock_qty) } : i);
       }
       return [...prev, { ...item, qty: 1 }];
     });
@@ -69,66 +122,19 @@ export default function POSView() {
     setCart(prev => prev.filter(i => i.id !== id));
   };
 
-  // Delete Item from Inventory
-  const handleDeleteInventoryItem = (id, e) => {
-    e.stopPropagation();
-    if (!window.confirm('Are you sure you want to delete this inventory item?')) return;
-
-    setInventory(prev => prev.filter(item => item.id !== id));
-    setCart(prev => prev.filter(item => item.id !== id));
-
-    fetch(`/api/billing-pos/inventory/${id}`, { method: 'DELETE' }).catch(() => {});
-  };
-
-  // Add New Inventory Item
-  const handleAddInventoryItem = (e) => {
-    e.preventDefault();
-    const priceNum = parseFloat(newItemPrice);
-    const stockNum = parseInt(newItemStock, 10);
-
-    if (!newItemName.trim() || isNaN(priceNum) || isNaN(stockNum)) {
-      alert('Please fill out all fields with valid values.');
-      return;
-    }
-
-    const newItem = {
-      id: Date.now().toString(),
-      item_name: newItemName,
-      price: priceNum,
-      stock_qty: stockNum,
-      category: newItemCategory
-    };
-
-    setInventory(prev => [newItem, ...prev]);
-
-    // Backend sync call with fallback
-    fetch('/api/billing-pos/inventory', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newItem)
-    }).catch(() => {});
-
-    // Reset & Close Modal
-    setNewItemName('');
-    setNewItemPrice('');
-    setNewItemStock('');
-    setNewItemCategory('Tuition');
-    setShowAddModal(false);
-  };
-
-  const totalAmount = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+  const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
   const handleCheckout = () => {
     if (cart.length === 0) return;
     setLoading(true);
-    setCheckoutResult(null);
 
     const payload = {
-      items: cart.map(i => ({ item_id: i.id, qty: i.qty })),
-      student_id: selectedStudent || null
+      student_id: selectedStudent || null,
+      payment_method: 'Cash',
+      items: cart.map(i => ({ item_id: i.id, qty: i.qty, price: i.price }))
     };
 
-    fetch('/api/billing-pos/pos/checkout', {
+    fetch('/api/pos/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -237,24 +243,24 @@ export default function POSView() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    transition: 'all 0.2s ease'
+                    transition: 'color 0.2s ease'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.color = '#EF4444'}
                   onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
                 >
-                  <Trash2 size={15} />
+                  <Trash2 size={16} />
                 </button>
 
                 <div>
                   <span className="badge-status badge-warning" style={{ fontSize: '0.7rem', marginBottom: '8px' }}>
-                    <Tag size={10} /> {item.category}
+                    <Tag size={10} /> {item.category || 'General'}
                   </span>
-                  <h4 style={{ fontFamily: 'Outfit', fontSize: '1rem', color: 'var(--text-main)', margin: '4px 0 8px 0', paddingRight: '20px' }}>
+                  <h4 style={{ fontFamily: 'Outfit', fontSize: '0.98rem', margin: '4px 0 12px 0', color: 'var(--text-main)', paddingRight: '20px' }}>
                     {item.item_name}
                   </h4>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px' }}>
                   <div>
                     <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent-primary)', fontFamily: 'monospace' }}>
                       AED {item.price.toFixed(2)}
@@ -309,28 +315,60 @@ export default function POSView() {
                   </div>
                 ))
               ) : (
-                <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '32px 0' }}>Cart is empty. Click an item to add to terminal.</div>
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                  Cart is empty. Click an item to add to terminal.
+                </div>
               )}
             </div>
           </div>
 
-          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px', marginTop: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.2rem', fontWeight: 700, marginBottom: '16px' }}>
+          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '18px', marginTop: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.2rem', fontWeight: 800, marginBottom: '16px', color: 'var(--text-main)' }}>
               <span>Total Payable:</span>
               <span style={{ color: 'var(--accent-primary)', fontFamily: 'monospace' }}>AED {totalAmount.toFixed(2)}</span>
             </div>
 
             <button 
               className="btn btn-emerald" 
-              style={{ width: '100%', justifyContent: 'center', padding: '14px' }}
+              style={{ width: '100%', justifyContent: 'center', height: '48px', fontSize: '1rem' }}
               disabled={cart.length === 0 || loading}
               onClick={handleCheckout}
             >
-              {loading ? 'Processing POS Entry...' : 'Complete Checkout & Post Ledger'}
+              {loading ? 'Posting Journal Entry...' : 'Complete Checkout & Post Ledger'}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Checkout Success Modal */}
+      {checkoutResult && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="glass-card" style={{ width: '420px', textAlignment: 'center', padding: '32px' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--accent-primary-glow)', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+              <CheckCircle2 size={32} />
+            </div>
+            <h3 style={{ fontFamily: 'Outfit', fontSize: '1.4rem', color: 'var(--text-main)', marginBottom: '8px' }}>Transaction Settled</h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '20px' }}>
+              Double-entry journal entry successfully posted to General Ledger!
+            </p>
+
+            <div style={{ padding: '12px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-sm)', marginBottom: '20px', textAlign: 'left', fontSize: '0.82rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Amount Collected:</span>
+                <span style={{ fontWeight: 700, color: 'var(--accent-primary)' }}>AED {checkoutResult.total_amount?.toFixed(2)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Journal Reference:</span>
+                <span style={{ fontFamily: 'monospace', color: 'var(--text-main)' }}>{checkoutResult.journal_entry_id}</span>
+              </div>
+            </div>
+
+            <button className="btn btn-emerald" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setCheckoutResult(null)}>
+              Done & Print Receipt
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Add New Inventory Item Modal */}
       {showAddModal && (
@@ -340,19 +378,25 @@ export default function POSView() {
               <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)' }}>Add Inventory Item</h3>
               <button 
                 onClick={() => setShowAddModal(false)}
-                style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
               >
                 <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleAddInventoryItem}>
+            {addMsg && (
+              <div style={{ padding: '10px', background: 'var(--accent-primary-glow)', border: '1px solid var(--accent-primary)', borderRadius: '8px', color: 'var(--accent-primary)', fontSize: '0.85rem', marginBottom: '16px' }}>
+                {addMsg}
+              </div>
+            )}
+
+            <form onSubmit={handleAddInventorySubmit}>
               <div className="form-group">
-                <label className="form-label">Item Name</label>
+                <label className="form-label">Item / Product Name</label>
                 <input 
                   type="text" 
                   className="form-input" 
-                  placeholder="e.g. Science Activity Workbook / Uniform"
+                  placeholder="e.g. Grade 10 Science Workbook"
                   value={newItemName}
                   onChange={e => setNewItemName(e.target.value)}
                   required 
@@ -364,9 +408,9 @@ export default function POSView() {
                   <label className="form-label">Price (AED)</label>
                   <input 
                     type="number" 
-                    step="0.01" 
+                    step="0.50" 
                     className="form-input" 
-                    placeholder="0.00"
+                    placeholder="85.00"
                     value={newItemPrice}
                     onChange={e => setNewItemPrice(e.target.value)}
                     required 
@@ -407,25 +451,10 @@ export default function POSView() {
                   className="btn btn-emerald" 
                   style={{ flex: 1, justifyContent: 'center' }}
                 >
-                  Save Item
+                  Save Stock Item
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* Checkout Success Result Modal / Banner */}
-      {checkoutResult && (
-        <div className="glass-card" style={{ marginTop: '24px', border: '1px solid var(--accent-primary)', background: 'var(--accent-primary-glow)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--accent-primary)' }}>
-            <CheckCircle2 size={24} />
-            <div>
-              <h4 style={{ fontFamily: 'Outfit', fontSize: '1.1rem' }}>Transaction Completed Successfully!</h4>
-              <p style={{ fontSize: '0.85rem' }}>
-                Total Paid: AED {checkoutResult.total_amount?.toFixed(2)} | Journal Entry: {checkoutResult.journal_entry_id}
-              </p>
-            </div>
           </div>
         </div>
       )}

@@ -2,203 +2,153 @@ import asyncio
 from datetime import datetime, timedelta
 from decimal import Decimal
 
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from app.core.database import AsyncSessionLocal, init_db
 from app.models.domain import (
     User, UserRole, ProfileParent, ProfileStaff, Student, StudentProgram,
     Subject, SubjectTier, Inventory, Asset, ChartOfAccounts, AccountType,
-    RefModule, Attendance, RefType
+    RefModule, Attendance, RefType, JournalEntry, LedgerLine
 )
 from app.services.accounting_engine import AccountingEngine
 
 
 async def seed():
-    print("Initializing Database schema...")
+    print("Initializing & Clearing Database schema...")
     await init_db()
 
     async with AsyncSessionLocal() as db:
+        print("Clearing old records...")
+        await db.execute(delete(Attendance))
+        await db.execute(delete(LedgerLine))
+        await db.execute(delete(JournalEntry))
+        await db.execute(delete(Student))
+        await db.execute(delete(Inventory))
+        await db.execute(delete(Asset))
+        await db.execute(delete(Subject))
+        await db.execute(delete(ProfileStaff))
+        await db.execute(delete(ProfileParent))
+        await db.execute(delete(User))
+        await db.commit()
+
         print("Seeding Chart of Accounts (COA)...")
         coa_defaults = [
-            ("1000", "Cash & Bank Account", AccountType.Asset),
+            ("1000", "Cash & Bank Balance", AccountType.Asset),
             ("1100", "Accounts Receivable", AccountType.Asset),
             ("1200", "Inventory Asset", AccountType.Asset),
-            ("1500", "Equipment & Facility Assets", AccountType.Asset),
+            ("1500", "Fixed Assets & Equipment", AccountType.Asset),
             ("2000", "Accounts Payable", AccountType.Liability),
             ("3000", "Owner Capital / Equity", AccountType.Equity),
             ("4000", "Tuition Fee Revenue", AccountType.Revenue),
-            ("4100", "Daycare Fee Revenue", AccountType.Revenue),
+            ("4100", "Daycare Service Revenue", AccountType.Revenue),
             ("4200", "POS Sales Revenue", AccountType.Revenue),
             ("5000", "Staff Payroll Expense", AccountType.Expense),
             ("5100", "Asset Depreciation Expense", AccountType.Expense),
             ("5200", "Facility Utilities Expense", AccountType.Expense),
         ]
 
-        coa_map = {}
         for code, name, acc_type in coa_defaults:
             res = await db.execute(select(ChartOfAccounts).where(ChartOfAccounts.code == code))
-            existing = res.scalar_one_or_none()
-            if not existing:
-                acc = ChartOfAccounts(code=code, name=name, type=acc_type)
-                db.add(acc)
-                coa_map[code] = acc
-            else:
-                coa_map[code] = existing
-
+            if not res.scalar_one_or_none():
+                db.add(ChartOfAccounts(code=code, name=name, type=acc_type))
         await db.flush()
 
+        print("Seeding 5 Sample Staff Users...")
+        staff_data = [
+            ("Fatima Al-Mansoori", "fatima@uaeerp.ae", UserRole.Teacher, "784-1992-1234567-1", Decimal("120.00")),
+            ("Sarah Jenkins", "sarah.j@uaeerp.ae", UserRole.Teacher, "784-1990-2345678-2", Decimal("95.00")),
+            ("Omar Al-Zahabi", "omar.z@uaeerp.ae", UserRole.Admin, "784-1988-3456789-3", Decimal("150.00")),
+            ("Aisha Al-Mheiri", "aisha.m@uaeerp.ae", UserRole.Admin, "784-1995-4567890-4", Decimal("140.00")),
+            ("Khalfan Al-Remeithi", "khalfan.r@uaeerp.ae", UserRole.Teacher, "784-1998-5678901-5", Decimal("85.00"))
+        ]
 
-        print("Seeding Admin & Staff Users...")
-        res_usr = await db.execute(select(User).where(User.email == "admin@uaeerp.ae"))
-        if not res_usr.scalar_one_or_none():
-            # SuperAdmin
-            admin_user = User(
-                email="admin@uaeerp.ae",
-                hash="admin123",
-                role=UserRole.SuperAdmin,
-                is_active=True
-            )
-            db.add(admin_user)
-
-            # Staff (Teacher/Daycare Supervisor)
-            staff_user = User(
-                email="fatima.mansoori@uaeerp.ae",
-                hash="staff123",
-                role=UserRole.Teacher,
-                is_active=True
-            )
-            db.add(staff_user)
+        for name, email, role, eid, rate in staff_data:
+            usr = User(email=email, hash="staff123", role=role, is_active=True)
+            db.add(usr)
             await db.flush()
-
-            staff_profile = ProfileStaff(
-                user_id=staff_user.id,
-                name="Fatima Al-Mansoori",
+            db.add(ProfileStaff(
+                user_id=usr.id,
+                name=name,
                 dob="1992-05-14",
-                passport_no="N9876543",
-                emirates_id="784-1992-1234567-1",
-                address="Al Wasl Road, Villa 42, Dubai, UAE",
-                hourly_rate=Decimal("120.00")
-            )
-            db.add(staff_profile)
+                passport_no="N" + eid.replace("-", "")[:8],
+                emirates_id=eid,
+                address="Dubai, UAE",
+                hourly_rate=rate
+            ))
+        await db.flush()
 
+        print("Seeding SuperAdmin & Parent...")
+        admin_usr = User(email="admin@uaeerp.ae", hash="admin123", role=UserRole.SuperAdmin, is_active=True)
+        parent_usr = User(email="mohammed.hashimi@gmail.com", hash="parent123", role=UserRole.Parent, is_active=True)
+        db.add_all([admin_usr, parent_usr])
+        await db.flush()
 
-        print("Seeding Parent & Student Profiles...")
-        res_p = await db.execute(select(User).where(User.email == "mohammed.hashimi@gmail.com"))
-        if not res_p.scalar_one_or_none():
-            parent_user = User(
-                email="mohammed.hashimi@gmail.com",
-                hash="parent123",
-                role=UserRole.Parent,
-                is_active=True
-            )
-            db.add(parent_user)
-            await db.flush()
+        parent_prof = ProfileParent(user_id=parent_usr.id, phone="+971 50 123 4567", alt_phone="+971 4 398 7654")
+        db.add(parent_prof)
+        await db.flush()
 
-            parent_profile = ProfileParent(
-                user_id=parent_user.id,
-                phone="+971 50 123 4567",
-                alt_phone="+971 4 398 7654"
-            )
-            db.add(parent_profile)
-            await db.flush()
+        print("Seeding 5 Sample Students...")
+        students_data = [
+            ("Zayed Al-Hashimi", "Grade 10", StudentProgram.Both, parent_prof.id),
+            ("Mariam Al-Hashimi", "KG 2", StudentProgram.Daycare, parent_prof.id),
+            ("Sami Al-Nuaimi", "Grade 4", StudentProgram.Both, parent_prof.id),
+            ("Rashid Al-Maktoum", "Grade 5", StudentProgram.Tuition, parent_prof.id),
+            ("Fatima Al-Qassimi", "Grade 3", StudentProgram.Both, parent_prof.id)
+        ]
 
-            student1 = Student(
-                parent_id=parent_profile.id,
-                name="Zayed Al-Hashimi",
-                dob="2010-08-20",
-                standard="Grade 10",
-                program=StudentProgram.Both
-            )
-            student2 = Student(
-                parent_id=parent_profile.id,
-                name="Mariam Al-Hashimi",
-                dob="2020-03-11",
-                standard="KG 2",
-                program=StudentProgram.Daycare
-            )
-            db.add_all([student1, student2])
+        for std_name, std_grade, prog, p_id in students_data:
+            db.add(Student(parent_id=p_id, name=std_name, dob="2012-01-01", standard=std_grade, program=prog))
+        await db.flush()
 
+        print("Seeding 5 Sample POS Inventory Items...")
+        inventory_data = [
+            ("Grade 10 Mathematics Course Book", 50, Decimal("120.00")),
+            ("Daycare Uniform Set (Polo & Shorts)", 35, Decimal("150.00")),
+            ("Montessori Activity & Arts Kit", 40, Decimal("75.00")),
+            ("Physics & Chemistry Lab Experiment Workbook", 30, Decimal("95.00")),
+            ("Healthy Daycare Snack & Juice Pack", 100, Decimal("25.00"))
+        ]
 
-        print("Seeding Subjects...")
-        res_sub = await db.execute(select(Subject).where(Subject.name == "Advanced Mathematics"))
-        if not res_sub.scalar_one_or_none():
-            sub1 = Subject(name="Advanced Mathematics", tier=SubjectTier.HSS, monthly_fee=Decimal("1200.00"))
-            sub2 = Subject(name="Physics & Chemistry Lab", tier=SubjectTier.HS, monthly_fee=Decimal("950.00"))
-            sub3 = Subject(name="English Literature", tier=SubjectTier.HS, monthly_fee=Decimal("800.00"))
-            db.add_all([sub1, sub2, sub3])
+        for item_name, qty, pr in inventory_data:
+            db.add(Inventory(item_name=item_name, stock_qty=qty, price=pr))
+        await db.flush()
 
-        print("Seeding POS Inventory...")
-        res_inv = await db.execute(select(Inventory).where(Inventory.item_name == "Grade 10 Mathematics Course Book"))
-        if not res_inv.scalar_one_or_none():
-            inv1 = Inventory(item_name="Grade 10 Mathematics Course Book", stock_qty=50, price=Decimal("120.00"))
-            inv2 = Inventory(item_name="Daycare Uniform Set (Polo & Shorts)", stock_qty=35, price=Decimal("150.00"))
-            inv3 = Inventory(item_name="Montessori Activity Kit", stock_qty=40, price=Decimal("75.00"))
-            db.add_all([inv1, inv2, inv3])
+        print("Seeding 5 Sample Fixed Assets...")
+        assets_data = [
+            ("Technology", "Interactive Smartboard Setup (Room 101)", Decimal("15000.00"), Decimal("15.00")),
+            ("Technology", "Dell High-Density Server & Router Rack", Decimal("25000.00"), Decimal("20.00")),
+            ("Facility", "Daycare Montessori Play & Soft Furniture", Decimal("18000.00"), Decimal("10.00")),
+            ("Transportation", "Toyota Coaster Student Bus Shuttle", Decimal("140000.00"), Decimal("12.50")),
+            ("Facility", "Magnetic Wall Whiteboards & Projector Set", Decimal("8500.00"), Decimal("10.00"))
+        ]
 
+        for cat, item_name, val, rate in assets_data:
+            db.add(Asset(category=cat, item_name=item_name, value=val, depreciation_rate=rate))
+        await db.flush()
 
-        print("Seeding Fixed Assets...")
-        res_a1 = await db.execute(select(Asset).where(Asset.item_name == "Interactive Smartboard Setup"))
-        if not res_a1.scalar_one_or_none():
-            asset1 = Asset(category="Technology", item_name="Interactive Smartboard Setup", value=Decimal("15000.00"), depreciation_rate=Decimal("15.00"))
-            asset2 = Asset(category="Facility", item_name="Daycare Montessori Play Equipment", value=Decimal("10000.00"), depreciation_rate=Decimal("10.00"))
-            db.add_all([asset1, asset2])
-
+        print("Dispatching 5 Sample Double-Entry Journal Entries...")
+        await AccountingEngine.create_balanced_journal_entry(
+            db=db, description="Purchase of Tuition & Daycare Equipment Assets", ref_module=RefModule.Manual,
+            lines_data=[{"account_code": "1500", "debit": 12500.0, "credit": 0.0}, {"account_code": "1000", "debit": 0.0, "credit": 12500.0}]
+        )
+        await AccountingEngine.create_balanced_journal_entry(
+            db=db, description="Initial Owner Capital Injection", ref_module=RefModule.Manual,
+            lines_data=[{"account_code": "1000", "debit": 100000.0, "credit": 0.0}, {"account_code": "3000", "debit": 0.0, "credit": 100000.0}]
+        )
+        await AccountingEngine.create_balanced_journal_entry(
+            db=db, description="Student Tuition Fee Receipt - Sami Al-Nuaimi", ref_module=RefModule.POS,
+            lines_data=[{"account_code": "1000", "debit": 400.0, "credit": 0.0}, {"account_code": "4000", "debit": 0.0, "credit": 400.0}]
+        )
+        await AccountingEngine.create_balanced_journal_entry(
+            db=db, description="Daycare Service Fee Settlement", ref_module=RefModule.POS,
+            lines_data=[{"account_code": "1000", "debit": 750.0, "credit": 0.0}, {"account_code": "4100", "debit": 0.0, "credit": 750.0}]
+        )
+        await AccountingEngine.create_balanced_journal_entry(
+            db=db, description="Monthly Facility Utilities Payment", ref_module=RefModule.Manual,
+            lines_data=[{"account_code": "5200", "debit": 2200.0, "credit": 0.0}, {"account_code": "1000", "debit": 0.0, "credit": 2200.0}]
+        )
 
         await db.commit()
-        
-        # Fetch student and staff for initial logs if needed
-        st_res = await db.execute(select(Student).where(Student.name == "Zayed Al-Hashimi"))
-        student1 = st_res.scalar_one_or_none()
-
-        sp_res = await db.execute(select(ProfileStaff).where(ProfileStaff.name == "Fatima Al-Mansoori"))
-        staff_profile = sp_res.scalar_one_or_none()
-
-        # Seed initial attendance logs if none exist
-        att_check = await db.execute(select(Attendance))
-        if not att_check.scalars().first() and student1 and staff_profile:
-            print("Seeding Sample Attendance Logs for Daycare & Staff...")
-            now = datetime.utcnow()
-            att_student = Attendance(
-                ref_type=RefType.Student,
-                ref_id=student1.id,
-                check_in=now - timedelta(hours=4),
-                check_out=now
-            )
-            att_staff = Attendance(
-                ref_type=RefType.Staff,
-                ref_id=staff_profile.id,
-                check_in=now - timedelta(hours=8),
-                check_out=now
-            )
-            db.add_all([att_student, att_staff])
-            await db.commit()
-
-        # Seed initial ledger entries if none exist
-        je_check = await db.execute(select(AccountingEngine).where(False) if False else select(Attendance)) # just check entries
-        from app.models.domain import JournalEntry
-        je_res = await db.execute(select(JournalEntry))
-        if not je_res.scalars().first():
-            print("Dispatching Opening Capital & Facility Ledger Entries...")
-            await AccountingEngine.create_balanced_journal_entry(
-                db=db,
-                description="Initial Owner Capital Injection",
-                ref_module=RefModule.Manual,
-                lines_data=[
-                    {"account_code": "1000", "debit": 100000.0, "credit": 0.0},
-                    {"account_code": "3000", "debit": 0.0, "credit": 100000.0}
-                ]
-            )
-
-            await AccountingEngine.create_balanced_journal_entry(
-                db=db,
-                description="Purchase of Tuition & Daycare Equipment Assets",
-                ref_module=RefModule.Manual,
-                lines_data=[
-                    {"account_code": "1500", "debit": 25000.0, "credit": 0.0},
-                    {"account_code": "1000", "debit": 0.0, "credit": 25000.0}
-                ]
-            )
-
-        print("Successfully seeded UAE Tuition & Daycare ERP database!")
+        print("Successfully reset and seeded exactly 5 sample items per module!")
 
 
 if __name__ == "__main__":

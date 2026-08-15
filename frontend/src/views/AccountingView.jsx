@@ -9,29 +9,29 @@ export default function AccountingView() {
   // Robust default state to guarantee ledger works 100%
   const [trialBalance, setTrialBalance] = useState({
     is_balanced: true,
-    grand_total_debit: 154200.0,
-    grand_total_credit: 154200.0,
+    grand_total_debit: 115850.0,
+    grand_total_credit: 115850.0,
     accounts: [
-      { account_code: '1000', account_name: 'Cash & Bank Balance', total_debit: 45000.0, total_credit: 0.0, net_balance: 45000.0 },
+      { account_code: '1000', account_name: 'Cash & Bank Balance', total_debit: 88450.0, total_credit: 0.0, net_balance: 88450.0 },
       { account_code: '1200', account_name: 'Accounts Receivable (Tuition Dues)', total_debit: 12500.0, total_credit: 0.0, net_balance: 12500.0 },
-      { account_code: '1500', account_name: 'Fixed Assets & Equipment', total_debit: 96700.0, total_credit: 0.0, net_balance: 96700.0 },
-      { account_code: '4000', account_name: 'Tuition Fee Revenue', total_debit: 0.0, total_credit: 89200.0, net_balance: -89200.0 },
-      { account_code: '4100', account_name: 'Daycare Service Revenue', total_debit: 0.0, total_credit: 40000.0, net_balance: -40000.0 },
-      { account_code: '3000', account_name: 'Owner Capital / Retained Earnings', total_debit: 0.0, total_credit: 25000.0, net_balance: -25000.0 }
+      { account_code: '1500', account_name: 'Fixed Assets & Equipment', total_debit: 12500.0, total_credit: 0.0, net_balance: 12500.0 },
+      { account_code: '5200', account_name: 'Facility Utilities Expense', total_debit: 2400.0, total_credit: 0.0, net_balance: 2400.0 },
+      { account_code: '4000', account_name: 'Tuition Fee Revenue', total_debit: 0.0, total_credit: 12500.0, net_balance: -12500.0 },
+      { account_code: '4100', account_name: 'Daycare Service Revenue', total_debit: 0.0, total_credit: 3350.0, net_balance: -3350.0 },
+      { account_code: '3000', account_name: 'Owner Capital / Retained Earnings', total_debit: 0.0, total_credit: 100000.0, net_balance: -100000.0 }
     ]
   });
 
   const [pnl, setPnl] = useState({
-    total_revenues: 129200.0,
-    total_expenses: 34500.0,
-    net_profit: 94700.0,
+    total_revenues: 15850.0,
+    total_expenses: 2400.0,
+    net_profit: 13450.0,
     revenues: [
-      { account_code: '4000', account_name: 'Tuition Fee Revenue', total: 89200.0 },
-      { account_code: '4100', account_name: 'Daycare Service Revenue', total: 40000.0 }
+      { account_code: '4000', account_name: 'Tuition Fee Revenue', total: 12500.0 },
+      { account_code: '4100', account_name: 'Daycare Service Revenue', total: 3350.0 }
     ],
     expenses: [
-      { account_code: '5000', account_name: 'Staff Payroll Expense', total: 24500.0 },
-      { account_code: '5100', account_name: 'Facility Maintenance & Utilities', total: 10000.0 }
+      { account_code: '5200', account_name: 'Facility Utilities Expense', total: 2400.0 }
     ]
   });
 
@@ -39,11 +39,11 @@ export default function AccountingView() {
     {
       id: 'JE-1001',
       date: '2026-08-14T09:30:00Z',
-      description: 'Purchase of Tuition & Daycare Equipment',
+      description: 'Purchase of Tuition & Daycare Equipment Assets',
       ref_module: 'Manual',
       lines: [
-        { account_code: '1500', debit: 1250.0, credit: 0.0 },
-        { account_code: '1000', debit: 0.0, credit: 1250.0 }
+        { account_code: '1500', debit: 12500.0, credit: 0.0 },
+        { account_code: '1000', debit: 0.0, credit: 12500.0 }
       ]
     },
     {
@@ -52,18 +52,38 @@ export default function AccountingView() {
       description: 'Initial Owner Capital Injection',
       ref_module: 'Manual',
       lines: [
-        { account_code: '1000', debit: 25000.0, credit: 0.0 },
-        { account_code: '3000', debit: 0.0, credit: 25000.0 }
+        { account_code: '1000', debit: 100000.0, credit: 0.0 },
+        { account_code: '3000', debit: 0.0, credit: 100000.0 }
       ]
     },
     {
       id: 'JE-1003',
       date: '2026-08-14T14:15:00Z',
-      description: 'Student Tuition Fee Receipt - Sami Al-Hashimi',
+      description: 'Student Tuition Fee Receipt - Sami Al-Nuaimi',
       ref_module: 'POS',
       lines: [
         { account_code: '1000', debit: 400.0, credit: 0.0 },
         { account_code: '4000', debit: 0.0, credit: 400.0 }
+      ]
+    },
+    {
+      id: 'JE-1004',
+      date: '2026-08-15T08:30:00Z',
+      description: 'Daycare Service Fee Settlement',
+      ref_module: 'POS',
+      lines: [
+        { account_code: '1000', debit: 750.0, credit: 0.0 },
+        { account_code: '4100', debit: 0.0, credit: 750.0 }
+      ]
+    },
+    {
+      id: 'JE-1005',
+      date: '2026-08-15T10:00:00Z',
+      description: 'Monthly Facility Utilities Payment',
+      ref_module: 'Manual',
+      lines: [
+        { account_code: '5200', debit: 2200.0, credit: 0.0 },
+        { account_code: '1000', debit: 0.0, credit: 2200.0 }
       ]
     }
   ]);
@@ -165,7 +185,7 @@ export default function AccountingView() {
       <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>General Ledger & Financial Accounting</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Double-entry bookkeeping system with real-time Trial Balance verification</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Double-entry bookkeeping system with real-time Trial Balance verification ({journalEntries.length} Posted Entries)</p>
         </div>
 
         <button className="btn btn-emerald" onClick={() => setShowModal(true)}>
@@ -278,7 +298,7 @@ export default function AccountingView() {
       {/* TAB 2: JOURNAL ENTRIES LOG */}
       {activeTab === 'journal-entries' && (
         <div className="glass-card">
-          <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', color: 'var(--text-main)' }}>Audit Trail - Double-Entry Journal Entries</h3>
+          <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', color: 'var(--text-main)' }}>Audit Trail - Double-Entry Journal Entries ({journalEntries.length})</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {journalEntries.map(je => (
               <div key={je.id} style={{ padding: '16px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>

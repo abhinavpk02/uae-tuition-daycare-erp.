@@ -6,7 +6,9 @@ export default function TimetableView() {
   const [activeSessions, setActiveSessions] = useState([
     { id: 'sess-1', room: 'Room 101', subject: 'Advanced Mathematics', time: '09:00 AM - 10:30 AM', teacher: 'Fatima Al-Mansoori' },
     { id: 'sess-2', room: 'Daycare Zone A', subject: 'Montessori Art & Sensory Play', time: '11:00 AM - 01:00 PM', teacher: 'Sarah Jenkins' },
-    { id: 'sess-3', room: 'Room 102', subject: 'Physics & Chemistry Lab', time: '02:00 PM - 03:30 PM', teacher: 'Fatima Al-Mansoori' }
+    { id: 'sess-3', room: 'Room 102', subject: 'Physics & Chemistry Lab', time: '02:00 PM - 03:30 PM', teacher: 'Fatima Al-Mansoori' },
+    { id: 'sess-4', room: 'Daycare Zone B', subject: 'Early Toddler Quiet Reading & Nap Time', time: '01:30 PM - 03:00 PM', teacher: 'Khalfan Al-Remeithi' },
+    { id: 'sess-5', room: 'Activity Room 2', subject: 'English Literature & Debate Workshop', time: '04:00 PM - 05:30 PM', teacher: 'Aisha Al-Mheiri' }
   ]);
 
   // In-Class Attendance Roster State
@@ -16,57 +18,29 @@ export default function TimetableView() {
   const [classRoster, setClassRoster] = useState([
     { id: 'std-101', name: 'Zayed Al-Hashimi', grade: 'Grade 10', program: 'Tuition & Daycare', status: 'Present' },
     { id: 'std-102', name: 'Mariam Al-Hashimi', grade: 'KG 2', program: 'Daycare Only', status: 'Present' },
-    { id: 'std-103', name: 'Sami Al-Hashimi', grade: 'Grade 4', program: 'Tuition & Daycare', status: 'Present' },
+    { id: 'std-103', name: 'Sami Al-Nuaimi', grade: 'Grade 4', program: 'Tuition & Daycare', status: 'Present' },
     { id: 'std-104', name: 'Rashid Al-Maktoum', grade: 'Grade 5', program: 'Tuition Only', status: 'Absent' },
-    { id: 'std-105', name: 'Fatima Al-Nuaimi', grade: 'Grade 3', program: 'Tuition & Daycare', status: 'Late' },
-    { id: 'std-106', name: 'Khalifa Al-Falasi', grade: 'Grade 8', program: 'Tuition Only', status: 'Present' },
-    { id: 'std-107', name: 'Sheikha Al-Qassimi', grade: 'Grade 6', program: 'Tuition & Daycare', status: 'Present' }
+    { id: 'std-105', name: 'Fatima Al-Qassimi', grade: 'Grade 3', program: 'Tuition & Daycare', status: 'Late' }
   ]);
 
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
 
-  // COMBINE API STUDENTS & MANUALLY REGISTERED LOCALSTORAGE STUDENTS
   useEffect(() => {
-    const localSaved = JSON.parse(localStorage.getItem('registered_students') || '[]');
-
     fetch('/api/students')
       .then(res => res.json())
       .then(data => {
-        let combined = Array.isArray(data) && data.length > 0 ? [...data] : [...classRoster];
-
-        // Merge any manually added students from localStorage that aren't already present
-        localSaved.forEach(ls => {
-          if (!combined.some(c => String(c.id) === String(ls.id) || c.name.toLowerCase() === ls.name.toLowerCase())) {
-            combined.unshift(ls);
-          }
-        });
-
-        const formatted = combined.map((s, idx) => ({
-          id: s.id || `std-${idx}`,
-          name: s.name,
-          grade: s.standard || s.grade || 'Grade ' + (idx + 1),
-          program: s.program || 'Tuition & Daycare',
-          status: s.status || (idx % 4 === 2 ? 'Absent' : idx % 5 === 3 ? 'Late' : 'Present')
-        }));
-        setClassRoster(formatted);
+        if (Array.isArray(data) && data.length > 0) {
+          const formatted = data.map((s, idx) => ({
+            id: s.id || `std-${idx}`,
+            name: s.name,
+            grade: s.standard || s.grade || 'Grade ' + (idx + 1),
+            program: s.program || 'Tuition & Daycare',
+            status: s.status || (idx % 4 === 2 ? 'Absent' : idx % 5 === 3 ? 'Late' : 'Present')
+          }));
+          setClassRoster(formatted);
+        }
       })
-      .catch(() => {
-        // Fallback: merge initial state with localSaved
-        let combined = [...classRoster];
-        localSaved.forEach(ls => {
-          if (!combined.some(c => String(c.id) === String(ls.id) || c.name.toLowerCase() === ls.name.toLowerCase())) {
-            combined.unshift(ls);
-          }
-        });
-        const formatted = combined.map((s, idx) => ({
-          id: s.id || `std-${idx}`,
-          name: s.name,
-          grade: s.standard || s.grade || 'Grade ' + (idx + 1),
-          program: s.program || 'Tuition & Daycare',
-          status: s.status || 'Present'
-        }));
-        setClassRoster(formatted);
-      });
+      .catch(() => {});
   }, []);
 
   // Toggle student status in class roster
@@ -233,7 +207,7 @@ export default function TimetableView() {
           <div className="glass-card" style={{ height: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h3 style={{ fontFamily: 'Outfit', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
-                <Calendar size={20} color="var(--accent-primary)" /> Active Class Sessions
+                <Calendar size={20} color="var(--accent-primary)" /> Active Class Sessions ({activeSessions.length})
               </h3>
             </div>
 

@@ -4,14 +4,19 @@ import SearchableSelectInput from '../components/SearchableSelectInput';
 
 export default function POSView() {
   const [inventory, setInventory] = useState([
-    { id: 'inv-1', item_name: 'Grade 10 Mathematics Course Book', category: 'General', price: 120.0, stock_qty: 50 },
-    { id: 'inv-2', item_name: 'Daycare Uniform Set (Polo & Shorts)', category: 'General', price: 150.0, stock_qty: 35 },
-    { id: 'inv-3', item_name: 'Montessori Activity Kit', category: 'General', price: 75.0, stock_qty: 40 }
+    { id: 'inv-1', item_name: 'Grade 10 Mathematics Course Book', category: 'Books', price: 120.0, stock_qty: 50 },
+    { id: 'inv-2', item_name: 'Daycare Uniform Set (Polo & Shorts)', category: 'Uniforms', price: 150.0, stock_qty: 35 },
+    { id: 'inv-3', item_name: 'Montessori Activity & Arts Kit', category: 'Daycare', price: 75.0, stock_qty: 40 },
+    { id: 'inv-4', item_name: 'Physics & Chemistry Lab Experiment Workbook', category: 'Books', price: 95.0, stock_qty: 30 },
+    { id: 'inv-5', item_name: 'Healthy Daycare Snack & Juice Pack', category: 'Snacks', price: 25.0, stock_qty: 100 }
   ]);
 
   const [students, setStudents] = useState([
     { id: 'std-101', name: 'Zayed Al-Hashimi', standard: 'Grade 10' },
-    { id: 'std-102', name: 'Mariam Al-Hashimi', standard: 'KG 2' }
+    { id: 'std-102', name: 'Mariam Al-Hashimi', standard: 'KG 2' },
+    { id: 'std-103', name: 'Sami Al-Nuaimi', standard: 'Grade 4' },
+    { id: 'std-104', name: 'Rashid Al-Maktoum', standard: 'Grade 5' },
+    { id: 'std-105', name: 'Fatima Al-Qassimi', standard: 'Grade 3' }
   ]);
 
   const [cart, setCart] = useState([]);
@@ -35,28 +40,12 @@ export default function POSView() {
   };
 
   const fetchStudents = () => {
-    const localSaved = JSON.parse(localStorage.getItem('registered_students') || '[]');
-
     fetch('/api/students')
       .then(res => res.json())
       .then(data => {
-        let combined = Array.isArray(data) && data.length > 0 ? [...data] : [...students];
-        localSaved.forEach(ls => {
-          if (!combined.some(c => String(c.id) === String(ls.id) || c.name.toLowerCase() === ls.name.toLowerCase())) {
-            combined.unshift(ls);
-          }
-        });
-        setStudents(combined);
+        if (Array.isArray(data) && data.length > 0) setStudents(data);
       })
-      .catch(() => {
-        let combined = [...students];
-        localSaved.forEach(ls => {
-          if (!combined.some(c => String(c.id) === String(ls.id) || c.name.toLowerCase() === ls.name.toLowerCase())) {
-            combined.unshift(ls);
-          }
-        });
-        setStudents(combined);
-      });
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -253,7 +242,7 @@ export default function POSView() {
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justify: 'center',
                     transition: 'color 0.2s ease'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.color = '#EF4444'}
