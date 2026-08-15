@@ -23,8 +23,13 @@ export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [activeRole, setActiveRole] = useState('SuperAdmin');
   
-  // MOBILE MENU OVERLAY STATE
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // MOBILE MENU INITIAL STATE: Opens 2-column control center grid by default on mobile load (<= 768px)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth <= 768;
+    }
+    return false;
+  });
 
   const [theme, setTheme] = useState('light');
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
@@ -98,7 +103,7 @@ export default function App() {
               height: '40px', 
               display: 'flex', 
               alignItems: 'center', 
-              justifyContent: 'center', 
+              justify.content: 'center', 
               borderRadius: '12px',
               background: 'var(--card-bg-subtle)',
               border: '1px solid var(--border-color)',
@@ -312,7 +317,7 @@ export default function App() {
                 borderRadius: '12px',
                 display: 'flex',
                 alignItems: 'center',
-                justify-content: 'center',
+                justifyContent: 'center',
                 background: 'var(--bg-card)',
                 border: '1px solid var(--border-color)',
                 color: 'var(--text-main)',

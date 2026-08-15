@@ -23,8 +23,13 @@ export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [activeRole, setActiveRole] = useState('SuperAdmin');
   
-  // MOBILE MENU OVERLAY STATE
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // MOBILE MENU INITIAL STATE: Opens 2-column control center grid by default on mobile load (<= 768px)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth <= 768;
+    }
+    return false;
+  });
 
   const [theme, setTheme] = useState('light');
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
