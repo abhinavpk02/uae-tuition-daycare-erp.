@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Building2, Plus, TrendingDown, CheckCircle2 } from 'lucide-react';
+import { Building2, Plus, TrendingDown, CheckCircle2, Trash2 } from 'lucide-react';
 import SearchableSelectInput from '../components/SearchableSelectInput';
 import { BASE_URL } from '../api';
 
@@ -77,6 +77,22 @@ export default function AssetsView() {
     setTimeout(() => setMessage(''), 3000);
   };
 
+  const handleDeleteAsset = (assetId, e) => {
+    if (e) e.stopPropagation();
+    const target = assets.find(a => String(a.id) === String(assetId));
+    const title = target ? target.item_name : 'asset';
+
+    if (!window.confirm(`Are you sure you want to remove "${title}" from Fixed Assets Ledger?`)) {
+      return;
+    }
+
+    const updated = assets.filter(a => String(a.id) !== String(assetId));
+    setAssets(updated);
+    localStorage.setItem('registered_assets', JSON.stringify(updated));
+
+    fetch(`${BASE_URL}/api/assets/${assetId}`, { method: 'DELETE' }).catch(() => {});
+  };
+
   const categoryOptions = [
     { value: 'Technology', label: 'Technology & Smartboards' },
     { value: 'Furniture', label: 'Furniture & Play Equipment' },
@@ -103,6 +119,7 @@ export default function AssetsView() {
                   <th>Cost Basis</th>
                   <th>Depr. Rate</th>
                   <th>Current Book Value</th>
+                  <th style={{ width: '40px', textAlign: 'center' }}></th>
                 </tr>
               </thead>
               <tbody>
@@ -114,6 +131,15 @@ export default function AssetsView() {
                     <td style={{ fontFamily: 'monospace', color: '#EF4444' }}>{asset.depreciation_rate || 10}% / yr</td>
                     <td style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-primary)' }}>
                       AED {parseFloat(asset.current_book_value || asset.cost_basis || 0).toFixed(2)}
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      <button 
+                        onClick={(e) => handleDeleteAsset(asset.id, e)}
+                        title={`Delete ${asset.item_name}`}
+                        style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '4px' }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </td>
                   </tr>
                 ))}

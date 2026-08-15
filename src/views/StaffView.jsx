@@ -92,7 +92,7 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
         <div>
           <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>Staff Directory & Payroll Credentials</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Manage teaching staff, caregivers, payroll hourly rates & Emirates ID compliance ({staff.length} Active Staff — <em>Swipe row left to delete</em>)
+            Manage teaching staff, caregivers, payroll hourly rates & Emirates ID compliance ({staff.length} Active Staff)
           </p>
         </div>
 
@@ -129,7 +129,7 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
                 <th>Assigned Role</th>
                 <th>Emirates ID</th>
                 <th>Hourly Payroll Rate</th>
-                <th>Actions</th>
+                <th style={{ width: '40px', textAlign: 'center' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -148,25 +148,21 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
                     <td style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-primary)' }}>
                       AED {parseFloat(stf.hourly_rate || 120).toFixed(2)} / hr
                     </td>
-                    <td>
+                    <td style={{ textAlign: 'center' }}>
                       <button 
                         onClick={(e) => handleDeleteStaff(stf.id, e)} 
                         title={`Delete ${stf.name}`}
                         style={{
-                          background: 'rgba(239, 68, 68, 0.1)',
-                          border: '1px solid rgba(239, 68, 68, 0.2)',
-                          borderRadius: '6px',
+                          background: 'transparent',
+                          border: 'none',
                           color: '#EF4444',
                           cursor: 'pointer',
-                          padding: '4px 8px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          fontSize: '0.75rem',
-                          fontWeight: 600
+                          padding: '4px',
+                          display: 'inline-flex',
+                          alignItems: 'center'
                         }}
                       >
-                        <Trash2 size={13} /> Delete
+                        <Trash2 size={16} />
                       </button>
                     </td>
                   </SwipeableTableRow>

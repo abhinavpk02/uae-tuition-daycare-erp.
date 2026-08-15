@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from typing import List
 from pydantic import BaseModel
 from decimal import Decimal
@@ -35,6 +35,15 @@ async def create_asset(data: AssetCreate, db: AsyncSession = Depends(get_db)):
     await db.commit()
     await db.refresh(asset)
     return asset
+
+@router.delete("/{asset_id}")
+async def delete_asset(asset_id: str, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Asset).where(Asset.id == asset_id))
+    asset = result.scalar_one_or_none()
+    if asset:
+        await db.delete(asset)
+        await db.commit()
+    return {"status": "success", "message": f"Asset {asset_id} deleted"}
 
 @router.post("/{asset_id}/depreciate")
 async def depreciate_asset(asset_id: str, db: AsyncSession = Depends(get_db)):

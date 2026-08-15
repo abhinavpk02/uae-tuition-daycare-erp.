@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, MapPin, UserCheck, CheckCircle2, Check, Search, Plus, UserPlus, X, BookOpen, Clock } from 'lucide-react';
+import { Calendar, MapPin, UserCheck, CheckCircle2, Check, Search, Plus, UserPlus, X, BookOpen, Clock, Trash2 } from 'lucide-react';
 import SearchableSelectInput from '../components/SearchableSelectInput';
 import { BASE_URL } from '../api';
 
@@ -106,6 +106,31 @@ export default function TimetableView() {
     loadData();
   }, []);
 
+  // Delete active class session
+  const handleDeleteClassSession = (classId, e) => {
+    if (e) e.stopPropagation();
+    const target = activeSessions.find(c => String(c.id) === String(classId));
+    const title = target ? target.subject : 'class session';
+
+    if (!window.confirm(`Are you sure you want to remove "${title}" from active class schedule?`)) {
+      return;
+    }
+
+    const updatedSessions = activeSessions.filter(c => String(c.id) !== String(classId));
+    setActiveSessions(updatedSessions);
+    localStorage.setItem('registered_class_schedules', JSON.stringify(updatedSessions));
+
+    if (String(selectedClassId) === String(classId)) {
+      if (updatedSessions.length > 0) {
+        setSelectedClassId(updatedSessions[0].id);
+        setClassRoster(updatedSessions[0].enrolled_students || []);
+      } else {
+        setSelectedClassId('');
+        setClassRoster([]);
+      }
+    }
+  };
+
   // Handle active class selection change
   const handleSelectClass = (classId) => {
     setSelectedClassId(classId);
@@ -146,7 +171,6 @@ export default function TimetableView() {
 
     localStorage.setItem('registered_class_schedules', JSON.stringify(updatedSessions));
 
-    // Post to backend API
     fetch(`${BASE_URL}/api/timetable`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -410,12 +434,23 @@ export default function TimetableView() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {activeSessions.map(sess => (
-                <div key={sess.id} style={{ padding: '18px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                <div key={sess.id} style={{ padding: '18px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', position: 'relative' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <span className="badge-status badge-success"><MapPin size={12} /> {sess.room}</span>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>{sess.time}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>{sess.time}</span>
+                      {/* Frameless Delete Trash Icon Button */}
+                      <button 
+                        onClick={(e) => handleDeleteClassSession(sess.id, e)} 
+                        title={`Delete ${sess.subject}`}
+                        style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '2px' }}
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   </div>
-                  <h4 style={{ fontFamily: 'Outfit', fontSize: '1.05rem', margin: '8px 0', color: 'var(--text-main)' }}>{sess.subject}</h4>
+
+                  <h4 style={{ fontFamily: 'Outfit', fontSize: '1.05rem', margin: '8px 0', color: 'var(--text-main)', paddingRight: '20px' }}>{sess.subject}</h4>
                   
                   <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
                     <UserCheck size={14} color="var(--accent-primary)" /> Teacher: {sess.teacher}

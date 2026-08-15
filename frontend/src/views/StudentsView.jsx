@@ -129,7 +129,7 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
         <div>
           <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>Student Directory & Academic Roster</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Manage registered students, program enrollments, attendance status & outstanding balances ({students.length} Registered Students — <em>Swipe row left to delete</em>)
+            Manage registered students, program enrollments, attendance status & outstanding balances ({students.length} Registered Students)
           </p>
         </div>
 
@@ -199,7 +199,7 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
                       </button>
                     </td>
                     <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         {std.due_amount > 0 ? (
                           <button 
                             className="btn btn-emerald" 
@@ -216,20 +216,16 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
                           onClick={(e) => handleDeleteStudent(std.id, e)} 
                           title={`Delete ${std.name}`}
                           style={{
-                            background: 'rgba(239, 68, 68, 0.1)',
-                            border: '1px solid rgba(239, 68, 68, 0.2)',
-                            borderRadius: '6px',
+                            background: 'transparent',
+                            border: 'none',
                             color: '#EF4444',
                             cursor: 'pointer',
-                            padding: '4px 8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            fontSize: '0.75rem',
-                            fontWeight: 600
+                            padding: '4px',
+                            display: 'inline-flex',
+                            alignItems: 'center'
                           }}
                         >
-                          <Trash2 size={13} /> Delete
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </td>
