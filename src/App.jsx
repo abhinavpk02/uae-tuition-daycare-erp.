@@ -63,270 +63,261 @@ export default function App() {
     return allowed.includes(viewKey);
   };
 
-  // REUSABLE NAVIGATION GRID CONTENT
-  const NavigationContent = () => (
-    <div className="flex-1 flex flex-col justify-between w-full">
-      {/* 2-COLUMN SQUARE BUTTON GRID */}
-      <div className="w-full grid grid-cols-2 gap-3 mt-4">
-        {canAccess('parent-portal') && activeRole === 'Parent' && (
-          <button 
-            className={`flex flex-col items-center justify-center w-full aspect-square p-3 rounded-2xl text-center text-[0.68rem] font-extrabold uppercase tracking-wider transition-all border ${
-              currentView === 'parent-portal' 
-                ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white shadow-lg' 
-                : 'bg-[var(--card-bg-subtle)] text-[var(--text-muted)] border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-main)]'
-            }`} 
-            onClick={() => handleNavClick('parent-portal')}
-          >
-            <UserCheck size={24} className="mb-1.5 shrink-0" />
-            <span>Parent Portal</span>
-          </button>
-        )}
-
-        {canAccess('dashboard') && (
-          <button 
-            className={`flex flex-col items-center justify-center w-full aspect-square p-3 rounded-2xl text-center text-[0.68rem] font-extrabold uppercase tracking-wider transition-all border ${
-              currentView === 'dashboard' 
-                ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white shadow-lg' 
-                : 'bg-[var(--card-bg-subtle)] text-[var(--text-muted)] border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-main)]'
-            }`} 
-            onClick={() => handleNavClick('dashboard')}
-          >
-            <Gauge size={24} className="mb-1.5 shrink-0" />
-            <span>Exec Dashboard</span>
-          </button>
-        )}
-
-        {canAccess('attendance') && (
-          <button 
-            className={`flex flex-col items-center justify-center w-full aspect-square p-3 rounded-2xl text-center text-[0.68rem] font-extrabold uppercase tracking-wider transition-all border ${
-              currentView === 'attendance' 
-                ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white shadow-lg' 
-                : 'bg-[var(--card-bg-subtle)] text-[var(--text-muted)] border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-main)]'
-            }`} 
-            onClick={() => handleNavClick('attendance')}
-          >
-            <Clock size={24} className="mb-1.5 shrink-0" />
-            <span>RFID/Daycare</span>
-          </button>
-        )}
-
-        {canAccess('students') && (
-          <button 
-            className={`flex flex-col items-center justify-center w-full aspect-square p-3 rounded-2xl text-center text-[0.68rem] font-extrabold uppercase tracking-wider transition-all border ${
-              currentView === 'students' 
-                ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white shadow-lg' 
-                : 'bg-[var(--card-bg-subtle)] text-[var(--text-muted)] border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-main)]'
-            }`} 
-            onClick={() => handleNavClick('students')}
-          >
-            <Users size={24} className="mb-1.5 shrink-0" />
-            <span>Student Dir</span>
-          </button>
-        )}
-
-        {canAccess('staff') && (
-          <button 
-            className={`flex flex-col items-center justify-center w-full aspect-square p-3 rounded-2xl text-center text-[0.68rem] font-extrabold uppercase tracking-wider transition-all border ${
-              currentView === 'staff' 
-                ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white shadow-lg' 
-                : 'bg-[var(--card-bg-subtle)] text-[var(--text-muted)] border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-main)]'
-            }`} 
-            onClick={() => handleNavClick('staff')}
-          >
-            <UserPlus size={24} className="mb-1.5 shrink-0" />
-            <span>Staff Dir</span>
-          </button>
-        )}
-
-        {canAccess('accounting') && (
-          <button 
-            className={`flex flex-col items-center justify-center w-full aspect-square p-3 rounded-2xl text-center text-[0.68rem] font-extrabold uppercase tracking-wider transition-all border ${
-              currentView === 'accounting' 
-                ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white shadow-lg' 
-                : 'bg-[var(--card-bg-subtle)] text-[var(--text-muted)] border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-main)]'
-            }`} 
-            onClick={() => handleNavClick('accounting')}
-          >
-            <BookOpen size={24} className="mb-1.5 shrink-0" />
-            <span>Ledger</span>
-          </button>
-        )}
-
-        {canAccess('pos') && (
-          <button 
-            className={`flex flex-col items-center justify-center w-full aspect-square p-3 rounded-2xl text-center text-[0.68rem] font-extrabold uppercase tracking-wider transition-all border ${
-              currentView === 'pos' 
-                ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white shadow-lg' 
-                : 'bg-[var(--card-bg-subtle)] text-[var(--text-muted)] border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-main)]'
-            }`} 
-            onClick={() => handleNavClick('pos')}
-          >
-            <ShoppingBag size={24} className="mb-1.5 shrink-0" />
-            <span>POS Terminal</span>
-          </button>
-        )}
-
-        {canAccess('timetable') && (
-          <button 
-            className={`flex flex-col items-center justify-center w-full aspect-square p-3 rounded-2xl text-center text-[0.68rem] font-extrabold uppercase tracking-wider transition-all border ${
-              currentView === 'timetable' 
-                ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white shadow-lg' 
-                : 'bg-[var(--card-bg-subtle)] text-[var(--text-muted)] border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-main)]'
-            }`} 
-            onClick={() => handleNavClick('timetable')}
-          >
-            <Calendar size={24} className="mb-1.5 shrink-0" />
-            <span>Class Schedule</span>
-          </button>
-        )}
-
-        {canAccess('assets') && (
-          <button 
-            className={`flex flex-col items-center justify-center w-full aspect-square p-3 rounded-2xl text-center text-[0.68rem] font-extrabold uppercase tracking-wider transition-all border ${
-              currentView === 'assets' 
-                ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white shadow-lg' 
-                : 'bg-[var(--card-bg-subtle)] text-[var(--text-muted)] border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-main)]'
-            }`} 
-            onClick={() => handleNavClick('assets')}
-          >
-            <Coins size={24} className="mb-1.5 shrink-0" />
-            <span>Fixed Assets</span>
-          </button>
-        )}
-
-        {canAccess('rbac') && (
-          <button 
-            className={`flex flex-col items-center justify-center w-full aspect-square p-3 rounded-2xl text-center text-[0.68rem] font-extrabold uppercase tracking-wider transition-all border ${
-              currentView === 'rbac' 
-                ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white shadow-lg' 
-                : 'bg-[var(--card-bg-subtle)] text-[var(--text-muted)] border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-main)]'
-            }`} 
-            onClick={() => handleNavClick('rbac')}
-          >
-            <Settings size={24} className="mb-1.5 shrink-0" />
-            <span>Settings</span>
-          </button>
-        )}
-
-        {canAccess('ai-assistant') && (
-          <button 
-            className={`flex flex-col items-center justify-center w-full aspect-square p-3 rounded-2xl text-center text-[0.68rem] font-extrabold uppercase tracking-wider transition-all border ${
-              currentView === 'ai-assistant' 
-                ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white shadow-lg' 
-                : 'bg-[var(--card-bg-subtle)] text-[var(--text-muted)] border-[var(--border-color)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-main)]'
-            }`} 
-            onClick={() => handleNavClick('ai-assistant')}
-          >
-            <Bot size={24} className="mb-1.5 shrink-0" />
-            <span>AI Assistant</span>
-          </button>
-        )}
-      </div>
-
-      {/* ACTIVE RBAC MODE SELECTOR AT BOTTOM */}
-      <div className="mt-6 pt-4 border-t border-[var(--border-color)] w-full">
-        <SearchableSelectInput
-          label="ACTIVE RBAC MODE:"
-          options={roles}
-          value={activeRole}
-          onChange={(newRole) => {
-            setActiveRole(newRole);
-            const allowed = rolePermissions[newRole] || [];
-            if (!allowed.includes(currentView)) {
-              setCurrentView(allowed[0] || 'dashboard');
-            }
-          }}
-          placeholder="Search active role..."
-        />
-      </div>
-    </div>
-  );
-
   return (
-    // ROOT LAYOUT WRAPPER
-    <div className="flex flex-col md:flex-row min-h-screen w-full bg-[var(--bg-dark)] text-[var(--text-main)] relative">
+    <div className="app-container">
       
-      {/* 1. DESKTOP SIDEBAR (Visible ONLY on md: desktop screens) */}
-      <aside className="hidden md:flex md:flex-col md:w-64 h-screen sticky top-0 bg-[var(--bg-sidebar)] border-r border-[var(--border-color)] shrink-0 p-4 overflow-y-auto">
-        <div className="flex items-center gap-3 pb-4 border-b border-[var(--border-color)]">
-          <div className="w-10 h-10 bg-black dark:bg-white text-white dark:text-black rounded-xl flex items-center justify-center shrink-0">
-            <NestLogo size={24} />
+      {/* MOBILE TOP BAR (Only visible on mobile screens) */}
+      <div className="mobile-header-bar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="brand-icon" style={{ width: '36px', height: '36px' }}>
+            <NestLogo size={20} />
           </div>
           <div>
-            <div className="font-extrabold text-base tracking-tight">NESTIN</div>
-            <div className="text-[0.65rem] font-bold text-[var(--text-muted)] uppercase tracking-wider">Tuition and Day Care</div>
+            <div className="brand-title" style={{ fontSize: '1rem' }}>NESTIN ERP</div>
+            <div className="brand-subtitle" style={{ fontSize: '0.6rem' }}>Tuition and Day Care</div>
           </div>
         </div>
 
-        <NavigationContent />
-      </aside>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button 
+            onClick={toggleTheme} 
+            className="theme-toggle-btn" 
+            title="Toggle Light/Dark Theme"
+            style={{ width: '40px', height: '40px', padding: 0, justifyContent: 'center', borderRadius: '12px' }}
+          >
+            {theme === 'dark' ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#3B82F6" />}
+          </button>
+          
+          <button 
+            className="mobile-menu-toggle" 
+            onClick={() => setIsMobileMenuOpen(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', width: 'auto', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 700 }}
+          >
+            <Menu size={18} />
+            <span>Side Panel</span>
+          </button>
+        </div>
+      </div>
 
-      {/* 2. MOBILE SIDEBAR OVERLAY (Renders ONLY when isMobileMenuOpen === true on mobile) */}
-      {isMobileMenuOpen && (
-        <aside className="fixed inset-0 z-50 bg-[var(--bg-sidebar)] p-4 flex flex-col h-[100dvh] overflow-y-auto pb-24 md:hidden w-full">
-          <div className="flex items-center justify-between w-full pb-4 mb-4 border-b border-[var(--border-color)]">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-black dark:bg-white text-white dark:text-black rounded-xl flex items-center justify-center">
-                <NestLogo size={24} />
-              </div>
-              <div>
-                <div className="font-extrabold text-base tracking-tight">NESTIN</div>
-                <div className="text-[0.65rem] font-bold text-[var(--text-muted)] uppercase tracking-wider">Tuition and Day Care</div>
-              </div>
+      {/* FIXED SIDEBAR CONTAINER ON DESKTOP / OVERLAY ON MOBILE */}
+      <aside className={`sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+        {/* Brand Header */}
+        <div className="brand-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="brand-icon">
+              <NestLogo size={24} />
             </div>
-
-            <button 
-              className="w-10 h-10 rounded-xl flex items-center justify-center border border-[var(--border-color)] bg-[var(--card-bg-subtle)] text-[var(--text-main)]"
-              onClick={() => setIsMobileMenuOpen(false)}
-              title="Close Side Panel"
-            >
-              <X size={20} />
-            </button>
+            <div>
+              <div className="brand-title">NESTIN</div>
+              <div className="brand-subtitle">Tuition and Day Care</div>
+            </div>
           </div>
 
-          <NavigationContent />
-        </aside>
-      )}
+          <button 
+            className="mobile-close-btn"
+            onClick={() => setIsMobileMenuOpen(false)}
+            title="Close Side Panel"
+          >
+            <X size={20} />
+          </button>
+        </div>
 
-      {/* 3. MAIN CONTENT AREA */}
-      <main className="flex-1 w-full min-w-0 p-4 md:p-8 overflow-y-auto">
+        {/* 2-COLUMN SQUARE NAVIGATION TILE GRID */}
+        <div className="nav-tile-wrapper">
+          <div className="nav-tile-grid">
+            {canAccess('parent-portal') && activeRole === 'Parent' && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'parent-portal' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('parent-portal')}
+                >
+                  <UserCheck size={26} />
+                  <span className="nav-tile-label">Parent Portal</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('dashboard') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'dashboard' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('dashboard')}
+                >
+                  <Gauge size={26} />
+                  <span className="nav-tile-label">Exec Dashboard</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('attendance') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'attendance' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('attendance')}
+                >
+                  <Clock size={26} />
+                  <span className="nav-tile-label">RFID/Daycare</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('students') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'students' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('students')}
+                >
+                  <Users size={26} />
+                  <span className="nav-tile-label">Student Dir</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('staff') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'staff' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('staff')}
+                >
+                  <UserPlus size={26} />
+                  <span className="nav-tile-label">Staff Dir</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('accounting') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'accounting' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('accounting')}
+                >
+                  <BookOpen size={26} />
+                  <span className="nav-tile-label">Ledger</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('pos') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'pos' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('pos')}
+                >
+                  <ShoppingBag size={26} />
+                  <span className="nav-tile-label">POS Terminal</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('timetable') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'timetable' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('timetable')}
+                >
+                  <Calendar size={26} />
+                  <span className="nav-tile-label">Class Schedule</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('assets') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'assets' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('assets')}
+                >
+                  <Coins size={26} />
+                  <span className="nav-tile-label">Fixed Assets</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('rbac') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'rbac' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('rbac')}
+                >
+                  <Settings size={26} />
+                  <span className="nav-tile-label">Settings</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('ai-assistant') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'ai-assistant' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('ai-assistant')}
+                >
+                  <Bot size={26} />
+                  <span className="nav-tile-label">AI Assistant</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* ACTIVE RBAC MODE SELECTOR AT BOTTOM */}
+          <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-color)', width: '100%' }}>
+            <SearchableSelectInput
+              label="ACTIVE RBAC MODE:"
+              options={roles}
+              value={activeRole}
+              onChange={(newRole) => {
+                setActiveRole(newRole);
+                const allowed = rolePermissions[newRole] || [];
+                if (!allowed.includes(currentView)) {
+                  setCurrentView(allowed[0] || 'dashboard');
+                }
+              }}
+              placeholder="Search active role..."
+            />
+          </div>
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT AREA */}
+      <main className="main-content">
         
-        {/* CONSOLIDATED SINGLE DASHBOARD TOP-BAR */}
-        <div className="flex flex-wrap items-center justify-between w-full gap-4 mb-6">
-          {/* LEFT SIDE: Mobile Side Panel Toggle + RBAC Badges */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <button 
-              className="flex md:hidden items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-[var(--border-color)] bg-[var(--card-bg-subtle)] text-[var(--text-main)]" 
-              onClick={() => setIsMobileMenuOpen(true)}
-            >
-              <Menu size={18} />
-              <span>Side Panel</span>
-            </button>
-
+        {/* CLEAN MAIN CONTENT HEADER BAR (WITHOUT SIDE PANEL BUTTON) */}
+        <header className="header-bar">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span className="badge-status badge-success" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
               <ShieldCheck size={14} /> RBAC: {activeRole}
             </span>
-
             <span className="badge-status badge-warning" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
               <Sparkles size={14} /> Balanced
             </span>
           </div>
 
-          {/* RIGHT SIDE: Single Bell & Theme Toggle Buttons */}
-          <div className="flex items-center gap-2 shrink-0 relative">
+          <div className="header-actions" style={{ position: 'relative' }}>
             <button 
               onClick={() => setShowNotifDrawer(!showNotifDrawer)}
-              className="w-10 h-10 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] flex items-center justify-center relative text-[var(--text-main)]"
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                color: 'var(--text-main)',
+                cursor: 'pointer',
+                position: 'relative'
+              }}
               title="System Notifications"
             >
               <Bell size={18} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+              <span style={{ position: 'absolute', top: '8px', right: '8px', width: '8px', height: '8px', background: '#EF4444', borderRadius: '50%' }}></span>
             </button>
 
             <button 
               onClick={toggleTheme} 
-              className="w-10 h-10 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] flex items-center justify-center text-[var(--text-main)]" 
+              className="theme-toggle-btn" 
               title="Toggle Light/Dark Theme"
+              style={{ width: '40px', height: '40px', padding: 0, justifyContent: 'center', borderRadius: '12px' }}
             >
               {theme === 'dark' ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#3B82F6" />}
             </button>
@@ -350,7 +341,7 @@ export default function App() {
               </div>
             )}
           </div>
-        </div>
+        </header>
 
         {/* View Router */}
         {currentView === 'parent-portal' && canAccess('parent-portal') && <ParentPortalView />}
