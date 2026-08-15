@@ -20,14 +20,14 @@ export default function CommonTrashWidget() {
     };
   }, []);
 
-  // Track mouse position to reveal common trash when moving to bottom-right corner
+  // Track mouse position: icon is hidden by default and pops up ONLY when mouse points to right corner
   useEffect(() => {
     const handleMouseMove = (e) => {
       const distRight = window.innerWidth - e.clientX;
       const distBottom = window.innerHeight - e.clientY;
 
-      // Reveal if cursor is within 160px of the bottom-right corner
-      if (distRight <= 160 && distBottom <= 160) {
+      // Pop up if mouse is pointing within 140px of the bottom-right corner
+      if (distRight <= 140 && distBottom <= 140) {
         setIsVisible(true);
       } else if (!isOpen) {
         setIsVisible(false);
@@ -60,24 +60,25 @@ export default function CommonTrashWidget() {
     ? items 
     : items.filter(i => i.category === selectedCategory);
 
+  const activeShow = isVisible || isOpen;
+
   return (
     <>
-      {/* Invisible Corner Hotspot Trigger for Mouse Enter */}
+      {/* Invisible Corner Pointer Target (Bottom-Right 140px Hotspot) */}
       <div 
         onMouseEnter={() => setIsVisible(true)}
-        onMouseLeave={() => { if (!isOpen) setIsVisible(false); }}
         style={{ 
           position: 'fixed', 
           bottom: '0px', 
           right: '0px',
-          width: '160px',
-          height: '160px',
-          pointerEvents: (isVisible || isOpen) ? 'none' : 'auto',
+          width: '140px',
+          height: '140px',
+          pointerEvents: activeShow ? 'none' : 'auto',
           zIndex: 9998
         }}
       />
 
-      {/* Floating Bottom-Right Big Bin Round Outline Button (Hidden by default, reveals on corner mouse move) */}
+      {/* Floating Bottom-Right Big Bin Button (Completely Hidden by Default, Pops Up on Right Corner Mouse Pointing) */}
       <div 
         onMouseEnter={() => setIsVisible(true)}
         onMouseLeave={() => { if (!isOpen) setIsVisible(false); }}
@@ -88,10 +89,11 @@ export default function CommonTrashWidget() {
           zIndex: 9999,
           display: 'flex',
           alignItems: 'center',
-          opacity: (isVisible || isOpen) ? 1 : 0,
-          transform: (isVisible || isOpen) ? 'scale(1) translateY(0)' : 'scale(0.7) translateY(20px)',
-          pointerEvents: (isVisible || isOpen) ? 'auto' : 'none',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+          opacity: activeShow ? 1 : 0,
+          visibility: activeShow ? 'visible' : 'hidden',
+          transform: activeShow ? 'scale(1) translateY(0)' : 'scale(0.2) translateY(50px)',
+          pointerEvents: activeShow ? 'auto' : 'none',
+          transition: 'transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease, visibility 0.25s'
         }}
       >
         <button
