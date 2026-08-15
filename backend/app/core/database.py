@@ -10,8 +10,14 @@ except ImportError:
     pass
 
 # Turso (libSQL) Connection Credentials from Environment
-TURSO_DB_URL = os.getenv("TURSO_DATABASE_URL", "libsql://nest-daycare-abhinav02.aws-ap-south-1.turso.io")
-TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN", "")
+TURSO_DB_URL = os.getenv(
+    "TURSO_DATABASE_URL", 
+    "libsql://nest-daycare-abhinav02.aws-ap-south-1.turso.io"
+)
+TURSO_AUTH_TOKEN = os.getenv(
+    "TURSO_AUTH_TOKEN", 
+    "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODY4MTM2OTMsImlkIjoiMDFhMDA2MzktODIwMS03YjUwLWJkMzktYjExZDExYzNhMDRjIiwia2lkIjoiY2RHN3VHbE5YbU1QOUlLc0wxWkItRUhqM0k3Q3hkd04xNDVxRHJiT0NwSSIsInJpZCI6IjcxMzc4YzQzLTdhM2YtNDBmYy1iYmEwLTY1YmNlNDYxNDQ1OSJ9.G2vEMVs2WPHp-uoN4YMBtX1Q402InPMhv61dBGxuCE0isnKeEIZ3rlKbpwbbWg2qR5Esmh80ocn0MvjJRmb2Cg"
+)
 
 # 1. Format Connection URL for SQLAlchemy libSQL / SQLite dialect
 raw_url = TURSO_DB_URL.strip()
@@ -25,17 +31,23 @@ elif not raw_url.startswith("sqlite"):
 else:
     target_url = raw_url
 
-# 2. Inject Turso Auth Token into URL query parameters securely
+# 2. Append authentication parameter to target URL
 if TURSO_AUTH_TOKEN and "turso.io" in target_url and "authToken=" not in target_url:
     delimiter = "&" if "?" in target_url else "?"
     target_url = f"{target_url}{delimiter}authToken={TURSO_AUTH_TOKEN}"
 
-# 3. Create Async Engine with libSQL / SQLite thread safety parameters
+# 3. Create Async Engine with connect_args for remote Turso access
+connect_kwargs = {
+    "check_same_thread": False
+}
+if TURSO_AUTH_TOKEN:
+    connect_kwargs["auth_token"] = TURSO_AUTH_TOKEN
+
 engine = create_async_engine(
     target_url,
     echo=False,
     future=True,
-    connect_args={"check_same_thread": False}
+    connect_args=connect_kwargs
 )
 
 # 4. Enforce SQLite/Turso Foreign Keys PRAGMA on connect
