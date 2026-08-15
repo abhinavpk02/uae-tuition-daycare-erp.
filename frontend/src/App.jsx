@@ -258,24 +258,24 @@ export default function App() {
               </div>
             )}
           </div>
-        </div>
 
-        {/* Pinned RBAC Mode Selector */}
-        <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid var(--border-color)', flexShrink: 0 }}>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <SearchableSelectInput
-              label="ACTIVE RBAC MODE:"
-              options={roles}
-              value={activeRole}
-              onChange={(newRole) => {
-                setActiveRole(newRole);
-                const allowed = rolePermissions[newRole] || [];
-                if (!allowed.includes(currentView)) {
-                  setCurrentView(allowed[0] || 'dashboard');
-                }
-              }}
-              placeholder="Search active role..."
-            />
+          {/* ACTIVE RBAC MODE dropdown moved to bottom of navigation flow */}
+          <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid var(--border-color)', width: '100%' }}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <SearchableSelectInput
+                label="ACTIVE RBAC MODE:"
+                options={roles}
+                value={activeRole}
+                onChange={(newRole) => {
+                  setActiveRole(newRole);
+                  const allowed = rolePermissions[newRole] || [];
+                  if (!allowed.includes(currentView)) {
+                    setCurrentView(allowed[0] || 'dashboard');
+                  }
+                }}
+                placeholder="Search active role..."
+              />
+            </div>
           </div>
         </div>
       </aside>
