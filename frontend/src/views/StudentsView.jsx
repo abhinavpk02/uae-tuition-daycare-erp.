@@ -3,14 +3,7 @@ import { UserCheck, BookOpen, Plus, ShieldAlert, CheckCircle2, AlertTriangle, Do
 import AddStudentModal from '../components/AddStudentModal';
 
 export default function StudentsView({ activeRole = 'SuperAdmin' }) {
-  const [students, setStudents] = useState([
-    { id: 'std-101', name: 'Zayed Al-Hashimi', standard: 'Grade 10', program: 'Tuition & Daycare', parent_id: 'PRT-882194', due_amount: 0.0, attendance_status: 'Present' },
-    { id: 'std-102', name: 'Mariam Al-Hashimi', standard: 'KG 2', program: 'Daycare Only', parent_id: 'PRT-992103', due_amount: 0.0, attendance_status: 'Present' },
-    { id: 'std-103', name: 'Sami Al-Nuaimi', standard: 'Grade 4', program: 'Tuition & Daycare', parent_id: 'PRT-332104', due_amount: 140.0, attendance_status: 'Present' },
-    { id: 'std-104', name: 'Rashid Al-Maktoum', standard: 'Grade 5', program: 'Tuition Only', parent_id: 'PRT-441092', due_amount: 450.0, attendance_status: 'Absent' },
-    { id: 'std-105', name: 'Fatima Al-Qassimi', standard: 'Grade 3', program: 'Tuition & Daycare', parent_id: 'PRT-110293', due_amount: 0.0, attendance_status: 'Late' }
-  ]);
-
+  const [students, setStudents] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
 
@@ -24,10 +17,10 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
     fetch('/api/students')
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setStudents(data.map(s => ({
             ...s,
-            due_amount: s.due_amount !== undefined ? s.due_amount : (s.name.includes('Maktoum') ? 450.0 : s.name.includes('Nuaimi') ? 140.0 : 0.0),
+            due_amount: s.due_amount || 0.0,
             attendance_status: s.attendance_status || 'Present'
           })));
         }
@@ -48,7 +41,6 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
 
     setStudents(prev => prev.map(s => s.id === studentId ? { ...s, due_amount: 0.0 } : s));
 
-    // Post Double-Entry Journal Entry to Backend
     fetch('/api/accounting/journal-entry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -65,12 +57,10 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
     alert(`Successfully settled due payment of AED ${settledAmt.toFixed(2)} for ${target.name}. Posted to General Ledger!`);
   };
 
-  // One-Click Attendance Status Toggle
   const handleToggleAttendance = (studentId, newStatus) => {
     setStudents(prev => prev.map(s => s.id === studentId ? { ...s, attendance_status: newStatus } : s));
   };
 
-  // Filter students based on search query
   const filteredStudents = students.filter(s =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (s.standard && s.standard.toLowerCase().includes(searchQuery.toLowerCase())) ||
@@ -87,7 +77,6 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
           </p>
         </div>
 
-        {/* Action Button for SuperAdmin and Admin */}
         {['SuperAdmin', 'Admin'].includes(activeRole) && (
           <button className="btn btn-emerald" onClick={() => setIsStudentModalOpen(true)}>
             <Plus size={18} /> Register Student
@@ -207,8 +196,8 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '24px' }}>
-                      No students found matching "{searchQuery}"
+                    <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '32px' }}>
+                      No students found. Click "Register Student" to onboard a new student.
                     </td>
                   </tr>
                 )}

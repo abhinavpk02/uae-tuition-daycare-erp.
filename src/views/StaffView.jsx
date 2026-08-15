@@ -3,14 +3,7 @@ import { UserCheck, Shield, Plus, Phone, Mail, Clock, Search, DollarSign } from 
 import AddStaffModal from '../components/AddStaffModal';
 
 export default function StaffView({ activeRole = 'SuperAdmin' }) {
-  const [staff, setStaff] = useState([
-    { id: 'stf-201', name: 'Fatima Al-Mansoori', email: 'fatima@uaeerp.ae', role: 'Teacher', hourly_rate: 120.0, emirates_id: '784-1992-1234567-1' },
-    { id: 'stf-202', name: 'Sarah Jenkins', email: 'sarah.j@uaeerp.ae', role: 'Teacher', hourly_rate: 95.0, emirates_id: '784-1990-2345678-2' },
-    { id: 'stf-203', name: 'Omar Al-Zahabi', email: 'omar.z@uaeerp.ae', role: 'Accountant', hourly_rate: 150.0, emirates_id: '784-1988-3456789-3' },
-    { id: 'stf-204', name: 'Aisha Al-Mheiri', email: 'aisha.m@uaeerp.ae', role: 'Admin', hourly_rate: 140.0, emirates_id: '784-1995-4567890-4' },
-    { id: 'stf-205', name: 'Khalfan Al-Remeithi', email: 'khalfan.r@uaeerp.ae', role: 'Teacher', hourly_rate: 85.0, emirates_id: '784-1998-5678901-5' }
-  ]);
-
+  const [staff, setStaff] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
 
@@ -18,7 +11,7 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
     fetch('/api/staff')
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) setStaff(data);
+        if (Array.isArray(data)) setStaff(data);
       })
       .catch(() => {});
   };
@@ -94,8 +87,8 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '24px' }}>
-                    No staff member found matching "{searchQuery}"
+                  <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '32px' }}>
+                    No staff members onboarded. Click "Onboard Staff Member" to add new staff.
                   </td>
                 </tr>
               )}

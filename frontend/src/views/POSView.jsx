@@ -3,21 +3,8 @@ import { ShoppingBag, Plus, Minus, Trash2, CheckCircle2, Package, Tag, ArrowRigh
 import SearchableSelectInput from '../components/SearchableSelectInput';
 
 export default function POSView() {
-  const [inventory, setInventory] = useState([
-    { id: 'inv-1', item_name: 'Grade 10 Mathematics Course Book', category: 'Books', price: 120.0, stock_qty: 50 },
-    { id: 'inv-2', item_name: 'Daycare Uniform Set (Polo & Shorts)', category: 'Uniforms', price: 150.0, stock_qty: 35 },
-    { id: 'inv-3', item_name: 'Montessori Activity & Arts Kit', category: 'Daycare', price: 75.0, stock_qty: 40 },
-    { id: 'inv-4', item_name: 'Physics & Chemistry Lab Experiment Workbook', category: 'Books', price: 95.0, stock_qty: 30 },
-    { id: 'inv-5', item_name: 'Healthy Daycare Snack & Juice Pack', category: 'Snacks', price: 25.0, stock_qty: 100 }
-  ]);
-
-  const [students, setStudents] = useState([
-    { id: 'std-101', name: 'Zayed Al-Hashimi', standard: 'Grade 10' },
-    { id: 'std-102', name: 'Mariam Al-Hashimi', standard: 'KG 2' },
-    { id: 'std-103', name: 'Sami Al-Nuaimi', standard: 'Grade 4' },
-    { id: 'std-104', name: 'Rashid Al-Maktoum', standard: 'Grade 5' },
-    { id: 'std-105', name: 'Fatima Al-Qassimi', standard: 'Grade 3' }
-  ]);
+  const [inventory, setInventory] = useState([]);
+  const [students, setStudents] = useState([]);
 
   const [cart, setCart] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState('');
@@ -35,7 +22,7 @@ export default function POSView() {
   const fetchInventory = () => {
     fetch('/api/pos/items')
       .then(res => res.json())
-      .then(data => { if (Array.isArray(data) && data.length > 0) setInventory(data); })
+      .then(data => { if (Array.isArray(data)) setInventory(data); })
       .catch(() => {});
   };
 
@@ -43,7 +30,7 @@ export default function POSView() {
     fetch('/api/students')
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) setStudents(data);
+        if (Array.isArray(data)) setStudents(data);
       })
       .catch(() => {});
   };
@@ -53,7 +40,6 @@ export default function POSView() {
     fetchStudents();
   }, []);
 
-  // One-Click Delete Inventory Item
   const handleDeleteInventoryItem = (itemId, e) => {
     e.stopPropagation();
     if (!window.confirm('Are you sure you want to remove this item from POS inventory?')) return;
@@ -64,7 +50,6 @@ export default function POSView() {
     fetch(`/api/pos/items/${itemId}`, { method: 'DELETE' }).catch(() => {});
   };
 
-  // Add Item to Inventory List & Backend API
   const handleAddInventorySubmit = (e) => {
     e.preventDefault();
     if (!newItemName.trim() || !newItemPrice || !newItemStock) return;
@@ -208,75 +193,80 @@ export default function POSView() {
             <Package size={20} color="var(--accent-primary)" /> Inventory Items ({inventory.length})
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-            {inventory.map(item => (
-              <div 
-                key={item.id} 
-                className="glass-card" 
-                style={{ 
-                  cursor: item.stock_qty > 0 ? 'pointer' : 'not-allowed', 
-                  opacity: item.stock_qty > 0 ? 1 : 0.5,
-                  border: item.stock_qty <= 5 ? '1px solid #EF4444' : '1px solid var(--border-color)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  padding: '18px',
-                  position: 'relative'
-                }}
-                onClick={() => addToCart(item)}
-              >
-                {/* Delete button icon on top right of each inventory card */}
-                <button
-                  type="button"
-                  onClick={(e) => handleDeleteInventoryItem(item.id, e)}
-                  title="Delete inventory item"
-                  style={{
-                    position: 'absolute',
-                    top: '12px',
-                    right: '12px',
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'var(--text-muted)',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    borderRadius: '6px',
+          {inventory.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+              {inventory.map(item => (
+                <div 
+                  key={item.id} 
+                  className="glass-card" 
+                  style={{ 
+                    cursor: item.stock_qty > 0 ? 'pointer' : 'not-allowed', 
+                    opacity: item.stock_qty > 0 ? 1 : 0.5,
+                    border: item.stock_qty <= 5 ? '1px solid #EF4444' : '1px solid var(--border-color)',
                     display: 'flex',
-                    alignItems: 'center',
-                    justify: 'center',
-                    transition: 'color 0.2s ease'
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    padding: '18px',
+                    position: 'relative'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = '#EF4444'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                  onClick={() => addToCart(item)}
                 >
-                  <Trash2 size={16} />
-                </button>
+                  <button
+                    type="button"
+                    onClick={(e) => handleDeleteInventoryItem(item.id, e)}
+                    title="Delete inventory item"
+                    style={{
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'var(--text-muted)',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      borderRadius: '6px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justify: 'center',
+                      transition: 'color 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#EF4444'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                  >
+                    <Trash2 size={16} />
+                  </button>
 
-                <div>
-                  <span className="badge-status badge-warning" style={{ fontSize: '0.7rem', marginBottom: '8px' }}>
-                    <Tag size={10} /> {item.category || 'General'}
-                  </span>
-                  <h4 style={{ fontFamily: 'Outfit', fontSize: '0.98rem', margin: '4px 0 12px 0', color: 'var(--text-main)', paddingRight: '20px' }}>
-                    {item.item_name}
-                  </h4>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px' }}>
                   <div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent-primary)', fontFamily: 'monospace' }}>
-                      AED {item.price.toFixed(2)}
-                    </div>
-                    <div style={{ fontSize: '0.75rem', color: item.stock_qty <= 5 ? '#EF4444' : 'var(--text-muted)' }}>
-                      Stock: {item.stock_qty} pcs
-                    </div>
+                    <span className="badge-status badge-warning" style={{ fontSize: '0.7rem', marginBottom: '8px' }}>
+                      <Tag size={10} /> {item.category || 'General'}
+                    </span>
+                    <h4 style={{ fontFamily: 'Outfit', fontSize: '0.98rem', margin: '4px 0 12px 0', color: 'var(--text-main)', paddingRight: '20px' }}>
+                      {item.item_name}
+                    </h4>
                   </div>
 
-                  <button className="btn btn-emerald" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
-                    <Plus size={14} /> Add
-                  </button>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px' }}>
+                    <div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent-primary)', fontFamily: 'monospace' }}>
+                        AED {item.price.toFixed(2)}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: item.stock_qty <= 5 ? '#EF4444' : 'var(--text-muted)' }}>
+                        Stock: {item.stock_qty} pcs
+                      </div>
+                    </div>
+
+                    <button className="btn btn-emerald" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
+                      <Plus size={14} /> Add
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="glass-card" style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
+              No inventory items in stock. Click "Add Inventory Item" to populate products.
+            </div>
+          )}
         </div>
 
         {/* Shopping Cart & Terminal Summary */}

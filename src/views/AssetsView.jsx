@@ -3,14 +3,7 @@ import { Building2, Plus, TrendingDown, CheckCircle2 } from 'lucide-react';
 import SearchableSelectInput from '../components/SearchableSelectInput';
 
 export default function AssetsView() {
-  const [assets, setAssets] = useState([
-    { id: '1', item_name: 'Interactive Smartboard Setup (Room 101)', category: 'Technology', cost_basis: 15000.0, depreciation_rate: 15.0, current_book_value: 12750.0 },
-    { id: '2', item_name: 'Dell High-Density Server & Router Rack', category: 'Technology', cost_basis: 25000.0, depreciation_rate: 20.0, current_book_value: 20000.0 },
-    { id: '3', item_name: 'Daycare Montessori Play & Soft Furniture', category: 'Facility', cost_basis: 18000.0, depreciation_rate: 10.0, current_book_value: 16200.0 },
-    { id: '4', item_name: 'Toyota Coaster Student Bus Shuttle', category: 'Transportation', cost_basis: 140000.0, depreciation_rate: 12.5, current_book_value: 122500.0 },
-    { id: '5', item_name: 'Magnetic Wall Whiteboards & Projector Set', category: 'Facility', cost_basis: 8500.0, depreciation_rate: 10.0, current_book_value: 7650.0 }
-  ]);
-
+  const [assets, setAssets] = useState([]);
   const [itemName, setItemName] = useState('');
   const [category, setCategory] = useState('Technology');
   const [value, setValue] = useState('10000');
@@ -21,7 +14,7 @@ export default function AssetsView() {
     fetch('/api/assets')
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) setAssets(data);
+        if (Array.isArray(data)) setAssets(data);
       })
       .catch(() => {});
   };
@@ -82,17 +75,25 @@ export default function AssetsView() {
                 </tr>
               </thead>
               <tbody>
-                {assets.map(a => (
-                  <tr key={a.id}>
-                    <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{a.item_name || a.name}</td>
-                    <td><span className="badge-status badge-warning">{a.category}</span></td>
-                    <td style={{ fontFamily: 'monospace' }}>AED {a.cost_basis?.toFixed(2)}</td>
-                    <td style={{ fontFamily: 'monospace', color: '#EF4444' }}>{a.depreciation_rate}% / yr</td>
-                    <td style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-emerald)' }}>
-                      AED {a.current_book_value?.toFixed(2)}
+                {assets.length > 0 ? (
+                  assets.map(a => (
+                    <tr key={a.id}>
+                      <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{a.item_name || a.name}</td>
+                      <td><span className="badge-status badge-warning">{a.category}</span></td>
+                      <td style={{ fontFamily: 'monospace' }}>AED {a.cost_basis?.toFixed(2)}</td>
+                      <td style={{ fontFamily: 'monospace', color: '#EF4444' }}>{a.depreciation_rate}% / yr</td>
+                      <td style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-emerald)' }}>
+                        AED {a.current_book_value?.toFixed(2)}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '32px' }}>
+                      No capital assets registered. Fill the form to add a new asset.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

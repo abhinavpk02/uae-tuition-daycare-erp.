@@ -6,87 +6,29 @@ export default function AccountingView() {
   const [activeTab, setActiveTab] = useState('trial-balance');
   const [showModal, setShowModal] = useState(false);
 
-  // Robust default state to guarantee ledger works 100%
   const [trialBalance, setTrialBalance] = useState({
     is_balanced: true,
-    grand_total_debit: 115850.0,
-    grand_total_credit: 115850.0,
+    grand_total_debit: 0.0,
+    grand_total_credit: 0.0,
     accounts: [
-      { account_code: '1000', account_name: 'Cash & Bank Balance', total_debit: 88450.0, total_credit: 0.0, net_balance: 88450.0 },
-      { account_code: '1200', account_name: 'Accounts Receivable (Tuition Dues)', total_debit: 12500.0, total_credit: 0.0, net_balance: 12500.0 },
-      { account_code: '1500', account_name: 'Fixed Assets & Equipment', total_debit: 12500.0, total_credit: 0.0, net_balance: 12500.0 },
-      { account_code: '5200', account_name: 'Facility Utilities Expense', total_debit: 2400.0, total_credit: 0.0, net_balance: 2400.0 },
-      { account_code: '4000', account_name: 'Tuition Fee Revenue', total_debit: 0.0, total_credit: 12500.0, net_balance: -12500.0 },
-      { account_code: '4100', account_name: 'Daycare Service Revenue', total_debit: 0.0, total_credit: 3350.0, net_balance: -3350.0 },
-      { account_code: '3000', account_name: 'Owner Capital / Retained Earnings', total_debit: 0.0, total_credit: 100000.0, net_balance: -100000.0 }
+      { account_code: '1000', account_name: 'Cash & Bank Balance', total_debit: 0.0, total_credit: 0.0, net_balance: 0.0 },
+      { account_code: '1200', account_name: 'Accounts Receivable (Tuition Dues)', total_debit: 0.0, total_credit: 0.0, net_balance: 0.0 },
+      { account_code: '1500', account_name: 'Fixed Assets & Equipment', total_debit: 0.0, total_credit: 0.0, net_balance: 0.0 },
+      { account_code: '4000', account_name: 'Tuition Fee Revenue', total_debit: 0.0, total_credit: 0.0, net_balance: 0.0 },
+      { account_code: '4100', account_name: 'Daycare Service Revenue', total_debit: 0.0, total_credit: 0.0, net_balance: 0.0 },
+      { account_code: '3000', account_name: 'Owner Capital / Retained Earnings', total_debit: 0.0, total_credit: 0.0, net_balance: 0.0 }
     ]
   });
 
   const [pnl, setPnl] = useState({
-    total_revenues: 15850.0,
-    total_expenses: 2400.0,
-    net_profit: 13450.0,
-    revenues: [
-      { account_code: '4000', account_name: 'Tuition Fee Revenue', total: 12500.0 },
-      { account_code: '4100', account_name: 'Daycare Service Revenue', total: 3350.0 }
-    ],
-    expenses: [
-      { account_code: '5200', account_name: 'Facility Utilities Expense', total: 2400.0 }
-    ]
+    total_revenues: 0.0,
+    total_expenses: 0.0,
+    net_profit: 0.0,
+    revenues: [],
+    expenses: []
   });
 
-  const [journalEntries, setJournalEntries] = useState([
-    {
-      id: 'JE-1001',
-      date: '2026-08-14T09:30:00Z',
-      description: 'Purchase of Tuition & Daycare Equipment Assets',
-      ref_module: 'Manual',
-      lines: [
-        { account_code: '1500', debit: 12500.0, credit: 0.0 },
-        { account_code: '1000', debit: 0.0, credit: 12500.0 }
-      ]
-    },
-    {
-      id: 'JE-1002',
-      date: '2026-08-14T11:00:00Z',
-      description: 'Initial Owner Capital Injection',
-      ref_module: 'Manual',
-      lines: [
-        { account_code: '1000', debit: 100000.0, credit: 0.0 },
-        { account_code: '3000', debit: 0.0, credit: 100000.0 }
-      ]
-    },
-    {
-      id: 'JE-1003',
-      date: '2026-08-14T14:15:00Z',
-      description: 'Student Tuition Fee Receipt - Sami Al-Nuaimi',
-      ref_module: 'POS',
-      lines: [
-        { account_code: '1000', debit: 400.0, credit: 0.0 },
-        { account_code: '4000', debit: 0.0, credit: 400.0 }
-      ]
-    },
-    {
-      id: 'JE-1004',
-      date: '2026-08-15T08:30:00Z',
-      description: 'Daycare Service Fee Settlement',
-      ref_module: 'POS',
-      lines: [
-        { account_code: '1000', debit: 750.0, credit: 0.0 },
-        { account_code: '4100', debit: 0.0, credit: 750.0 }
-      ]
-    },
-    {
-      id: 'JE-1005',
-      date: '2026-08-15T10:00:00Z',
-      description: 'Monthly Facility Utilities Payment',
-      ref_module: 'Manual',
-      lines: [
-        { account_code: '5200', debit: 2200.0, credit: 0.0 },
-        { account_code: '1000', debit: 0.0, credit: 2200.0 }
-      ]
-    }
-  ]);
+  const [journalEntries, setJournalEntries] = useState([]);
 
   // Manual Journal Entry Form State
   const [desc, setDesc] = useState('');
@@ -108,7 +50,7 @@ export default function AccountingView() {
 
     fetch('/api/accounting/journal-entries')
       .then(res => res.json())
-      .then(data => { if (Array.isArray(data) && data.length > 0) setJournalEntries(data); })
+      .then(data => { if (Array.isArray(data)) setJournalEntries(data); })
       .catch(() => {});
   };
 
@@ -134,7 +76,6 @@ export default function AccountingView() {
 
     setJournalEntries(prev => [newEntry, ...prev]);
 
-    // Update Trial Balance state in real time
     setTrialBalance(prev => {
       const updatedAccounts = prev.accounts.map(acc => {
         if (acc.account_code === debitAcc) {
@@ -156,7 +97,6 @@ export default function AccountingView() {
       };
     });
 
-    // Backend call
     fetch('/api/accounting/journal-entry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -299,48 +239,53 @@ export default function AccountingView() {
       {activeTab === 'journal-entries' && (
         <div className="glass-card">
           <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', color: 'var(--text-main)' }}>Audit Trail - Double-Entry Journal Entries ({journalEntries.length})</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {journalEntries.map(je => (
-              <div key={je.id} style={{ padding: '16px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontFamily: 'monospace', fontWeight: 800, color: 'var(--accent-primary)', fontSize: '0.95rem' }}>{je.id}</span>
-                    <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{je.description}</span>
+          {journalEntries.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {journalEntries.map(je => (
+                <div key={je.id} style={{ padding: '16px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ fontFamily: 'monospace', fontWeight: 800, color: 'var(--accent-primary)', fontSize: '0.95rem' }}>{je.id}</span>
+                      <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{je.description}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span className="badge-status badge-warning" style={{ fontSize: '0.7rem' }}>{je.ref_module}</span>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                        {new Date(je.date).toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span className="badge-status badge-warning" style={{ fontSize: '0.7rem' }}>{je.ref_module}</span>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
-                      {new Date(je.date).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
 
-                {/* Lines table inside each entry */}
-                <table style={{ width: '100%', fontSize: '0.82rem', borderCollapse: 'collapse', marginTop: '8px' }}>
-                  <thead>
-                    <tr style={{ color: 'var(--text-muted)', textAlign: 'left', borderBottom: '1px dashed var(--border-color)' }}>
-                      <th style={{ padding: '4px 0' }}>Account Code</th>
-                      <th style={{ padding: '4px 0' }}>Debit (AED)</th>
-                      <th style={{ padding: '4px 0' }}>Credit (AED)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {je.lines.map((line, idx) => (
-                      <tr key={idx} style={{ borderBottom: idx < je.lines.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                        <td style={{ padding: '6px 0', fontFamily: 'monospace', color: 'var(--text-main)' }}>{line.account_code}</td>
-                        <td style={{ padding: '6px 0', fontFamily: 'monospace', color: line.debit > 0 ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
-                          {line.debit > 0 ? line.debit.toFixed(2) : '-'}
-                        </td>
-                        <td style={{ padding: '6px 0', fontFamily: 'monospace', color: line.credit > 0 ? 'var(--text-main)' : 'var(--text-muted)' }}>
-                          {line.credit > 0 ? line.credit.toFixed(2) : '-'}
-                        </td>
+                  <table style={{ width: '100%', fontSize: '0.82rem', borderCollapse: 'collapse', marginTop: '8px' }}>
+                    <thead>
+                      <tr style={{ color: 'var(--text-muted)', textAlign: 'left', borderBottom: '1px dashed var(--border-color)' }}>
+                        <th style={{ padding: '4px 0' }}>Account Code</th>
+                        <th style={{ padding: '4px 0' }}>Debit (AED)</th>
+                        <th style={{ padding: '4px 0' }}>Credit (AED)</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ))}
-          </div>
+                    </thead>
+                    <tbody>
+                      {je.lines.map((line, idx) => (
+                        <tr key={idx} style={{ borderBottom: idx < je.lines.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                          <td style={{ padding: '6px 0', fontFamily: 'monospace', color: 'var(--text-main)' }}>{line.account_code}</td>
+                          <td style={{ padding: '6px 0', fontFamily: 'monospace', color: line.debit > 0 ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+                            {line.debit > 0 ? line.debit.toFixed(2) : '-'}
+                          </td>
+                          <td style={{ padding: '6px 0', fontFamily: 'monospace', color: line.credit > 0 ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                            {line.credit > 0 ? line.credit.toFixed(2) : '-'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>
+              No journal entries posted in ledger. Click "New Journal Entry" to post a transaction.
+            </div>
+          )}
         </div>
       )}
 

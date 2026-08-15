@@ -114,27 +114,15 @@ function SearchableSelectInput({ label, placeholder, options, value, onChange })
 }
 
 export default function AttendanceDaycareView() {
-  const [students, setStudents] = useState([
-    { id: 'std-101', name: 'Zayed Al-Hashimi', standard: 'Grade 10', program: 'Tuition & Daycare' },
-    { id: 'std-102', name: 'Mariam Al-Hashimi', standard: 'KG 2', program: 'Daycare Only' },
-    { id: 'std-103', name: 'Sami Al-Nuaimi', standard: 'Grade 4', program: 'Tuition & Daycare' },
-    { id: 'std-104', name: 'Rashid Al-Maktoum', standard: 'Grade 5', program: 'Tuition Only' },
-    { id: 'std-105', name: 'Fatima Al-Qassimi', standard: 'Grade 3', program: 'Tuition & Daycare' }
-  ]);
-  const [staff, setStaff] = useState([
-    { id: 'stf-201', name: 'Fatima Al-Mansoori', hourly_rate: 120 },
-    { id: 'stf-202', name: 'Sarah Jenkins', hourly_rate: 95 },
-    { id: 'stf-203', name: 'Omar Al-Zahabi', hourly_rate: 150 },
-    { id: 'stf-204', name: 'Aisha Al-Mheiri', hourly_rate: 140 },
-    { id: 'stf-205', name: 'Khalfan Al-Remeithi', hourly_rate: 85 }
-  ]);
+  const [students, setStudents] = useState([]);
+  const [staff, setStaff] = useState([]);
   const [attendanceLogs, setAttendanceLogs] = useState([]);
   
   // Scanner state
   const [scanType, setScanType] = useState('Student');
-  const [selectedEntity, setSelectedEntity] = useState('std-101');
-  const [selectedBillingStudent, setSelectedBillingStudent] = useState('std-101');
-  const [selectedPayrollStaff, setSelectedPayrollStaff] = useState('stf-201');
+  const [selectedEntity, setSelectedEntity] = useState('');
+  const [selectedBillingStudent, setSelectedBillingStudent] = useState('');
+  const [selectedPayrollStaff, setSelectedPayrollStaff] = useState('');
   const [scanResult, setScanResult] = useState('');
 
   // Engine triggers
