@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.orm import selectinload
 from typing import List
 import uuid
@@ -75,6 +75,15 @@ async def create_staff(staff_in: ProfileStaffCreate, db: AsyncSession = Depends(
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.delete("/{staff_id}")
+async def delete_staff(staff_id: str, db: AsyncSession = Depends(get_db)):
+    res = await db.execute(select(ProfileStaff).where(ProfileStaff.id == staff_id))
+    st = res.scalar_one_or_none()
+    if st:
+        await db.delete(st)
+        await db.commit()
+    return {"status": "success", "message": f"Staff {staff_id} deleted"}
 
 @router.post("/{staff_id}/process-payroll")
 async def process_staff_payroll(staff_id: str, db: AsyncSession = Depends(get_db)):

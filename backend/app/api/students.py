@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from typing import List
 
 from app.core.database import get_db
@@ -33,6 +33,15 @@ async def create_student(student_in: StudentCreate, db: AsyncSession = Depends(g
     await db.commit()
     await db.refresh(student)
     return student
+
+@router.delete("/{student_id}")
+async def delete_student(student_id: str, db: AsyncSession = Depends(get_db)):
+    res = await db.execute(select(Student).where(Student.id == student_id))
+    student = res.scalar_one_or_none()
+    if student:
+        await db.delete(student)
+        await db.commit()
+    return {"status": "success", "message": f"Student {student_id} deleted"}
 
 @router.post("/enroll")
 async def enroll_student(student_id: str, subject_id: str, db: AsyncSession = Depends(get_db)):

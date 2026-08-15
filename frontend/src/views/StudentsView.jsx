@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { UserCheck, BookOpen, Plus, ShieldAlert, CheckCircle2, AlertTriangle, DollarSign, Clock, Search } from 'lucide-react';
+import { UserCheck, BookOpen, Plus, ShieldAlert, CheckCircle2, AlertTriangle, DollarSign, Clock, Search, Trash2 } from 'lucide-react';
 import AddStudentModal from '../components/AddStudentModal';
+import SwipeableTableRow from '../components/SwipeableTableRow';
 import { BASE_URL } from '../api';
 
 export default function StudentsView({ activeRole = 'SuperAdmin' }) {
@@ -13,6 +14,11 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
     { id: '2', name: 'Physics & Chemistry Lab', tier: 'HS', monthly_fee: 950 },
     { id: '3', name: 'English Literature', tier: 'HS', monthly_fee: 800 }
   ]);
+
+  const defaultStudents = [
+    { id: 'std-101', name: 'Zayed Al-Hashimi', standard: 'Grade 10', program: 'Both', due_amount: 0.0, attendance_status: 'Present' },
+    { id: 'std-102', name: 'Amina Al-Mansoori', standard: 'Grade 11', program: 'Tuition', due_amount: 450.0, attendance_status: 'Present' }
+  ];
 
   const fetchStudents = () => {
     fetch(`${BASE_URL}/api/students`)
@@ -37,34 +43,14 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
         });
 
         if (merged.length === 0) {
-          merged.push({
-            id: 'std-101',
-            name: 'Zayed Al-Hashimi',
-            standard: 'Grade 10',
-            program: 'Both',
-            parent_id: 'PRT-100293',
-            due_amount: 0.0,
-            attendance_status: 'Present'
-          });
+          merged.push(...defaultStudents);
         }
 
         setStudents(merged);
       })
       .catch(() => {
         const localStudents = JSON.parse(localStorage.getItem('registered_students') || '[]');
-        if (localStudents.length > 0) {
-          setStudents(localStudents);
-        } else {
-          setStudents([{
-            id: 'std-101',
-            name: 'Zayed Al-Hashimi',
-            standard: 'Grade 10',
-            program: 'Both',
-            parent_id: 'PRT-100293',
-            due_amount: 0.0,
-            attendance_status: 'Present'
-          }]);
-        }
+        setStudents(localStudents.length > 0 ? localStudents : defaultStudents);
       });
   };
 
@@ -79,6 +65,23 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
       localStorage.setItem('registered_students', JSON.stringify(updatedLocal));
     }
     fetchStudents();
+  };
+
+  // Permanent Student Deletion (Slide-to-Delete or Action Click)
+  const handleDeleteStudent = (studentId, e) => {
+    if (e) e.stopPropagation();
+    const target = students.find(s => String(s.id) === String(studentId));
+    const studentName = target ? target.name : 'student';
+
+    if (!window.confirm(`Are you sure you want to permanently delete ${studentName} and remove all records from the database?`)) {
+      return;
+    }
+
+    const updated = students.filter(s => String(s.id) !== String(studentId));
+    setStudents(updated);
+    localStorage.setItem('registered_students', JSON.stringify(updated));
+
+    fetch(`${BASE_URL}/api/students/${studentId}`, { method: 'DELETE' }).catch(() => {});
   };
 
   const handleSettleDue = (studentId) => {
@@ -126,7 +129,7 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
         <div>
           <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>Student Directory & Academic Roster</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Manage registered students, program enrollments, attendance status & outstanding balances ({students.length} Registered Students)
+            Manage registered students, program enrollments, attendance status & outstanding balances ({students.length} Registered Students — <em>Swipe row left to delete</em>)
           </p>
         </div>
 
@@ -170,7 +173,11 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
             <tbody>
               {filteredStudents.length > 0 ? (
                 filteredStudents.map(std => (
-                  <tr key={std.id}>
+                  <SwipeableTableRow 
+                    key={std.id} 
+                    onDelete={() => handleDeleteStudent(std.id)}
+                    deleteLabel={`Delete ${std.name}`}
+                  >
                     <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{std.id}</td>
                     <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{std.name}</td>
                     <td><span className="badge-status badge-success">{std.standard}</span></td>
@@ -192,19 +199,41 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
                       </button>
                     </td>
                     <td>
-                      {std.due_amount > 0 ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {std.due_amount > 0 ? (
+                          <button 
+                            className="btn btn-emerald" 
+                            style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                            onClick={() => handleSettleDue(std.id)}
+                          >
+                            <DollarSign size={12} /> Settle Due
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: 600 }}>✔ Settled</span>
+                        )}
+                        
                         <button 
-                          className="btn btn-emerald" 
-                          style={{ padding: '4px 10px', fontSize: '0.75rem' }}
-                          onClick={() => handleSettleDue(std.id)}
+                          onClick={(e) => handleDeleteStudent(std.id, e)} 
+                          title={`Delete ${std.name}`}
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            borderRadius: '6px',
+                            color: '#EF4444',
+                            cursor: 'pointer',
+                            padding: '4px 8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '0.75rem',
+                            fontWeight: 600
+                          }}
                         >
-                          <DollarSign size={12} /> Settle Due
+                          <Trash2 size={13} /> Delete
                         </button>
-                      ) : (
-                        <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: 600 }}>✔ Settled</span>
-                      )}
+                      </div>
                     </td>
-                  </tr>
+                  </SwipeableTableRow>
                 ))
               ) : (
                 <tr>

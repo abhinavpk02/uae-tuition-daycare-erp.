@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { UserCheck, Shield, Plus, Phone, Mail, Clock, Search, DollarSign } from 'lucide-react';
+import { UserCheck, Shield, Plus, Phone, Mail, Clock, Search, DollarSign, Trash2 } from 'lucide-react';
 import AddStaffModal from '../components/AddStaffModal';
+import SwipeableTableRow from '../components/SwipeableTableRow';
 import { BASE_URL } from '../api';
 
 export default function StaffView({ activeRole = 'SuperAdmin' }) {
   const [staff, setStaff] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
+
+  const defaultStaff = [
+    { id: 'stf-201', name: 'Fatima Al-Mansoori', email: 'fatima.mansoori@nest.ae', role: 'Teacher', emirates_id: '784-1992-8821941-1', hourly_rate: 120.00 },
+    { id: 'stf-202', name: 'Ayesha Rashid', email: 'ayesha.rashid@nest.ae', role: 'Caregiver', emirates_id: '784-1995-1029384-2', hourly_rate: 95.00 }
+  ];
 
   const fetchStaff = () => {
     fetch(`${BASE_URL}/api/staff`)
@@ -21,7 +27,7 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
           hourly_rate: parseFloat(st.hourly_rate) || 120.00
         })) : [];
 
-        // Merge local storage staff so staff added by user persists instantly across views
+        // Merge local storage staff
         const localStaff = JSON.parse(localStorage.getItem('registered_staff') || '[]');
         const merged = [...localStaff];
 
@@ -32,32 +38,14 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
         });
 
         if (merged.length === 0) {
-          merged.push({
-            id: 'stf-201',
-            name: 'Fatima Al-Mansoori',
-            email: 'fatima.mansoori@nest.ae',
-            role: 'Teacher',
-            emirates_id: '784-1992-8821941-1',
-            hourly_rate: 120.00
-          });
+          merged.push(...defaultStaff);
         }
 
         setStaff(merged);
       })
       .catch(() => {
         const localStaff = JSON.parse(localStorage.getItem('registered_staff') || '[]');
-        if (localStaff.length > 0) {
-          setStaff(localStaff);
-        } else {
-          setStaff([{
-            id: 'stf-201',
-            name: 'Fatima Al-Mansoori',
-            email: 'fatima.mansoori@nest.ae',
-            role: 'Teacher',
-            emirates_id: '784-1992-8821941-1',
-            hourly_rate: 120.00
-          }]);
-        }
+        setStaff(localStaff.length > 0 ? localStaff : defaultStaff);
       });
   };
 
@@ -74,6 +62,23 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
     fetchStaff();
   };
 
+  // Permanent Staff Deletion (Slide-to-Delete or Action Click)
+  const handleDeleteStaff = (staffId, e) => {
+    if (e) e.stopPropagation();
+    const target = staff.find(s => String(s.id) === String(staffId));
+    const staffName = target ? target.name : 'staff member';
+
+    if (!window.confirm(`Are you sure you want to permanently delete staff member ${staffName} and remove all records from the database?`)) {
+      return;
+    }
+
+    const updated = staff.filter(s => String(s.id) !== String(staffId));
+    setStaff(updated);
+    localStorage.setItem('registered_staff', JSON.stringify(updated));
+
+    fetch(`${BASE_URL}/api/staff/${staffId}`, { method: 'DELETE' }).catch(() => {});
+  };
+
   const filteredStaff = staff.filter(s =>
     (s.name && s.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
     (s.email && s.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
@@ -87,7 +92,7 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
         <div>
           <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>Staff Directory & Payroll Credentials</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Manage teaching staff, caregivers, payroll hourly rates & Emirates ID compliance ({staff.length} Active Staff)
+            Manage teaching staff, caregivers, payroll hourly rates & Emirates ID compliance ({staff.length} Active Staff — <em>Swipe row left to delete</em>)
           </p>
         </div>
 
@@ -124,12 +129,17 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
                 <th>Assigned Role</th>
                 <th>Emirates ID</th>
                 <th>Hourly Payroll Rate</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredStaff.length > 0 ? (
                 filteredStaff.map(stf => (
-                  <tr key={stf.id}>
+                  <SwipeableTableRow 
+                    key={stf.id}
+                    onDelete={() => handleDeleteStaff(stf.id)}
+                    deleteLabel={`Delete ${stf.name}`}
+                  >
                     <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{stf.id}</td>
                     <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{stf.name}</td>
                     <td style={{ color: 'var(--text-muted)' }}>{stf.email}</td>
@@ -138,11 +148,32 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
                     <td style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-primary)' }}>
                       AED {parseFloat(stf.hourly_rate || 120).toFixed(2)} / hr
                     </td>
-                  </tr>
+                    <td>
+                      <button 
+                        onClick={(e) => handleDeleteStaff(stf.id, e)} 
+                        title={`Delete ${stf.name}`}
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          border: '1px solid rgba(239, 68, 68, 0.2)',
+                          borderRadius: '6px',
+                          color: '#EF4444',
+                          cursor: 'pointer',
+                          padding: '4px 8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          fontSize: '0.75rem',
+                          fontWeight: 600
+                        }}
+                      >
+                        <Trash2 size={13} /> Delete
+                      </button>
+                    </td>
+                  </SwipeableTableRow>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '32px' }}>
+                  <td colSpan="7" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '32px' }}>
                     No staff members onboarded. Click "Onboard Staff Member" to add new staff.
                   </td>
                 </tr>
