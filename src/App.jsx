@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Gauge, ShieldCheck, ShoppingBag, Clock, Users, 
-  Building2, Sparkles, Calendar, Coins, UserCheck, Lock, Settings, UserPlus, BookOpen, Menu, X, Sun, Moon, Bot, Bell, AlertTriangle, DollarSign 
+  Sparkles, Calendar, Coins, UserCheck, Lock, Settings, UserPlus, BookOpen, Menu, X, Sun, Moon, Bot, Bell, AlertTriangle, DollarSign 
 } from 'lucide-react';
 
 import DashboardView from './views/DashboardView';
@@ -17,11 +17,17 @@ import RBACManagementView from './views/RBACManagementView';
 import AIAssistantView from './views/AIAssistantView';
 import SearchableSelectInput from './components/SearchableSelectInput';
 import CommonTrashWidget from './components/CommonTrashWidget';
+import NestLogo from './components/NestLogo';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [activeRole, setActiveRole] = useState('SuperAdmin');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // OPEN SIDE PANEL BY DEFAULT ON MOBILE APP INITIAL LAUNCH
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(() => {
+    return typeof window !== 'undefined' && window.innerWidth <= 768;
+  });
+
   const [theme, setTheme] = useState('light'); // DEFAULT TO LIGHT MODE ON INITIAL LAUNCH
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
 
@@ -65,11 +71,11 @@ export default function App() {
       <div className="mobile-header-bar">
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div className="brand-icon" style={{ width: '36px', height: '36px' }}>
-            <Building2 size={20} />
+            <NestLogo size={20} />
           </div>
           <div>
-            <div className="brand-title" style={{ fontSize: '1rem' }}>NEST ERP</div>
-            <div className="brand-subtitle" style={{ fontSize: '0.6rem' }}>Dubai & Abu Dhabi</div>
+            <div className="brand-title" style={{ fontSize: '1rem' }}>NESTIN ERP</div>
+            <div className="brand-subtitle" style={{ fontSize: '0.6rem' }}>Tuition and Day Care</div>
           </div>
         </div>
 
@@ -85,9 +91,11 @@ export default function App() {
           
           <button 
             className="mobile-menu-toggle" 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => setMobileMenuOpen(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', width: 'auto', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 700 }}
           >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            <Menu size={18} />
+            <span>Side Panel</span>
           </button>
         </div>
       </div>
@@ -98,33 +106,21 @@ export default function App() {
         <div className="brand-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div className="brand-icon">
-              <Building2 size={24} />
+              <NestLogo size={24} />
             </div>
             <div>
-              <div className="brand-title">NEST</div>
-              <div className="brand-subtitle">Tuition & Daycare</div>
+              <div className="brand-title">NESTIN</div>
+              <div className="brand-subtitle">Tuition and Day Care</div>
             </div>
           </div>
 
-          {mobileMenuOpen && (
-            <button 
-              onClick={() => setMobileMenuOpen(false)}
-              style={{
-                background: 'var(--card-bg-subtle)',
-                border: '1px solid var(--border-color)',
-                color: 'var(--text-main)',
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer'
-              }}
-            >
-              <X size={20} />
-            </button>
-          )}
+          <button 
+            className="mobile-close-btn"
+            onClick={() => setMobileMenuOpen(false)}
+            title="Close Side Panel"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* Movable & Scrollable Navigation Tabs Container */}
@@ -288,6 +284,15 @@ export default function App() {
       <main className="main-content">
         <header className="header-bar">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button 
+              className="mobile-menu-toggle" 
+              onClick={() => setMobileMenuOpen(true)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', width: 'auto', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 700 }}
+            >
+              <Menu size={18} />
+              <span>Side Panel</span>
+            </button>
+
             <span className="badge-status badge-success" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
               <ShieldCheck size={14} /> RBAC: {activeRole}
             </span>
