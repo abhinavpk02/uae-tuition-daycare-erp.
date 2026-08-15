@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, MapPin, UserCheck, CheckCircle2, Check, Search, Plus, UserPlus, X, BookOpen, Clock, Trash2 } from 'lucide-react';
 import SearchableSelectInput from '../components/SearchableSelectInput';
+import { addToTrashBin } from '../utils/trashBin';
 import { BASE_URL } from '../api';
 
 export default function TimetableView() {
@@ -104,16 +105,24 @@ export default function TimetableView() {
 
   useEffect(() => {
     loadData();
+    window.addEventListener('registered_data_updated', loadData);
+    return () => {
+      window.removeEventListener('registered_data_updated', loadData);
+    };
   }, []);
 
-  // Delete active class session
+  // Delete active class session -> Routes to Common Trash
   const handleDeleteClassSession = (classId, e) => {
     if (e) e.stopPropagation();
     const target = activeSessions.find(c => String(c.id) === String(classId));
     const title = target ? target.subject : 'class session';
 
-    if (!window.confirm(`Are you sure you want to remove "${title}" from active class schedule?`)) {
+    if (!window.confirm(`Move "${title}" to Common Trash?`)) {
       return;
+    }
+
+    if (target) {
+      addToTrashBin(target, 'Classes', target.subject);
     }
 
     const updatedSessions = activeSessions.filter(c => String(c.id) !== String(classId));
@@ -443,7 +452,18 @@ export default function TimetableView() {
                       <button 
                         onClick={(e) => handleDeleteClassSession(sess.id, e)} 
                         title={`Delete ${sess.subject}`}
-                        style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '2px' }}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          outline: 'none',
+                          boxShadow: 'none',
+                          color: '#EF4444',
+                          cursor: 'pointer',
+                          padding: '2px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
                       >
                         <Trash2 size={15} />
                       </button>

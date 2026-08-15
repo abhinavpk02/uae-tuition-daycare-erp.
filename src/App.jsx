@@ -16,6 +16,7 @@ import ParentPortalView from './views/ParentPortalView';
 import RBACManagementView from './views/RBACManagementView';
 import AIAssistantView from './views/AIAssistantView';
 import SearchableSelectInput from './components/SearchableSelectInput';
+import CommonTrashWidget from './components/CommonTrashWidget';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -24,32 +25,12 @@ export default function App() {
   const [theme, setTheme] = useState('light'); // DEFAULT TO LIGHT MODE ON INITIAL LAUNCH
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
 
-  // Automatically start with 2-column square grid open on mobile launch
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
-      setMobileMenuOpen(true);
-    }
-  }, []);
-
-  // Sync active theme with document data-theme attribute
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
-  };
-
-  // Handle role switching with automatic view redirection
-  const handleRoleChange = (newRole) => {
-    setActiveRole(newRole);
-    if (newRole === 'Parent') {
-      setCurrentView('parent-portal');
-    } else if (newRole === 'Teacher') {
-      setCurrentView('students');
-    } else {
-      setCurrentView('dashboard');
-    }
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
   const handleNavClick = (viewKey) => {
@@ -57,48 +38,42 @@ export default function App() {
     setMobileMenuOpen(false);
   };
 
-  // RBAC Permission checks
+  const roles = [
+    { value: 'SuperAdmin', label: 'SuperAdmin (Full Access)' },
+    { value: 'Admin', label: 'Admin (Operations & Accounting)' },
+    { value: 'Teacher', label: 'Teacher (Academic & Attendance)' },
+    { value: 'Caregiver', label: 'Caregiver (Daycare Tracking)' },
+    { value: 'Parent', label: 'Parent (Portal Only)' }
+  ];
+
+  const rolePermissions = {
+    SuperAdmin: ['dashboard', 'students', 'staff', 'accounting', 'pos', 'attendance', 'timetable', 'assets', 'parent-portal', 'rbac', 'ai-assistant'],
+    Admin: ['dashboard', 'students', 'staff', 'accounting', 'pos', 'attendance', 'timetable', 'assets', 'ai-assistant'],
+    Teacher: ['dashboard', 'students', 'attendance', 'timetable', 'ai-assistant'],
+    Caregiver: ['attendance'],
+    Parent: ['parent-portal']
+  };
+
   const canAccess = (viewKey) => {
-    if (activeRole === 'SuperAdmin') return true;
-    if (activeRole === 'Admin') {
-      return ['dashboard', 'accounting', 'pos', 'attendance', 'students', 'staff', 'assets', 'ai-assistant'].includes(viewKey);
-    }
-    if (activeRole === 'Teacher') {
-      return ['students', 'timetable'].includes(viewKey);
-    }
-    if (activeRole === 'Parent') {
-      return ['parent-portal', 'students'].includes(viewKey);
-    }
-    return false;
+    const allowed = rolePermissions[activeRole] || [];
+    return allowed.includes(viewKey);
   };
 
   return (
     <div className="app-container">
-
-      {/* Mobile Sticky Top Bar (Smartphones / Tablets) */}
+      {/* Mobile Top App Bar */}
       <div className="mobile-header-bar">
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div className="brand-icon" style={{ width: '36px', height: '36px' }}>
             <Building2 size={20} />
           </div>
           <div>
-            <div className="brand-title" style={{ fontSize: '1.1rem' }}>NEST</div>
-            <div className="brand-subtitle" style={{ fontSize: '0.65rem' }}>Tuition & Daycare</div>
+            <div className="brand-title" style={{ fontSize: '1rem' }}>NEST ERP</div>
+            <div className="brand-subtitle" style={{ fontSize: '0.6rem' }}>Dubai & Abu Dhabi</div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {/* Notification Button (Mobile) */}
-          <button 
-            onClick={() => setShowNotifDrawer(!showNotifDrawer)} 
-            className="theme-toggle-btn"
-            style={{ width: '40px', height: '40px', padding: 0, justifyContent: 'center', borderRadius: '12px', position: 'relative' }}
-          >
-            <Bell size={18} color="var(--accent-primary)" />
-            <span style={{ position: 'absolute', top: '6px', right: '6px', width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444' }}></span>
-          </button>
-
-          {/* Icon-Only Theme Mode Switcher */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button 
             onClick={toggleTheme} 
             className="theme-toggle-btn" 
@@ -117,10 +92,9 @@ export default function App() {
         </div>
       </div>
 
-      {/* Sidebar Navigation (Desktop & Mobile Drawer) */}
+      {/* Sidebar Navigation */}
       <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
         <div>
-          {/* Brand Header (Desktop) */}
           <div className="brand-header">
             <div className="brand-icon">
               <Building2 size={24} />
@@ -131,9 +105,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* PERFECT 1:1 APPLE CONTROL CENTER SQUARE TILE NAVIGATION GRID */}
           <div className="nav-tile-grid">
-
             {canAccess('parent-portal') && activeRole === 'Parent' && (
               <div className="nav-tile-item">
                 <button 
@@ -146,7 +118,6 @@ export default function App() {
               </div>
             )}
 
-            {/* 1. EXEC DASHBOARD */}
             {canAccess('dashboard') && (
               <div className="nav-tile-item">
                 <button 
@@ -159,7 +130,6 @@ export default function App() {
               </div>
             )}
 
-            {/* 2. RFID / DAYCARE (MOVED TO 2nd POSITION) */}
             {canAccess('attendance') && (
               <div className="nav-tile-item">
                 <button 
@@ -172,7 +142,6 @@ export default function App() {
               </div>
             )}
 
-            {/* 3. STUDENT DIR */}
             {canAccess('students') && (
               <div className="nav-tile-item">
                 <button 
@@ -185,7 +154,6 @@ export default function App() {
               </div>
             )}
 
-            {/* 4. STAFF DIR */}
             {canAccess('staff') && (
               <div className="nav-tile-item">
                 <button 
@@ -198,7 +166,6 @@ export default function App() {
               </div>
             )}
 
-            {/* 5. LEDGER */}
             {canAccess('accounting') && (
               <div className="nav-tile-item">
                 <button 
@@ -211,7 +178,6 @@ export default function App() {
               </div>
             )}
 
-            {/* 6. POS TERMINAL */}
             {canAccess('pos') && (
               <div className="nav-tile-item">
                 <button 
@@ -224,7 +190,6 @@ export default function App() {
               </div>
             )}
 
-            {/* 7. CLASS SCHEDULE (RENAMED FROM ROOM TIMETABLE) */}
             {canAccess('timetable') && (
               <div className="nav-tile-item">
                 <button 
@@ -237,7 +202,6 @@ export default function App() {
               </div>
             )}
 
-            {/* 8. FIXED ASSETS */}
             {canAccess('assets') && (
               <div className="nav-tile-item">
                 <button 
@@ -250,7 +214,6 @@ export default function App() {
               </div>
             )}
 
-            {/* 9. SETTINGS (RENAMED FROM PERMISSIONS, MOVED TO 2nd-TO-LAST POSITION) */}
             {canAccess('rbac') && (
               <div className="nav-tile-item">
                 <button 
@@ -263,7 +226,6 @@ export default function App() {
               </div>
             )}
 
-            {/* 10. AI ASSISTANT (LAST POSITION) */}
             {canAccess('ai-assistant') && (
               <div className="nav-tile-item">
                 <button 
@@ -275,119 +237,93 @@ export default function App() {
                 </button>
               </div>
             )}
-
           </div>
         </div>
 
-        {/* Footer Role Switcher */}
-        <div style={{ paddingTop: '14px', borderTop: '1px solid var(--border-color)', marginTop: '16px' }}>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            Active RBAC Mode:
+        <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <SearchableSelectInput
+              label="ACTIVE RBAC MODE:"
+              options={roles}
+              value={activeRole}
+              onChange={(newRole) => {
+                setActiveRole(newRole);
+                const allowed = rolePermissions[newRole] || [];
+                if (!allowed.includes(currentView)) {
+                  setCurrentView(allowed[0] || 'dashboard');
+                }
+              }}
+              placeholder="Search active role..."
+            />
           </div>
-          <SearchableSelectInput 
-            options={[
-              { value: 'SuperAdmin', label: 'SuperAdmin (Full Access)' },
-              { value: 'Admin', label: 'Admin / Accountant' },
-              { value: 'Teacher', label: 'Teacher / Staff' },
-              { value: 'Parent', label: 'Parent Portal' }
-            ]}
-            value={activeRole}
-            onChange={val => handleRoleChange(val)}
-          />
         </div>
       </aside>
 
-      {/* Main Content Area - HIDE WHEN MOBILE MENU DRAWER IS OPEN TO PREVENT OVERLAP WHILE SCROLLING */}
-      <main 
-        className="main-content"
-        style={{ display: (mobileMenuOpen && typeof window !== 'undefined' && window.innerWidth <= 768) ? 'none' : 'block' }}
-      >
-        {/* Sleek Minimalist Top Header Bar */}
+      {/* Main Workspace Area */}
+      <main className="main-content">
         <header className="header-bar">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div className="badge-status badge-warning" style={{ fontSize: '0.78rem', padding: '4px 12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span className="badge-status badge-success" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
               <ShieldCheck size={14} /> RBAC: {activeRole}
-            </div>
-            <div className="badge-status badge-success" style={{ fontSize: '0.78rem', padding: '4px 12px' }}>
+            </span>
+            <span className="badge-status badge-warning" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
               <Sparkles size={14} /> Balanced
-            </div>
+            </span>
           </div>
 
           <div className="header-actions" style={{ position: 'relative' }}>
-            
-            {/* Minimalist Notification Center Bell Button */}
             <button 
-              onClick={() => setShowNotifDrawer(!showNotifDrawer)} 
-              className="theme-toggle-btn"
-              title="System Alerts & Dues"
-              style={{ width: '40px', height: '40px', padding: 0, justifyContent: 'center', borderRadius: '12px', position: 'relative' }}
+              onClick={() => setShowNotifDrawer(!showNotifDrawer)}
+              style={{
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                width: '40px',
+                height: '40px',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--text-main)',
+                cursor: 'pointer',
+                position: 'relative'
+              }}
+              title="System Notifications"
             >
-              <Bell size={18} color="var(--accent-primary)" />
-              <span style={{ position: 'absolute', top: '6px', right: '6px', width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444' }}></span>
+              <Bell size={18} />
+              <span style={{ position: 'absolute', top: '8px', right: '8px', width: '8px', height: '8px', background: '#EF4444', borderRadius: '50%' }}></span>
             </button>
 
-            {/* Icon-Only Theme Mode Switcher Button */}
             <button 
               onClick={toggleTheme} 
-              className="theme-toggle-btn"
+              className="theme-toggle-btn" 
               title="Toggle Light/Dark Theme"
               style={{ width: '40px', height: '40px', padding: 0, justifyContent: 'center', borderRadius: '12px' }}
             >
               {theme === 'dark' ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#3B82F6" />}
             </button>
 
-            {/* HARMONIZED APPLE CONTROL CENTER FROSTED GLASS NOTIFICATION DRAWER */}
             {showNotifDrawer && (
               <div className="notif-drawer-popover">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
-                  <h4 style={{ fontFamily: 'Outfit', fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)' }}>
-                    System Alerts & Dues
-                  </h4>
-                  <button onClick={() => setShowNotifDrawer(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-                    <X size={16} />
-                  </button>
+                  <h4 style={{ fontFamily: 'Outfit', color: 'var(--text-main)', fontSize: '0.95rem' }}>System Alerts & Activity Logs</h4>
+                  <button onClick={() => setShowNotifDrawer(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={16} /></button>
                 </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '320px', overflowY: 'auto' }}>
-                  {/* Alert 1: Low Stock */}
-                  <div style={{ padding: '12px', background: 'var(--card-bg-subtle)', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--accent-primary)', fontWeight: 700, fontSize: '0.8rem' }}>
-                      <AlertTriangle size={14} /> Low Inventory Stock
-                    </div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-main)', marginTop: '4px' }}>
-                      Daycare Uniform Set (Size 4) — <strong>2 units left</strong>
-                    </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ padding: '10px', background: 'var(--card-bg-subtle)', borderRadius: '10px', borderLeft: '3px solid var(--accent-primary)', fontSize: '0.8rem' }}>
+                    <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>RFID Attendance Event Logged</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '2px' }}>Zayed Al-Hashimi checked into Daycare Wing (Terminal #1)</div>
                   </div>
-
-                  {/* Alert 2: Pending Student Due */}
-                  <div style={{ padding: '12px', background: 'var(--card-bg-subtle)', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--accent-primary)', fontWeight: 700, fontSize: '0.8rem' }}>
-                      <DollarSign size={14} /> Pending Tuition Dues
-                    </div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-main)', marginTop: '4px' }}>
-                      Sami Al-Hashimi: <strong>AED 140.00 Overdue</strong><br/>
-                      Rashid Al-Maktoum: <strong>AED 450.00 Overdue</strong>
-                    </div>
-                  </div>
-
-                  {/* Alert 3: Absent Staff / Students */}
-                  <div style={{ padding: '12px', background: 'var(--card-bg-subtle)', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)', fontWeight: 700, fontSize: '0.8rem' }}>
-                      <Users size={14} /> Absent Staff & Students
-                    </div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-main)', marginTop: '4px' }}>
-                      • 1 Staff Member Absent (Sarah Jenkins)<br/>
-                      • 1 Student Absent (Rashid Al-Maktoum)
-                    </div>
+                  <div style={{ padding: '10px', background: 'var(--card-bg-subtle)', borderRadius: '10px', borderLeft: '3px solid #F59E0B', fontSize: '0.8rem' }}>
+                    <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>Outstanding Tuition Alert</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '2px' }}>Amina Al-Mansoori has AED 450.00 pending payment</div>
                   </div>
                 </div>
               </div>
             )}
-
           </div>
         </header>
 
-        {/* View Router with Access Protection */}
+        {/* View Router */}
         {currentView === 'parent-portal' && canAccess('parent-portal') && <ParentPortalView />}
         {currentView === 'dashboard' && canAccess('dashboard') && <DashboardView onNavigate={setCurrentView} />}
         {currentView === 'rbac' && canAccess('rbac') && <RBACManagementView activeRole={activeRole} />}
@@ -400,6 +336,9 @@ export default function App() {
         {currentView === 'assets' && canAccess('assets') && <AssetsView />}
         {currentView === 'ai-assistant' && canAccess('ai-assistant') && <AIAssistantView />}
       </main>
+
+      {/* Floating Bottom-Right Categorized Common Trash Widget */}
+      <CommonTrashWidget />
     </div>
   );
 }

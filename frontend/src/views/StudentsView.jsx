@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { UserCheck, BookOpen, Plus, ShieldAlert, CheckCircle2, AlertTriangle, DollarSign, Clock, Search, Trash2 } from 'lucide-react';
 import AddStudentModal from '../components/AddStudentModal';
 import SwipeableTableRow from '../components/SwipeableTableRow';
+import { addToTrashBin } from '../utils/trashBin';
 import { BASE_URL } from '../api';
 
 export default function StudentsView({ activeRole = 'SuperAdmin' }) {
@@ -56,6 +57,10 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
 
   useEffect(() => {
     fetchStudents();
+    window.addEventListener('registered_data_updated', fetchStudents);
+    return () => {
+      window.removeEventListener('registered_data_updated', fetchStudents);
+    };
   }, []);
 
   const handleStudentAdded = (newStudent) => {
@@ -67,14 +72,18 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
     fetchStudents();
   };
 
-  // Permanent Student Deletion (Slide-to-Delete or Action Click)
+  // Permanent Student Deletion (Slide-to-Delete or Action Click) -> Routes to Common Trash
   const handleDeleteStudent = (studentId, e) => {
     if (e) e.stopPropagation();
     const target = students.find(s => String(s.id) === String(studentId));
     const studentName = target ? target.name : 'student';
 
-    if (!window.confirm(`Are you sure you want to permanently delete ${studentName} and remove all records from the database?`)) {
+    if (!window.confirm(`Move ${studentName} to Common Trash?`)) {
       return;
+    }
+
+    if (target) {
+      addToTrashBin(target, 'Students', target.name);
     }
 
     const updated = students.filter(s => String(s.id) !== String(studentId));
@@ -218,6 +227,8 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
                           style={{
                             background: 'transparent',
                             border: 'none',
+                            outline: 'none',
+                            boxShadow: 'none',
                             color: '#EF4444',
                             cursor: 'pointer',
                             padding: '4px',

@@ -8,105 +8,93 @@ import DashboardView from './views/DashboardView';
 import AccountingView from './views/AccountingView';
 import POSView from './views/POSView';
 import AttendanceDaycareView from './views/AttendanceDaycareView';
-import TimetableView from './views/TimetableView';
-import AssetsView from './views/AssetsView';
 import StudentsView from './views/StudentsView';
 import StaffView from './views/StaffView';
+import AssetsView from './views/AssetsView';
+import TimetableView from './views/TimetableView';
 import ParentPortalView from './views/ParentPortalView';
 import RBACManagementView from './views/RBACManagementView';
 import AIAssistantView from './views/AIAssistantView';
 import SearchableSelectInput from './components/SearchableSelectInput';
+import CommonTrashWidget from './components/CommonTrashWidget';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [activeRole, setActiveRole] = useState('SuperAdmin');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Minimalist Pure OLED Pitch Black (Dark) vs Frosted Glass (Light) Mode State
-  const [themeMode, setThemeMode] = useState(() => {
-    return localStorage.getItem('theme_mode') || 'light';
-  });
-
-  // Notifications Drawer State
-  const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const [notifications] = useState([
-    { id: 1, type: 'warning', title: 'Outstanding Dues Alert', msg: 'Rashid Al-Maktoum has AED 450.00 pending tuition fees.', time: '10 mins ago' },
-    { id: 2, type: 'success', title: 'Daycare Check-in', msg: 'Mariam Al-Hashimi checked into Daycare Zone A.', time: '25 mins ago' },
-    { id: 3, type: 'info', title: 'Asset Depreciation Logged', msg: 'Monthly straight-line depreciation calculated for IT Hardware.', time: '1 hour ago' }
-  ]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [theme, setTheme] = useState('light'); // DEFAULT TO LIGHT MODE ON INITIAL LAUNCH
+  const [showNotifDrawer, setShowNotifDrawer] = useState(false);
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', themeMode);
-    localStorage.setItem('theme_mode', themeMode);
-  }, [themeMode]);
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   const toggleTheme = () => {
-    setThemeMode(prev => prev === 'dark' ? 'light' : 'dark');
-  };
-
-  const handleRoleChange = (role) => {
-    setActiveRole(role);
-    if (role === 'Parent') {
-      setCurrentView('parent-portal');
-    } else if (role === 'Teacher') {
-      setCurrentView('timetable');
-    }
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
   const handleNavClick = (viewKey) => {
     setCurrentView(viewKey);
-    setIsMobileMenuOpen(false); // Close mobile drawer when a tile is clicked
+    setMobileMenuOpen(false);
+  };
+
+  const roles = [
+    { value: 'SuperAdmin', label: 'SuperAdmin (Full Access)' },
+    { value: 'Admin', label: 'Admin (Operations & Accounting)' },
+    { value: 'Teacher', label: 'Teacher (Academic & Attendance)' },
+    { value: 'Caregiver', label: 'Caregiver (Daycare Tracking)' },
+    { value: 'Parent', label: 'Parent (Portal Only)' }
+  ];
+
+  const rolePermissions = {
+    SuperAdmin: ['dashboard', 'students', 'staff', 'accounting', 'pos', 'attendance', 'timetable', 'assets', 'parent-portal', 'rbac', 'ai-assistant'],
+    Admin: ['dashboard', 'students', 'staff', 'accounting', 'pos', 'attendance', 'timetable', 'assets', 'ai-assistant'],
+    Teacher: ['dashboard', 'students', 'attendance', 'timetable', 'ai-assistant'],
+    Caregiver: ['attendance'],
+    Parent: ['parent-portal']
+  };
+
+  const canAccess = (viewKey) => {
+    const allowed = rolePermissions[activeRole] || [];
+    return allowed.includes(viewKey);
   };
 
   return (
     <div className="app-container">
-      {/* Mobile Top Header Bar with Hamburger Drawer Trigger */}
+      {/* Mobile Top App Bar */}
       <div className="mobile-header-bar">
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div className="brand-icon" style={{ width: '36px', height: '36px' }}>
             <Building2 size={20} />
           </div>
           <div>
-            <div className="brand-title" style={{ fontSize: '1rem' }}>NEST</div>
-            <div className="brand-subtitle" style={{ fontSize: '0.6rem' }}>Tuition & Daycare</div>
+            <div className="brand-title" style={{ fontSize: '1rem' }}>NEST ERP</div>
+            <div className="brand-subtitle" style={{ fontSize: '0.6rem' }}>Dubai & Abu Dhabi</div>
           </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* Notification Bell in Mobile Top Bar */}
           <button 
-            className="mobile-menu-toggle"
-            onClick={() => setIsNotifOpen(!isNotifOpen)}
-            style={{ position: 'relative', width: '38px', height: '38px' }}
+            onClick={toggleTheme} 
+            className="theme-toggle-btn" 
+            title="Toggle Light/Dark Theme"
+            style={{ width: '40px', height: '40px', padding: 0, justifyContent: 'center', borderRadius: '12px' }}
           >
-            <Bell size={18} color="var(--text-main)" />
-            <span style={{ position: 'absolute', top: '6px', right: '6px', width: '8px', height: '8px', background: '#EF4444', borderRadius: '50%' }}></span>
+            {theme === 'dark' ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#3B82F6" />}
           </button>
-
-          {/* Theme Switcher Button in Mobile Top Bar */}
+          
           <button 
             className="mobile-menu-toggle" 
-            onClick={toggleTheme}
-            style={{ width: '38px', height: '38px' }}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {themeMode === 'dark' ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#059669" />}
-          </button>
-
-          {/* Menu Drawer Toggle */}
-          <button 
-            className="mobile-menu-toggle" 
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            style={{ width: '38px', height: '38px' }}
-          >
-            {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
       {/* Sidebar Navigation */}
-      <aside className={`sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+      <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
         <div>
-          {/* Brand Header */}
           <div className="brand-header">
             <div className="brand-icon">
               <Building2 size={24} />
@@ -117,131 +105,11 @@ export default function App() {
             </div>
           </div>
 
-          {/* Nav Tile Grid (Control Center Style) */}
           <div className="nav-tile-grid">
-            
-            {/* Executive Dashboard */}
-            {['SuperAdmin', 'Admin'].includes(activeRole) && (
+            {canAccess('parent-portal') && activeRole === 'Parent' && (
               <div className="nav-tile-item">
                 <button 
-                  className={`nav-tile-btn ${currentView === 'dashboard' ? 'active' : ''}`}
-                  onClick={() => handleNavClick('dashboard')}
-                >
-                  <Gauge size={26} />
-                  <span className="nav-tile-label">Exec Dashboard</span>
-                </button>
-              </div>
-            )}
-
-            {/* RBAC Permissions */}
-            {activeRole === 'SuperAdmin' && (
-              <div className="nav-tile-item">
-                <button 
-                  className={`nav-tile-btn ${currentView === 'rbac' ? 'active' : ''}`}
-                  onClick={() => handleNavClick('rbac')}
-                >
-                  <Lock size={26} />
-                  <span className="nav-tile-label">Permissions</span>
-                </button>
-              </div>
-            )}
-
-            {/* Student Directory */}
-            {['SuperAdmin', 'Admin', 'Teacher', 'Accountant'].includes(activeRole) && (
-              <div className="nav-tile-item">
-                <button 
-                  className={`nav-tile-btn ${currentView === 'students' ? 'active' : ''}`}
-                  onClick={() => handleNavClick('students')}
-                >
-                  <Users size={26} />
-                  <span className="nav-tile-label">Student Dir</span>
-                </button>
-              </div>
-            )}
-
-            {/* Staff Directory */}
-            {['SuperAdmin', 'Admin'].includes(activeRole) && (
-              <div className="nav-tile-item">
-                <button 
-                  className={`nav-tile-btn ${currentView === 'staff' ? 'active' : ''}`}
-                  onClick={() => handleNavClick('staff')}
-                >
-                  <UserPlus size={26} />
-                  <span className="nav-tile-label">Staff Dir</span>
-                </button>
-              </div>
-            )}
-
-            {/* General Ledger */}
-            {['SuperAdmin', 'Admin', 'Accountant'].includes(activeRole) && (
-              <div className="nav-tile-item">
-                <button 
-                  className={`nav-tile-btn ${currentView === 'accounting' ? 'active' : ''}`}
-                  onClick={() => handleNavClick('accounting')}
-                >
-                  <BookOpen size={26} />
-                  <span className="nav-tile-label">Ledger</span>
-                </button>
-              </div>
-            )}
-
-            {/* POS Terminal */}
-            {['SuperAdmin', 'Admin', 'Accountant'].includes(activeRole) && (
-              <div className="nav-tile-item">
-                <button 
-                  className={`nav-tile-btn ${currentView === 'pos' ? 'active' : ''}`}
-                  onClick={() => handleNavClick('pos')}
-                >
-                  <ShoppingBag size={26} />
-                  <span className="nav-tile-label">POS Terminal</span>
-                </button>
-              </div>
-            )}
-
-            {/* RFID & Daycare */}
-            {['SuperAdmin', 'Admin', 'Teacher', 'Accountant'].includes(activeRole) && (
-              <div className="nav-tile-item">
-                <button 
-                  className={`nav-tile-btn ${currentView === 'attendance' ? 'active' : ''}`}
-                  onClick={() => handleNavClick('attendance')}
-                >
-                  <Clock size={26} />
-                  <span className="nav-tile-label">RFID/Daycare</span>
-                </button>
-              </div>
-            )}
-
-            {/* Timetable & Schedule */}
-            {['SuperAdmin', 'Admin', 'Teacher'].includes(activeRole) && (
-              <div className="nav-tile-item">
-                <button 
-                  className={`nav-tile-btn ${currentView === 'timetable' ? 'active' : ''}`}
-                  onClick={() => handleNavClick('timetable')}
-                >
-                  <Calendar size={26} />
-                  <span className="nav-tile-label">Room Timetable</span>
-                </button>
-              </div>
-            )}
-
-            {/* Fixed Assets */}
-            {['SuperAdmin', 'Admin', 'Accountant'].includes(activeRole) && (
-              <div className="nav-tile-item">
-                <button 
-                  className={`nav-tile-btn ${currentView === 'assets' ? 'active' : ''}`}
-                  onClick={() => handleNavClick('assets')}
-                >
-                  <Coins size={26} />
-                  <span className="nav-tile-label">Fixed Assets</span>
-                </button>
-              </div>
-            )}
-
-            {/* Parent Portal */}
-            {['SuperAdmin', 'Parent'].includes(activeRole) && (
-              <div className="nav-tile-item">
-                <button 
-                  className={`nav-tile-btn ${currentView === 'parent-portal' ? 'active' : ''}`}
+                  className={`nav-tile-btn ${currentView === 'parent-portal' ? 'active' : ''}`} 
                   onClick={() => handleNavClick('parent-portal')}
                 >
                   <UserCheck size={26} />
@@ -250,11 +118,118 @@ export default function App() {
               </div>
             )}
 
-            {/* AI Assistant */}
-            {['SuperAdmin', 'Admin', 'Teacher', 'Accountant'].includes(activeRole) && (
+            {canAccess('dashboard') && (
               <div className="nav-tile-item">
                 <button 
-                  className={`nav-tile-btn ${currentView === 'ai-assistant' ? 'active' : ''}`}
+                  className={`nav-tile-btn ${currentView === 'dashboard' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('dashboard')}
+                >
+                  <Gauge size={26} />
+                  <span className="nav-tile-label">Exec Dashboard</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('attendance') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'attendance' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('attendance')}
+                >
+                  <Clock size={26} />
+                  <span className="nav-tile-label">RFID/Daycare</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('students') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'students' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('students')}
+                >
+                  <Users size={26} />
+                  <span className="nav-tile-label">Student Dir</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('staff') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'staff' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('staff')}
+                >
+                  <UserPlus size={26} />
+                  <span className="nav-tile-label">Staff Dir</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('accounting') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'accounting' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('accounting')}
+                >
+                  <BookOpen size={26} />
+                  <span className="nav-tile-label">Ledger</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('pos') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'pos' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('pos')}
+                >
+                  <ShoppingBag size={26} />
+                  <span className="nav-tile-label">POS Terminal</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('timetable') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'timetable' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('timetable')}
+                >
+                  <Calendar size={26} />
+                  <span className="nav-tile-label">Class Schedule</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('assets') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'assets' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('assets')}
+                >
+                  <Coins size={26} />
+                  <span className="nav-tile-label">Fixed Assets</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('rbac') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'rbac' ? 'active' : ''}`} 
+                  onClick={() => handleNavClick('rbac')}
+                >
+                  <Settings size={26} />
+                  <span className="nav-tile-label">Settings</span>
+                </button>
+              </div>
+            )}
+
+            {canAccess('ai-assistant') && (
+              <div className="nav-tile-item">
+                <button 
+                  className={`nav-tile-btn ${currentView === 'ai-assistant' ? 'active' : ''}`} 
                   onClick={() => handleNavClick('ai-assistant')}
                 >
                   <Bot size={26} />
@@ -262,101 +237,108 @@ export default function App() {
                 </button>
               </div>
             )}
-
           </div>
         </div>
 
-        {/* Footer Role Switcher */}
-        <div style={{ paddingTop: '14px', borderTop: '1px solid var(--border-color)', marginTop: '16px' }}>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            Active RBAC Mode:
+        <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <SearchableSelectInput
+              label="ACTIVE RBAC MODE:"
+              options={roles}
+              value={activeRole}
+              onChange={(newRole) => {
+                setActiveRole(newRole);
+                const allowed = rolePermissions[newRole] || [];
+                if (!allowed.includes(currentView)) {
+                  setCurrentView(allowed[0] || 'dashboard');
+                }
+              }}
+              placeholder="Search active role..."
+            />
           </div>
-          <SearchableSelectInput 
-            options={[
-              { value: 'SuperAdmin', label: 'SuperAdmin (Full Access)' },
-              { value: 'Admin', label: 'Admin / Accountant' },
-              { value: 'Teacher', label: 'Teacher / Staff' },
-              { value: 'Parent', label: 'Parent Portal' }
-            ]}
-            value={activeRole}
-            onChange={val => handleRoleChange(val)}
-          />
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="main-content" style={{ display: isMobileMenuOpen ? 'none' : 'block' }}>
-        
-        {/* Desktop Header Bar with Notifications & Theme Switcher */}
-        <div className="header-bar">
-          <div className="header-actions">
-            <span className="badge-status badge-success">
+      {/* Main Workspace Area */}
+      <main className="main-content">
+        <header className="header-bar">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span className="badge-status badge-success" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
               <ShieldCheck size={14} /> RBAC: {activeRole}
             </span>
-            <span className="badge-status badge-warning">
+            <span className="badge-status badge-warning" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
               <Sparkles size={14} /> Balanced
             </span>
           </div>
 
           <div className="header-actions" style={{ position: 'relative' }}>
-            
-            {/* Notification Drawer Toggle */}
             <button 
-              className="theme-toggle-btn"
-              onClick={() => setIsNotifOpen(!isNotifOpen)}
-              style={{ position: 'relative' }}
+              onClick={() => setShowNotifDrawer(!showNotifDrawer)}
+              style={{
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                width: '40px',
+                height: '40px',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--text-main)',
+                cursor: 'pointer',
+                position: 'relative'
+              }}
+              title="System Notifications"
             >
-              <Bell size={16} /> Notifications
-              <span style={{ width: '8px', height: '8px', background: '#EF4444', borderRadius: '50%', display: 'inline-block' }}></span>
+              <Bell size={18} />
+              <span style={{ position: 'absolute', top: '8px', right: '8px', width: '8px', height: '8px', background: '#EF4444', borderRadius: '50%' }}></span>
             </button>
 
-            {/* Notification Drawer Popover */}
-            {isNotifOpen && (
+            <button 
+              onClick={toggleTheme} 
+              className="theme-toggle-btn" 
+              title="Toggle Light/Dark Theme"
+              style={{ width: '40px', height: '40px', padding: 0, justifyContent: 'center', borderRadius: '12px' }}
+            >
+              {theme === 'dark' ? <Sun size={18} color="#F59E0B" /> : <Moon size={18} color="#3B82F6" />}
+            </button>
+
+            {showNotifDrawer && (
               <div className="notif-drawer-popover">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <h4 style={{ fontFamily: 'Outfit', color: 'var(--text-main)', fontSize: '0.95rem' }}>System Alerts</h4>
-                  <button onClick={() => setIsNotifOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-                    <X size={16} />
-                  </button>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
+                  <h4 style={{ fontFamily: 'Outfit', color: 'var(--text-main)', fontSize: '0.95rem' }}>System Alerts & Activity Logs</h4>
+                  <button onClick={() => setShowNotifDrawer(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={16} /></button>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {notifications.map(n => (
-                    <div key={n.id} style={{ padding: '10px 12px', background: 'var(--card-bg-subtle)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                      <div style={{ fontWeight: 600, fontSize: '0.82rem', color: 'var(--text-main)', marginBottom: '2px' }}>{n.title}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '4px' }}>{n.msg}</div>
-                      <div style={{ fontSize: '0.68rem', color: 'var(--accent-primary)', textAlign: 'right' }}>{n.time}</div>
-                    </div>
-                  ))}
+                  <div style={{ padding: '10px', background: 'var(--card-bg-subtle)', borderRadius: '10px', borderLeft: '3px solid var(--accent-primary)', fontSize: '0.8rem' }}>
+                    <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>RFID Attendance Event Logged</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '2px' }}>Zayed Al-Hashimi checked into Daycare Wing (Terminal #1)</div>
+                  </div>
+                  <div style={{ padding: '10px', background: 'var(--card-bg-subtle)', borderRadius: '10px', borderLeft: '3px solid #F59E0B', fontSize: '0.8rem' }}>
+                    <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>Outstanding Tuition Alert</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '2px' }}>Amina Al-Mansoori has AED 450.00 pending payment</div>
+                  </div>
                 </div>
               </div>
             )}
-
-            {/* Desktop Theme Switcher */}
-            <button className="theme-toggle-btn" onClick={toggleTheme}>
-              {themeMode === 'dark' ? (
-                <><Sun size={16} color="#F59E0B" /> Light Mode</>
-              ) : (
-                <><Moon size={16} color="#059669" /> Dark Mode</>
-              )}
-            </button>
-
           </div>
-        </div>
+        </header>
 
-        {/* Dynamic Views Rendering based on active navigation */}
-        {currentView === 'dashboard' && <DashboardView activeRole={activeRole} />}
-        {currentView === 'accounting' && <AccountingView activeRole={activeRole} />}
-        {currentView === 'pos' && <POSView />}
-        {currentView === 'attendance' && <AttendanceDaycareView />}
-        {currentView === 'timetable' && <TimetableView />}
-        {currentView === 'assets' && <AssetsView />}
-        {currentView === 'students' && <StudentsView activeRole={activeRole} />}
-        {currentView === 'staff' && <StaffView activeRole={activeRole} />}
-        {currentView === 'parent-portal' && <ParentPortalView />}
-        {currentView === 'rbac' && <RBACManagementView activeRole={activeRole} onRoleChange={handleRoleChange} />}
-        {currentView === 'ai-assistant' && <AIAssistantView />}
-
+        {/* View Router */}
+        {currentView === 'parent-portal' && canAccess('parent-portal') && <ParentPortalView />}
+        {currentView === 'dashboard' && canAccess('dashboard') && <DashboardView onNavigate={setCurrentView} />}
+        {currentView === 'rbac' && canAccess('rbac') && <RBACManagementView activeRole={activeRole} />}
+        {currentView === 'students' && canAccess('students') && <StudentsView activeRole={activeRole} />}
+        {currentView === 'staff' && canAccess('staff') && <StaffView activeRole={activeRole} />}
+        {currentView === 'accounting' && canAccess('accounting') && <AccountingView />}
+        {currentView === 'pos' && canAccess('pos') && <POSView />}
+        {currentView === 'attendance' && canAccess('attendance') && <AttendanceDaycareView />}
+        {currentView === 'timetable' && canAccess('timetable') && <TimetableView />}
+        {currentView === 'assets' && canAccess('assets') && <AssetsView />}
+        {currentView === 'ai-assistant' && canAccess('ai-assistant') && <AIAssistantView />}
       </main>
+
+      {/* Floating Bottom-Right Categorized Common Trash Widget */}
+      <CommonTrashWidget />
     </div>
   );
 }

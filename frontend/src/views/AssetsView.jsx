@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Building2, Plus, TrendingDown, CheckCircle2, Trash2 } from 'lucide-react';
 import SearchableSelectInput from '../components/SearchableSelectInput';
+import { addToTrashBin } from '../utils/trashBin';
 import { BASE_URL } from '../api';
 
 export default function AssetsView() {
@@ -44,6 +45,10 @@ export default function AssetsView() {
 
   useEffect(() => {
     fetchAssets();
+    window.addEventListener('registered_data_updated', fetchAssets);
+    return () => {
+      window.removeEventListener('registered_data_updated', fetchAssets);
+    };
   }, []);
 
   const handleAddAsset = (e) => {
@@ -82,8 +87,12 @@ export default function AssetsView() {
     const target = assets.find(a => String(a.id) === String(assetId));
     const title = target ? target.item_name : 'asset';
 
-    if (!window.confirm(`Are you sure you want to remove "${title}" from Fixed Assets Ledger?`)) {
+    if (!window.confirm(`Move "${title}" to Common Trash?`)) {
       return;
+    }
+
+    if (target) {
+      addToTrashBin(target, 'Capital Assets', target.item_name);
     }
 
     const updated = assets.filter(a => String(a.id) !== String(assetId));
@@ -136,7 +145,18 @@ export default function AssetsView() {
                       <button 
                         onClick={(e) => handleDeleteAsset(asset.id, e)}
                         title={`Delete ${asset.item_name}`}
-                        style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '4px' }}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          outline: 'none',
+                          boxShadow: 'none',
+                          color: '#EF4444',
+                          cursor: 'pointer',
+                          padding: '4px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
                       >
                         <Trash2 size={16} />
                       </button>

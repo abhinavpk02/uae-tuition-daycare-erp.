@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { UserCheck, Shield, Plus, Phone, Mail, Clock, Search, DollarSign, Trash2 } from 'lucide-react';
 import AddStaffModal from '../components/AddStaffModal';
 import SwipeableTableRow from '../components/SwipeableTableRow';
+import { addToTrashBin } from '../utils/trashBin';
 import { BASE_URL } from '../api';
 
 export default function StaffView({ activeRole = 'SuperAdmin' }) {
@@ -51,6 +52,10 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
 
   useEffect(() => {
     fetchStaff();
+    window.addEventListener('registered_data_updated', fetchStaff);
+    return () => {
+      window.removeEventListener('registered_data_updated', fetchStaff);
+    };
   }, []);
 
   const handleStaffAdded = (newStaff) => {
@@ -62,14 +67,18 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
     fetchStaff();
   };
 
-  // Permanent Staff Deletion (Slide-to-Delete or Action Click)
+  // Permanent Staff Deletion (Slide-to-Delete or Action Click) -> Routes to Common Trash
   const handleDeleteStaff = (staffId, e) => {
     if (e) e.stopPropagation();
     const target = staff.find(s => String(s.id) === String(staffId));
     const staffName = target ? target.name : 'staff member';
 
-    if (!window.confirm(`Are you sure you want to permanently delete staff member ${staffName} and remove all records from the database?`)) {
+    if (!window.confirm(`Move staff member ${staffName} to Common Trash?`)) {
       return;
+    }
+
+    if (target) {
+      addToTrashBin(target, 'Staff', target.name);
     }
 
     const updated = staff.filter(s => String(s.id) !== String(staffId));
@@ -155,6 +164,8 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
                         style={{
                           background: 'transparent',
                           border: 'none',
+                          outline: 'none',
+                          boxShadow: 'none',
                           color: '#EF4444',
                           cursor: 'pointer',
                           padding: '4px',

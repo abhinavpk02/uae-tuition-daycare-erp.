@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingBag, Plus, Minus, Trash2, CheckCircle2, Package, Tag, ArrowRight, X, Search } from 'lucide-react';
 import SearchableSelectInput from '../components/SearchableSelectInput';
+import { addToTrashBin } from '../utils/trashBin';
 import { BASE_URL } from '../api';
 
 export default function POSView() {
@@ -71,11 +72,20 @@ export default function POSView() {
   useEffect(() => {
     fetchInventory();
     fetchStudents();
+    window.addEventListener('registered_data_updated', fetchInventory);
+    return () => {
+      window.removeEventListener('registered_data_updated', fetchInventory);
+    };
   }, []);
 
   const handleDeleteInventoryItem = (itemId, e) => {
     e.stopPropagation();
-    if (!window.confirm('Are you sure you want to remove this item from POS inventory?')) return;
+    const itemObj = inventory.find(item => item.id === itemId);
+    if (!window.confirm(`Move "${itemObj ? itemObj.item_name : 'item'}" to Common Trash?`)) return;
+
+    if (itemObj) {
+      addToTrashBin(itemObj, 'POS Items', itemObj.item_name);
+    }
 
     const updated = inventory.filter(item => item.id !== itemId);
     setInventory(updated);
@@ -224,18 +234,19 @@ export default function POSView() {
                       onClick={(e) => handleDeleteInventoryItem(item.id, e)} 
                       title="Delete item"
                       style={{ 
-                        background: 'rgba(239, 68, 68, 0.1)', 
-                        border: '1px solid rgba(239, 68, 68, 0.2)', 
-                        borderRadius: '6px', 
+                        background: 'transparent', 
+                        border: 'none', 
+                        outline: 'none',
+                        boxShadow: 'none',
                         color: '#EF4444', 
                         cursor: 'pointer',
-                        display: 'flex',
+                        display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        padding: '4px'
+                        padding: '2px'
                       }}
                     >
-                      <Trash2 size={13} />
+                      <Trash2 size={15} />
                     </button>
                   </div>
                 </div>
