@@ -6,12 +6,12 @@ import {
 
 export default function DashboardView({ onNavigate }) {
   const [stats, setStats] = useState({
-    totalRevenue: '125,400',
-    activeStudents: '42',
-    daycareHours: '184.5',
+    totalRevenue: '0.00',
+    activeStudents: '0',
+    daycareHours: '0.0',
     isBalanced: true,
-    totalDebit: '125,400',
-    totalCredit: '125,400'
+    totalDebit: '0.00',
+    totalCredit: '0.00'
   });
 
   const [recentEntries, setRecentEntries] = useState([]);
@@ -22,95 +22,14 @@ export default function DashboardView({ onNavigate }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEntity, setSelectedEntity] = useState(null);
 
-  // Sample Customer Database (Students & Parents)
-  const customersList = [
-    {
-      id: 'cust-101',
-      studentName: 'Zayed Al-Hashimi',
-      parentName: 'Mohammed Al-Hashimi',
-      grade: 'Grade 10',
-      program: 'Tuition & Daycare',
-      phone: '+971 50 123 4567',
-      email: 'mohammed.hashimi@example.ae',
-      rfidTag: 'TAG-882194',
-      monthlyFee: 'AED 1,200/mo',
-      balanceDue: 'AED 0.00 (Fully Paid)',
-      attendanceRate: '98% Present'
-    },
-    {
-      id: 'cust-102',
-      studentName: 'Mariam Al-Hashimi',
-      parentName: 'Mohammed Al-Hashimi',
-      grade: 'KG 2',
-      program: 'Daycare Only',
-      phone: '+971 50 123 4567',
-      email: 'mohammed.hashimi@example.ae',
-      rfidTag: 'TAG-882195',
-      monthlyFee: 'AED 800/mo',
-      balanceDue: 'AED 0.00 (Fully Paid)',
-      attendanceRate: '95% Present'
-    },
-    {
-      id: 'cust-103',
-      studentName: 'Sami Al-Hashimi',
-      parentName: 'Tariq Al-Hashimi',
-      grade: 'Grade 4',
-      program: 'Tuition & Daycare',
-      phone: '+971 55 987 6543',
-      email: 'tariq.hashimi@example.ae',
-      rfidTag: 'TAG-771029',
-      monthlyFee: 'AED 1,100/mo',
-      balanceDue: 'AED 140.00 (Pending)',
-      attendanceRate: '92% Present'
-    },
-    {
-      id: 'cust-104',
-      studentName: 'Rashid Al-Maktoum',
-      parentName: 'Saeed Al-Maktoum',
-      grade: 'Grade 5',
-      program: 'Tuition Only',
-      phone: '+971 52 444 8899',
-      email: 'saeed.maktoum@example.ae',
-      rfidTag: 'TAG-993012',
-      monthlyFee: 'AED 950/mo',
-      balanceDue: 'AED 450.00 (Overdue)',
-      attendanceRate: '88% Present'
-    }
-  ];
-
-  // Sample Staff Database
-  const staffList = [
-    {
-      id: 'stf-101',
-      name: 'Fatima Al-Mansoori',
-      role: 'Senior STEM Lead Teacher',
-      emiratesId: '784-1992-8821941-1',
-      hourlyRate: 'AED 45.00 / hr',
-      monthlyHours: '80 hrs',
-      monthlyPayout: 'AED 3,600.00',
-      email: 'fatima.mansoori@nest.ae',
-      phone: '+971 52 987 6543',
-      assignedRooms: 'Room 101, Room 102'
-    },
-    {
-      id: 'stf-102',
-      name: 'Sarah Jenkins',
-      role: 'Daycare & Montessori Specialist',
-      emiratesId: '784-1988-3341902-3',
-      hourlyRate: 'AED 40.00 / hr',
-      monthlyHours: '75 hrs',
-      monthlyPayout: 'AED 3,000.00',
-      email: 'sarah.jenkins@nest.ae',
-      phone: '+971 50 888 2211',
-      assignedRooms: 'Daycare Zone A, Daycare Zone B'
-    }
-  ];
+  const [customersList, setCustomersList] = useState([]);
+  const [staffList, setStaffList] = useState([]);
 
   useEffect(() => {
     fetch('/api/reports/trial-balance')
       .then(res => res.json())
       .then(data => {
-        if (data && data.grand_total_debit) {
+        if (data && data.grand_total_debit !== undefined) {
           setStats(prev => ({
             ...prev,
             totalRevenue: (data.grand_total_debit).toLocaleString('en-US'),
@@ -120,7 +39,49 @@ export default function DashboardView({ onNavigate }) {
           }));
         }
       })
-      .catch(err => console.log('Backend connection fallback for local mode:', err));
+      .catch(() => {});
+
+    fetch('/api/students')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setStats(prev => ({ ...prev, activeStudents: data.length.toString() }));
+          setCustomersList(data.map(s => ({
+            id: s.id,
+            studentName: s.name,
+            parentName: 'Parent of ' + s.name,
+            grade: s.standard || 'Grade 10',
+            program: s.program || 'Tuition & Daycare',
+            phone: '+971 50 000 0000',
+            email: 'parent@uaeerp.ae',
+            rfidTag: `TAG-${s.id}`,
+            monthlyFee: 'AED 0.00',
+            balanceDue: `AED ${(s.due_amount || 0).toFixed(2)}`,
+            attendanceRate: 'Present'
+          })));
+        }
+      })
+      .catch(() => {});
+
+    fetch('/api/staff')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setStaffList(data.map(stf => ({
+            id: stf.id,
+            name: stf.name,
+            role: stf.role,
+            emiratesId: stf.emirates_id || '784-1992-1234567-1',
+            hourlyRate: `AED ${(stf.hourly_rate || 95).toFixed(2)} / hr`,
+            monthlyHours: '0 hrs',
+            monthlyPayout: 'AED 0.00',
+            email: stf.email,
+            phone: '+971 50 000 0000',
+            assignedRooms: 'Main Zone'
+          })));
+        }
+      })
+      .catch(() => {});
 
     fetch('/api/accounting/journal-entries')
       .then(res => res.json())
@@ -131,363 +92,267 @@ export default function DashboardView({ onNavigate }) {
       .finally(() => setLoading(false));
   }, []);
 
-  // Filtered Results
   const filteredCustomers = customersList.filter(c => 
     c.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.parentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.grade.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.phone.toLowerCase().includes(searchQuery.toLowerCase())
+    c.grade.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filteredStaff = staffList.filter(s =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.emiratesId.toLowerCase().includes(searchQuery.toLowerCase())
+    s.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className="view-container">
-      {/* KPI Cards */}
-      <div className="grid-stats-large">
-        
-        {/* Metric 1: Total Volume */}
-        <div className="stat-card-square">
-          <div className="stat-icon-square">
-            <Coins size={32} />
+      {/* Header Banner */}
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        <div>
+          <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>Executive ERP Overview</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Double-entry accounting, RFID tracking & student daycare operations center</p>
+        </div>
+
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button className="btn btn-outline" onClick={() => onNavigate('pos')}>
+            <ShoppingBag size={16} /> Open POS Terminal
+          </button>
+          <button className="btn btn-emerald" onClick={() => onNavigate('accounting')}>
+            <Coins size={16} /> General Ledger
+          </button>
+        </div>
+      </div>
+
+      {/* KPI Cards Grid */}
+      <div className="grid-stats-large" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+        <div className="glass-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>TOTAL LEDGER DEBITS</span>
+            <DollarSign size={18} color="var(--accent-primary)" />
           </div>
-          <div className="stat-val-square" style={{ color: 'var(--accent-primary)' }}>
+          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-primary)', fontFamily: 'monospace' }}>
             AED {stats.totalRevenue}
           </div>
-          <div className="stat-lbl-square">Total Volume</div>
+          <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', marginTop: '4px', display: 'block' }}>
+            Balanced Double-Entry
+          </span>
         </div>
 
-        {/* Metric 2: Enrolled Students */}
-        <div className="stat-card-square">
-          <div className="stat-icon-square">
-            <Users size={32} />
+        <div className="glass-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>REGISTERED STUDENTS</span>
+            <Users size={18} color="var(--accent-primary)" />
           </div>
-          <div className="stat-val-square">
+          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-main)', fontFamily: 'monospace' }}>
             {stats.activeStudents}
           </div>
-          <div className="stat-lbl-square">Enrolled Students</div>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+            Tuition & Daycare Enrolled
+          </span>
         </div>
 
-        {/* Metric 3: Daycare Hours */}
-        <div className="stat-card-square">
-          <div className="stat-icon-square">
-            <Clock size={32} />
+        <div className="glass-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>DAYCARE HOURLY TALLY</span>
+            <Clock size={18} color="var(--accent-primary)" />
           </div>
-          <div className="stat-val-square">
+          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-main)', fontFamily: 'monospace' }}>
             {stats.daycareHours} hrs
           </div>
-          <div className="stat-lbl-square">Daycare Hours</div>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+            Automated Scanner Log
+          </span>
         </div>
 
-        {/* Metric 4: Ledger Status */}
-        <div className="stat-card-square">
-          <div className="stat-icon-square">
-            <ShieldCheck size={32} />
+        <div className="glass-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>LEDGER BALANCE AUDIT</span>
+            <ShieldCheck size={18} color="var(--accent-primary)" />
           </div>
-          <div className="stat-val-square" style={{ color: stats.isBalanced ? 'var(--accent-primary)' : '#EF4444', fontSize: '1.25rem' }}>
-            {stats.isBalanced ? '100% BALANCED' : 'UNBALANCED'}
+          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: stats.isBalanced ? 'var(--accent-primary)' : '#EF4444' }}>
+            {stats.isBalanced ? '100% Balanced' : 'Imbalance Alert'}
           </div>
-          <div className="stat-lbl-square">Ledger Audit Status</div>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+            Debits = Credits Check
+          </span>
         </div>
-
       </div>
 
-      {/* EXECUTIVE DASHBOARD SEARCH & DETAIL INSPECTION CONSOLE */}
-      <div className="glass-card" style={{ marginBottom: '28px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-          <div>
-            <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Search size={20} color="var(--accent-primary)" /> Executive Search & Inspection Hub
+      {/* Main Split Sections */}
+      <div className="grid-split-responsive">
+        
+        {/* Real-time Customer & Staff Inspection Hub */}
+        <div className="glass-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+            <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Search size={18} color="var(--accent-primary)" /> Real-Time Search & Entity Hub
             </h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Search across customer records (students & parents) and staff member profiles
-            </p>
-          </div>
 
-          {/* Category Tabs Switcher */}
-          <div style={{ display: 'flex', gap: '8px', background: 'var(--card-bg-subtle)', padding: '4px', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
-            <button
-              onClick={() => { setSearchCategory('customers'); setSelectedEntity(null); }}
-              className={`btn ${searchCategory === 'customers' ? 'btn-emerald' : 'btn-outline'}`}
-              style={{ padding: '6px 16px', fontSize: '0.8rem', minHeight: '36px' }}
-            >
-              🎓 Customers (Students & Parents)
-            </button>
-            <button
-              onClick={() => { setSearchCategory('staff'); setSelectedEntity(null); }}
-              className={`btn ${searchCategory === 'staff' ? 'btn-emerald' : 'btn-outline'}`}
-              style={{ padding: '6px 16px', fontSize: '0.8rem', minHeight: '36px' }}
-            >
-              👩‍🏫 Staff & Teachers
-            </button>
-          </div>
-        </div>
-
-        {/* Live Search Input Bar */}
-        <div className="form-group" style={{ position: 'relative', marginBottom: '16px' }}>
-          <Search size={18} color="var(--accent-primary)" style={{ position: 'absolute', left: '14px', top: '13px' }} />
-          <input
-            type="text"
-            className="form-input"
-            placeholder={
-              searchCategory === 'customers'
-                ? "Search by student name, parent name, grade, or phone number..."
-                : "Search staff by teacher name, role, email, or Emirates ID..."
-            }
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            style={{ paddingLeft: '44px', height: '44px', fontSize: '0.9rem' }}
-          />
-        </div>
-
-        {/* Search Results Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '14px', marginBottom: selectedEntity ? '20px' : '0' }}>
-          {searchCategory === 'customers' ? (
-            filteredCustomers.map(item => (
-              <div
-                key={item.id}
-                onClick={() => setSelectedEntity(item)}
+            {/* Category Toggle Tabs */}
+            <div style={{ display: 'flex', background: 'var(--card-bg-subtle)', padding: '3px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+              <button 
+                onClick={() => { setSearchCategory('customers'); setSelectedEntity(null); }}
                 style={{
-                  padding: '14px',
-                  borderRadius: '16px',
-                  background: selectedEntity?.id === item.id ? 'var(--accent-primary-glow)' : 'var(--card-bg-subtle)',
-                  border: selectedEntity?.id === item.id ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                  padding: '5px 12px',
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  borderRadius: '7px',
+                  border: 'none',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease'
+                  background: searchCategory === 'customers' ? 'var(--accent-primary)' : 'transparent',
+                  color: searchCategory === 'customers' ? '#FFF' : 'var(--text-muted)'
                 }}
               >
-                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-main)' }}>{item.studentName}</div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>Parent: {item.parentName}</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-                  <span className="badge-status badge-warning" style={{ fontSize: '0.7rem' }}>{item.grade}</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: 600 }}>Click to View Details →</span>
-                </div>
-              </div>
-            ))
-          ) : (
-            filteredStaff.map(item => (
-              <div
-                key={item.id}
-                onClick={() => setSelectedEntity(item)}
+                Students ({customersList.length})
+              </button>
+              <button 
+                onClick={() => { setSearchCategory('staff'); setSelectedEntity(null); }}
                 style={{
-                  padding: '14px',
-                  borderRadius: '16px',
-                  background: selectedEntity?.id === item.id ? 'var(--accent-primary-glow)' : 'var(--card-bg-subtle)',
-                  border: selectedEntity?.id === item.id ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                  padding: '5px 12px',
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  borderRadius: '7px',
+                  border: 'none',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease'
+                  background: searchCategory === 'staff' ? 'var(--accent-primary)' : 'transparent',
+                  color: searchCategory === 'staff' ? '#FFF' : 'var(--text-muted)'
                 }}
               >
-                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-main)' }}>{item.name}</div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>{item.role}</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-                  <span className="badge-status badge-success" style={{ fontSize: '0.7rem' }}>{item.hourlyRate}</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: 600 }}>Click to View Details →</span>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* DETAILED INSPECTION CARD WHEN A NAME IS SELECTED */}
-        {selectedEntity && (
-          <div style={{ marginTop: '20px', padding: '20px', background: 'var(--bg-card)', borderRadius: '18px', border: '1px solid var(--accent-primary)', boxShadow: 'var(--glass-shadow)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
-              <h4 style={{ fontFamily: 'Outfit', fontSize: '1.1rem', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <BadgeCheck size={18} /> Detailed Inspection Profile: {searchCategory === 'customers' ? selectedEntity.studentName : selectedEntity.name}
-              </h4>
-              <button onClick={() => setSelectedEntity(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-                <X size={18} />
+                Staff ({staffList.length})
               </button>
             </div>
-
-            {searchCategory === 'customers' ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', fontSize: '0.85rem' }}>
-                <div><span style={{ color: 'var(--text-muted)' }}>Student Name:</span> <strong style={{ color: 'var(--text-main)' }}>{selectedEntity.studentName}</strong></div>
-                <div><span style={{ color: 'var(--text-muted)' }}>Parent / Guardian:</span> <strong style={{ color: 'var(--text-main)' }}>{selectedEntity.parentName}</strong></div>
-                <div><span style={{ color: 'var(--text-muted)' }}>Grade & Program:</span> <strong>{selectedEntity.grade} ({selectedEntity.program})</strong></div>
-                <div><span style={{ color: 'var(--text-muted)' }}>Emergency Contact:</span> <strong>{selectedEntity.phone}</strong></div>
-                <div><span style={{ color: 'var(--text-muted)' }}>Email:</span> <strong>{selectedEntity.email}</strong></div>
-                <div><span style={{ color: 'var(--text-muted)' }}>RFID Tag ID:</span> <strong style={{ fontFamily: 'monospace' }}>{selectedEntity.rfidTag}</strong></div>
-                <div><span style={{ color: 'var(--text-muted)' }}>Monthly Fee:</span> <strong style={{ color: 'var(--accent-primary)' }}>{selectedEntity.monthlyFee}</strong></div>
-                <div><span style={{ color: 'var(--text-muted)' }}>Account Balance:</span> <strong style={{ color: selectedEntity.balanceDue.includes('Overdue') ? '#EF4444' : 'var(--accent-primary)' }}>{selectedEntity.balanceDue}</strong></div>
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', fontSize: '0.85rem' }}>
-                <div><span style={{ color: 'var(--text-muted)' }}>Staff Member:</span> <strong style={{ color: 'var(--text-main)' }}>{selectedEntity.name}</strong></div>
-                <div><span style={{ color: 'var(--text-muted)' }}>Role / Title:</span> <strong>{selectedEntity.role}</strong></div>
-                <div><span style={{ color: 'var(--text-muted)' }}>Emirates ID:</span> <strong style={{ fontFamily: 'monospace' }}>{selectedEntity.emiratesId}</strong></div>
-                <div><span style={{ color: 'var(--text-muted)' }}>Hourly Compensation:</span> <strong style={{ color: 'var(--accent-primary)' }}>{selectedEntity.hourlyRate}</strong></div>
-                <div><span style={{ color: 'var(--text-muted)' }}>Monthly Hours:</span> <strong>{selectedEntity.monthlyHours}</strong></div>
-                <div><span style={{ color: 'var(--text-muted)' }}>Gross Payroll Payout:</span> <strong style={{ color: 'var(--accent-primary)' }}>{selectedEntity.monthlyPayout}</strong></div>
-                <div><span style={{ color: 'var(--text-muted)' }}>Work Email:</span> <strong>{selectedEntity.email}</strong></div>
-                <div><span style={{ color: 'var(--text-muted)' }}>Assigned Classrooms:</span> <strong>{selectedEntity.assignedRooms}</strong></div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Main Responsive Grid Section */}
-      <div className="grid-2col-responsive">
-        
-        {/* Recent Double-Entry Journal Entries Table */}
-        <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-            <div>
-              <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', color: 'var(--text-main)' }}>Recent Double-Entry Journal Entries</h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Automated financial transaction logs</p>
-            </div>
-            <button className="btn btn-outline" onClick={() => onNavigate('accounting')} style={{ fontSize: '0.8rem', padding: '6px 14px' }}>
-              General Ledger <ArrowUpRight size={14} />
-            </button>
           </div>
 
-          <div className="table-responsive-wrapper">
+          {/* Search Input Field */}
+          <div className="form-group" style={{ marginBottom: '16px', position: 'relative' }}>
+            <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+            <input 
+              type="text" 
+              className="form-input" 
+              placeholder={searchCategory === 'customers' ? "Search student, parent name..." : "Search staff member name, role..."}
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{ paddingLeft: '36px', height: '38px', fontSize: '0.85rem' }}
+            />
+          </div>
+
+          {/* Entity List Table */}
+          <div className="table-responsive-wrapper" style={{ maxHeight: '280px', overflowY: 'auto' }}>
             <table className="custom-table">
               <thead>
                 <tr>
-                  <th>Date / Ref</th>
-                  <th>Description</th>
-                  <th>Module</th>
-                  <th>Audit Status</th>
+                  <th>Name</th>
+                  <th>{searchCategory === 'customers' ? 'Grade / Program' : 'Assigned Role'}</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {recentEntries.length > 0 ? (
-                  recentEntries.map((entry, idx) => (
-                    <tr key={entry.id || idx}>
-                      <td style={{ fontFamily: 'monospace', fontSize: '0.82rem' }}>
-                        {entry.date ? new Date(entry.date).toLocaleDateString() : '2026-08-14'}
-                      </td>
-                      <td style={{ fontWeight: 600 }}>{entry.description}</td>
-                      <td>
-                        <span className="badge-status badge-warning">{entry.ref_module}</span>
-                      </td>
-                      <td>
-                        <span className="badge-status badge-success"><CheckCircle2 size={12} /> Balanced</span>
-                      </td>
-                    </tr>
-                  ))
+                {searchCategory === 'customers' ? (
+                  filteredCustomers.length > 0 ? (
+                    filteredCustomers.map(c => (
+                      <tr key={c.id}>
+                        <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{c.studentName}</td>
+                        <td><span className="badge-status badge-warning">{c.grade}</span></td>
+                        <td>
+                          <button className="btn btn-outline" style={{ padding: '3px 8px', fontSize: '0.72rem' }} onClick={() => setSelectedEntity(c)}>
+                            Inspect
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr><td colSpan="3" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '16px' }}>No students registered in database.</td></tr>
+                  )
                 ) : (
-                  <>
-                    <tr>
-                      <td style={{ fontFamily: 'monospace' }}>2026-08-14</td>
-                      <td style={{ fontWeight: 600 }}>Initial Owner Capital Injection</td>
-                      <td><span className="badge-status badge-warning">Manual</span></td>
-                      <td><span className="badge-status badge-success"><CheckCircle2 size={12} /> Balanced (AED 100,000)</span></td>
-                    </tr>
-                    <tr>
-                      <td style={{ fontFamily: 'monospace' }}>2026-08-14</td>
-                      <td style={{ fontWeight: 600 }}>Purchase of Tuition & Daycare Equipment Assets</td>
-                      <td><span className="badge-status badge-warning">Manual</span></td>
-                      <td><span className="badge-status badge-success"><CheckCircle2 size={12} /> Balanced (AED 25,000)</span></td>
-                    </tr>
-                  </>
+                  filteredStaff.length > 0 ? (
+                    filteredStaff.map(stf => (
+                      <tr key={stf.id}>
+                        <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{stf.name}</td>
+                        <td><span className="badge-status badge-success">{stf.role}</span></td>
+                        <td>
+                          <button className="btn btn-outline" style={{ padding: '3px 8px', fontSize: '0.72rem' }} onClick={() => setSelectedEntity(stf)}>
+                            Inspect
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr><td colSpan="3" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '16px' }}>No staff members onboarded.</td></tr>
+                  )
                 )}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* Re-imagined ERP Operations Hub */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', color: 'var(--text-main)', marginBottom: '2px' }}>
-            ERP Operations Hub
-          </h3>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px' }}>
-            Direct access to core module terminals
-          </p>
-
-          {/* Card 1: POS Terminal */}
-          <div 
-            onClick={() => onNavigate('pos')}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between',
-              padding: '20px', 
-              background: 'var(--card-bg-subtle)', 
-              border: '1px solid var(--border-color)',
-              borderRadius: '16px',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--accent-primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)', flexShrink: 0 }}>
-                <ShoppingBag size={26} />
-              </div>
-              <div>
-                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)' }}>POS Terminal</h4>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Tuition & Daycare Checkout</p>
-              </div>
-            </div>
-            <ArrowUpRight size={20} color="var(--accent-primary)" />
+        {/* Audit Log */}
+        <div className="glass-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FileText size={18} color="var(--accent-primary)" /> Recent General Ledger Entries
+            </h3>
+            <button className="btn btn-outline" style={{ padding: '4px 10px', fontSize: '0.75rem' }} onClick={() => onNavigate('accounting')}>
+              View Full Audit Trail
+            </button>
           </div>
 
-          {/* Card 2: RFID Scanner */}
-          <div 
-            onClick={() => onNavigate('attendance')}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between',
-              padding: '20px', 
-              background: 'var(--card-bg-subtle)', 
-              border: '1px solid var(--border-color)',
-              borderRadius: '16px',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--accent-primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)', flexShrink: 0 }}>
-                <Clock size={26} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {recentEntries.length > 0 ? (
+              recentEntries.map(entry => (
+                <div key={entry.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: 'var(--card-bg-subtle)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--text-main)' }}>{entry.description}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>Ref: {entry.id} ({entry.ref_module})</div>
+                  </div>
+                  <span className="badge-status badge-success" style={{ fontSize: '0.7rem' }}>Posted</span>
+                </div>
+              ))
+            ) : (
+              <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                No journal entries posted in ledger.
               </div>
-              <div>
-                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)' }}>RFID Daycare Engine</h4>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Real-time Attendance Tracker</p>
-              </div>
-            </div>
-            <ArrowUpRight size={20} color="var(--accent-primary)" />
+            )}
           </div>
-
-          {/* Card 3: Ledger Reports */}
-          <div 
-            onClick={() => onNavigate('accounting')}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between',
-              padding: '20px', 
-              background: 'var(--card-bg-subtle)', 
-              border: '1px solid var(--border-color)',
-              borderRadius: '16px',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--accent-primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)', flexShrink: 0 }}>
-                <Layers size={26} />
-              </div>
-              <div>
-                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)' }}>Financial Reports</h4>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>General Ledger & Audits</p>
-              </div>
-            </div>
-            <ArrowUpRight size={20} color="var(--accent-primary)" />
-          </div>
-
         </div>
 
       </div>
+
+      {/* Inspection Modal */}
+      {selectedEntity && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="glass-card" style={{ width: '420px', padding: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontFamily: 'Outfit', color: 'var(--text-main)' }}>
+                {selectedEntity.studentName ? selectedEntity.studentName : selectedEntity.name}
+              </h3>
+              <button onClick={() => setSelectedEntity(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.85rem' }}>
+              {selectedEntity.studentName ? (
+                <>
+                  <div><strong style={{ color: 'var(--text-muted)' }}>Grade / Class:</strong> {selectedEntity.grade}</div>
+                  <div><strong style={{ color: 'var(--text-muted)' }}>Program:</strong> {selectedEntity.program}</div>
+                  <div><strong style={{ color: 'var(--text-muted)' }}>Balance Dues:</strong> <span style={{ color: 'var(--accent-primary)', fontWeight: 700 }}>{selectedEntity.balanceDue}</span></div>
+                </>
+              ) : (
+                <>
+                  <div><strong style={{ color: 'var(--text-muted)' }}>Role:</strong> {selectedEntity.role}</div>
+                  <div><strong style={{ color: 'var(--text-muted)' }}>Emirates ID:</strong> {selectedEntity.emiratesId}</div>
+                  <div><strong style={{ color: 'var(--text-muted)' }}>Hourly Rate:</strong> <span style={{ color: 'var(--accent-primary)', fontWeight: 700 }}>{selectedEntity.hourlyRate}</span></div>
+                  <div><strong style={{ color: 'var(--text-muted)' }}>Email:</strong> {selectedEntity.email}</div>
+                </>
+              )}
+            </div>
+
+            <button className="btn btn-emerald" style={{ width: '100%', justifyContent: 'center', marginTop: '20px' }} onClick={() => setSelectedEntity(null)}>
+              Close Inspection
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
