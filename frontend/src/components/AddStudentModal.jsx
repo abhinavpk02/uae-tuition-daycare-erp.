@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, User, Phone, Mail, Calendar, GraduationCap, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import SearchableSelectInput from './SearchableSelectInput';
+import { submitNewStudent } from '../api';
 
 export default function AddStudentModal({ isOpen, onClose, onSuccess, creatorRole = 'SuperAdmin' }) {
   const [formData, setFormData] = useState({
@@ -23,7 +24,7 @@ export default function AddStudentModal({ isOpen, onClose, onSuccess, creatorRol
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     setToastMsg('');
@@ -44,71 +45,47 @@ export default function AddStudentModal({ isOpen, onClose, onSuccess, creatorRol
 
     setLoading(true);
 
-    const payload = {
-      ...formData,
-      creator_role: creatorRole
-    };
+    try {
+      const data = await submitNewStudent({
+        ...formData,
+        creator_role: creatorRole
+      });
 
-    fetch('/api/v1/students', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-      .then(async (res) => {
-        let data = {};
-        try {
-          data = await res.json();
-        } catch {
-          data = { detail: `HTTP Error ${res.status}: Unable to process student registration request` };
-        }
-        return { ok: res.ok, data };
-      })
-      .then(({ ok, data }) => {
-        const newStudentObj = {
-          id: data?.student?.id || `std-${Date.now()}`,
-          name: formData.name,
-          standard: formData.standard,
-          program: formData.program === 'Both' ? 'Tuition & Daycare' : formData.program + ' Only',
-          parent_id: data?.student?.parent_id || 'PRT-' + Math.floor(100000 + Math.random() * 900000),
-          due_amount: 0.0,
-          attendance_status: 'Present'
-        };
+      const newStudentObj = {
+        id: data?.student?.id || `std-${Date.now()}`,
+        name: formData.name,
+        standard: formData.standard,
+        program: formData.program === 'Both' ? 'Tuition & Daycare' : formData.program + ' Only',
+        parent_id: data?.student?.parent_id || 'PRT-' + Math.floor(100000 + Math.random() * 900000),
+        due_amount: 0.0,
+        attendance_status: 'Present'
+      };
 
-        // SAVE TO LOCALSTORAGE FOR INSTANT CROSS-VIEW PERSISTENCE
-        const existingLocal = JSON.parse(localStorage.getItem('registered_students') || '[]');
-        const updatedLocal = [newStudentObj, ...existingLocal.filter(s => s.name.toLowerCase() !== formData.name.toLowerCase())];
-        localStorage.setItem('registered_students', JSON.stringify(updatedLocal));
-
-        setToastMsg('Student added successfully!');
-        setTimeout(() => {
-          if (onSuccess) onSuccess(newStudentObj);
-          onClose();
-        }, 1000);
-      })
-      .catch(err => {
-        // Fallback local save if network/server is unavailable
-        const newStudentObj = {
-          id: `std-local-${Date.now()}`,
-          name: formData.name,
-          standard: formData.standard,
-          program: formData.program === 'Both' ? 'Tuition & Daycare' : formData.program + ' Only',
-          parent_id: 'PRT-' + Math.floor(100000 + Math.random() * 900000),
-          due_amount: 0.0,
-          attendance_status: 'Present'
-        };
-
-        const existingLocal = JSON.parse(localStorage.getItem('registered_students') || '[]');
-        const updatedLocal = [newStudentObj, ...existingLocal.filter(s => s.name.toLowerCase() !== formData.name.toLowerCase())];
-        localStorage.setItem('registered_students', JSON.stringify(updatedLocal));
-
-        setToastMsg('Student registered successfully!');
-        setTimeout(() => {
-          if (onSuccess) onSuccess(newStudentObj);
-          onClose();
-        }, 1000);
-      })
-      .finally(() => setLoading(false));
+      setToastMsg('Student added successfully to database!');
+      setTimeout(() => {
+        if (onSuccess) onSuccess(newStudentObj);
+        onClose();
+      }, 1000);
+    } catch (err) {
+      setErrorMsg(err.message || 'Failed to persist student registration in database.');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const standardOptions = [
+    { value: 'Grade 10', label: 'Grade 10 (Secondary)' },
+    { value: 'Grade 11', label: 'Grade 11 (Higher Secondary)' },
+    { value: 'Grade 12', label: 'Grade 12 (Higher Secondary)' },
+    { value: 'KG 1', label: 'KG 1 (Daycare)' },
+    { value: 'KG 2', label: 'KG 2 (Daycare)' }
+  ];
+
+  const programOptions = [
+    { value: 'Both', label: 'Tuition & Daycare (Combined)' },
+    { value: 'Tuition', label: 'Tuition Only' },
+    { value: 'Daycare', label: 'Daycare Only' }
+  ];
 
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
@@ -138,126 +115,129 @@ export default function AddStudentModal({ isOpen, onClose, onSuccess, creatorRol
 
         {/* Toast / Error Banners */}
         {toastMsg && (
-          <div style={{ padding: '10px 14px', background: 'var(--accent-primary-glow)', border: '1px solid var(--accent-primary)', borderRadius: '8px', color: 'var(--accent-primary)', fontSize: '0.85rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
+          <div style={{ padding: '10px 14px', background: 'var(--accent-primary-glow)', border: '1px solid var(--accent-primary)', borderRadius: '8px', color: 'var(--accent-primary)', fontSize: '0.85rem', marginBottom: '16px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
             <CheckCircle2 size={16} /> {toastMsg}
           </div>
         )}
 
         {errorMsg && (
-          <div style={{ padding: '10px 14px', background: 'rgba(239,68,68,0.15)', border: '1px solid #EF4444', borderRadius: '8px', color: '#EF4444', fontSize: '0.85rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ padding: '10px 14px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #EF4444', borderRadius: '8px', color: '#EF4444', fontSize: '0.85rem', marginBottom: '16px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
             <AlertCircle size={16} /> {errorMsg}
           </div>
         )}
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className="form-group">
-            <label className="form-label">Student Full Name *</label>
+            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <User size={14} color="var(--accent-primary)" /> Student Full Name
+            </label>
             <input 
-              className="form-input" 
+              type="text" 
               name="name" 
-              value={formData.name} 
-              onChange={handleChange} 
+              className="form-input" 
               placeholder="e.g. Zayed Al-Hashimi" 
+              value={formData.name} 
+              onChange={handleChange}
+              disabled={loading}
               required 
             />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div className="form-group">
-              <label className="form-label">Date of Birth</label>
-              <input 
-                className="form-input" 
-                type="date" 
-                name="dob" 
-                value={formData.dob} 
-                onChange={handleChange} 
+              <SearchableSelectInput
+                label="Academic Grade / Class"
+                placeholder="Search grade..."
+                options={standardOptions}
+                value={formData.standard}
+                onChange={val => setFormData(prev => ({ ...prev, standard: val }))}
               />
             </div>
+            <div className="form-group">
+              <SearchableSelectInput
+                label="Program Type"
+                placeholder="Search program..."
+                options={programOptions}
+                value={formData.program}
+                onChange={val => setFormData(prev => ({ ...prev, program: val }))}
+              />
+            </div>
+          </div>
 
-            <SearchableSelectInput
-              label="Standard / Grade *"
-              placeholder="Search grade..."
-              options={[
-                { value: 'KG 1', label: 'KG 1' },
-                { value: 'KG 2', label: 'KG 2' },
-                { value: 'Grade 1', label: 'Grade 1' },
-                { value: 'Grade 2', label: 'Grade 2' },
-                { value: 'Grade 3', label: 'Grade 3' },
-                { value: 'Grade 4', label: 'Grade 4' },
-                { value: 'Grade 5', label: 'Grade 5' },
-                { value: 'Grade 10', label: 'Grade 10' },
-                { value: 'Grade 12', label: 'Grade 12 (HSS)' }
-              ]}
-              value={formData.standard}
-              onChange={val => setFormData(prev => ({ ...prev, standard: val }))}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div className="form-group">
+              <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Calendar size={14} color="var(--accent-primary)" /> Date of Birth (Optional)
+              </label>
+              <input 
+                type="date" 
+                name="dob" 
+                className="form-input" 
+                value={formData.dob} 
+                onChange={handleChange}
+                disabled={loading}
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Phone size={14} color="var(--accent-primary)" /> Parent Phone (UAE)
+              </label>
+              <input 
+                type="text" 
+                name="parent_phone" 
+                className="form-input" 
+                placeholder="+971 50 123 4567" 
+                value={formData.parent_phone} 
+                onChange={handleChange}
+                disabled={loading}
+                required 
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Mail size={14} color="var(--accent-primary)" /> Parent Email Address
+            </label>
+            <input 
+              type="email" 
+              name="parent_email" 
+              className="form-input" 
+              placeholder="parent@uaeerp.ae" 
+              value={formData.parent_email} 
+              onChange={handleChange}
+              disabled={loading}
+              required 
             />
           </div>
 
-          {/* Program Radio Selection */}
-          <div className="form-group">
-            <label className="form-label">Program Type *</label>
-            <div style={{ display: 'flex', gap: '16px', marginTop: '4px' }}>
-              {['Tuition', 'Daycare', 'Both'].map(prog => (
-                <label key={prog} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.88rem', color: 'var(--text-main)' }}>
-                  <input 
-                    type="radio" 
-                    name="program" 
-                    value={prog} 
-                    checked={formData.program === prog} 
-                    onChange={handleChange}
-                    style={{ accentColor: 'var(--accent-primary)' }} 
-                  />
-                  {prog}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px', marginTop: '4px' }}>
-            <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--accent-primary)', marginBottom: '10px', textTransform: 'uppercase' }}>
-              Parent Contact & Billing Record
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <div className="form-group">
-                <label className="form-label">Parent Phone *</label>
-                <input 
-                  className="form-input" 
-                  name="parent_phone" 
-                  value={formData.parent_phone} 
-                  onChange={handleChange} 
-                  placeholder="+971 50 123 4567" 
-                  required 
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Parent Email *</label>
-                <input 
-                  className="form-input" 
-                  type="email" 
-                  name="parent_email" 
-                  value={formData.parent_email} 
-                  onChange={handleChange} 
-                  placeholder="parent@uaeerp.ae" 
-                  required 
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Modal Footer */}
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
-            <button type="button" className="btn btn-outline" onClick={onClose} disabled={loading}>
+          {/* Form Actions */}
+          <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+            <button 
+              type="button" 
+              className="btn btn-outline" 
+              style={{ flex: 1, justifyContent: 'center' }} 
+              onClick={onClose}
+              disabled={loading}
+            >
               Cancel
             </button>
-            <button type="submit" className="btn btn-emerald" disabled={loading} style={{ minWidth: '130px', justifyContent: 'center' }}>
-              {loading ? <><Loader2 size={16} className="spin" /> Saving...</> : 'Save Student'}
+            <button 
+              type="submit" 
+              className="btn btn-emerald" 
+              style={{ flex: 1, justifyContent: 'center' }} 
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" /> Saving to DB...
+                </>
+              ) : (
+                'Save Student to DB'
+              )}
             </button>
           </div>
-
         </form>
       </div>
     </div>
