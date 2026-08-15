@@ -12,18 +12,41 @@ export default function EntitySearchInput({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
+  const defaultStudents = [
+    { id: 'std-101', name: 'Zayed Al-Hashimi', standard: 'Grade 10' },
+    { id: 'std-102', name: 'Amina Al-Mansoori', standard: 'Grade 11' },
+    { id: 'std-103', name: 'Ahmed Hassan', standard: 'Grade 9' },
+    { id: 'std-104', name: 'Fatima Saeed', standard: 'KG 2 Daycare' },
+    { id: 'std-105', name: 'Abhinav Kumar', standard: 'Grade 12' }
+  ];
+
+  const defaultStaff = [
+    { id: 'stf-201', name: 'Fatima Al-Mansoori', role: 'Teacher' },
+    { id: 'stf-202', name: 'Ayesha Rashid', role: 'Caregiver' },
+    { id: 'stf-203', name: 'Mariam Al-Zahra', role: 'Administrator' },
+    { id: 'stf-204', name: 'Tariq Mahmoud', role: 'Supervisor' }
+  ];
+
+  // Use provided data or fallback defaults
+  const activeData = (Array.isArray(data) && data.length > 0) 
+    ? data 
+    : (type === "student" ? defaultStudents : defaultStaff);
+
   const placeholder = type === "student" ? "Enter student name..." : "Enter staff name...";
 
   const getItemLabel = (item) => {
     if (!item) return '';
     if (typeof item === 'string') return item;
-    if (item.name) {
-      if (type === "student") {
-        return `${item.name} ${item.standard ? `(${item.standard})` : ''}`;
-      }
-      return `${item.name} ${item.role ? `(${item.role})` : ''}`;
+    
+    const nameStr = item.name || item.studentName || item.staffName || item.label || item.title || item.email || String(item.id || '');
+    if (!nameStr) return String(item.id || item.value || '');
+
+    if (type === "student") {
+      const gradeStr = item.standard || item.grade || '';
+      return gradeStr ? `${nameStr} (${gradeStr})` : nameStr;
     }
-    return item.label || String(item.id || item.value || '');
+    const roleStr = item.role || item.title || '';
+    return roleStr ? `${nameStr} (${roleStr})` : nameStr;
   };
 
   const getItemValue = (item) => {
@@ -34,18 +57,18 @@ export default function EntitySearchInput({
 
   useEffect(() => {
     if (value !== undefined && value !== null) {
-      const selected = data.find(item => String(getItemValue(item)) === String(value));
+      const selected = activeData.find(item => String(getItemValue(item)) === String(value));
       if (selected && !isOpen) {
         setSearchTerm(getItemLabel(selected));
       }
     }
-  }, [value, data, isOpen]);
+  }, [value, activeData, isOpen]);
 
   useEffect(() => {
     function handleClickOutside(e) {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setIsOpen(false);
-        const selected = data.find(item => String(getItemValue(item)) === String(value));
+        const selected = activeData.find(item => String(getItemValue(item)) === String(value));
         if (selected) {
           setSearchTerm(getItemLabel(selected));
         }
@@ -53,11 +76,11 @@ export default function EntitySearchInput({
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [value, data]);
+  }, [value, activeData]);
 
-  const filteredData = data.filter(item => {
+  const filteredData = activeData.filter(item => {
     const itemLabel = getItemLabel(item);
-    return itemLabel.toLowerCase().includes(searchTerm.toLowerCase());
+    return itemLabel.toLowerCase().includes((searchTerm || '').toLowerCase());
   });
 
   return (
@@ -148,7 +171,7 @@ export default function EntitySearchInput({
                     background: isSelected ? 'var(--card-bg-subtle, #F3F4F6)' : 'transparent',
                     display: 'flex',
                     alignItems: 'center',
-                    justify: 'space-between',
+                    justifyContent: 'space-between',
                     transition: 'background 0.15s ease'
                   }}
                 >
