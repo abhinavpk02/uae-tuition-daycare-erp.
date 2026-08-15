@@ -4,6 +4,7 @@ import { getTrashBinItems, restoreTrashItem, deleteTrashItemPermanently, emptyAl
 
 export default function CommonTrashWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const [items, setItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
 
@@ -18,6 +19,26 @@ export default function CommonTrashWidget() {
       window.removeEventListener('common_trash_updated', syncTrash);
     };
   }, []);
+
+  // Track mouse position to reveal common trash when moving to bottom-right corner
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      const distRight = window.innerWidth - e.clientX;
+      const distBottom = window.innerHeight - e.clientY;
+
+      // Reveal if cursor is within 160px of the bottom-right corner
+      if (distRight <= 160 && distBottom <= 160) {
+        setIsVisible(true);
+      } else if (!isOpen) {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [isOpen]);
 
   const handleRestore = (trashId) => {
     restoreTrashItem(trashId);
@@ -41,15 +62,36 @@ export default function CommonTrashWidget() {
 
   return (
     <>
-      {/* Floating Bottom-Right Big Bin Round Outline Button */}
+      {/* Invisible Corner Hotspot Trigger for Mouse Enter */}
       <div 
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => { if (!isOpen) setIsVisible(false); }}
+        style={{ 
+          position: 'fixed', 
+          bottom: '0px', 
+          right: '0px',
+          width: '160px',
+          height: '160px',
+          pointerEvents: (isVisible || isOpen) ? 'none' : 'auto',
+          zIndex: 9998
+        }}
+      />
+
+      {/* Floating Bottom-Right Big Bin Round Outline Button (Hidden by default, reveals on corner mouse move) */}
+      <div 
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => { if (!isOpen) setIsVisible(false); }}
         style={{ 
           position: 'fixed', 
           bottom: '24px', 
           right: '24px', 
           zIndex: 9999,
           display: 'flex',
-          alignItems: 'center'
+          alignItems: 'center',
+          opacity: (isVisible || isOpen) ? 1 : 0,
+          transform: (isVisible || isOpen) ? 'scale(1) translateY(0)' : 'scale(0.7) translateY(20px)',
+          pointerEvents: (isVisible || isOpen) ? 'auto' : 'none',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
       >
         <button
@@ -72,7 +114,7 @@ export default function CommonTrashWidget() {
             outline: 'none'
           }}
         >
-          {/* Big Bin New Icon */}
+          {/* Big Bin Icon */}
           <Trash2 size={26} color="#EF4444" />
           
           {items.length > 0 && (

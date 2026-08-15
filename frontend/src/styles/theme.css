@@ -119,9 +119,11 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
   overflow-x: hidden;
 }
 
-/* Sidebar Navigation (Matte Black & White) */
+/* CONSTANT LEFT SIDEBAR NAVIGATION */
 .sidebar {
   width: 290px;
+  min-width: 290px;
+  max-width: 290px;
   background: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
   padding: 20px 16px;
@@ -131,19 +133,22 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
   position: sticky;
   top: 0;
   height: 100vh;
-  overflow-y: auto;
+  max-height: 100vh;
+  overflow: hidden; /* CONSTANT UNMOVING FRAME */
   z-index: 100;
   transition: all 0.3s ease;
   box-shadow: var(--glass-shadow);
+  flex-shrink: 0;
 }
 
 .brand-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-bottom: 18px;
+  padding-bottom: 16px;
   border-bottom: 1px solid var(--border-color);
-  margin-bottom: 18px;
+  margin-bottom: 16px;
+  flex-shrink: 0;
 }
 
 .brand-icon {
@@ -173,6 +178,16 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+/* MOVABLE & SCROLLABLE TABS WRAPPER */
+.nav-tile-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+  margin-right: -4px;
+  scrollbar-width: thin;
 }
 
 /* MATTE BLACK & WHITE CONTROL CENTER SQUARE TILE NAV */
@@ -658,6 +673,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
     left: 0;
     right: 0;
     width: 100vw;
+    max-width: 100vw;
     height: calc(100vh - 70px);
     background: var(--bg-dark);
     padding: 20px;

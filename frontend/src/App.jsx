@@ -92,19 +92,21 @@ export default function App() {
         </div>
       </div>
 
-      {/* Sidebar Navigation */}
+      {/* Constant Left Sidebar Frame */}
       <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
-        <div>
-          <div className="brand-header">
-            <div className="brand-icon">
-              <Building2 size={24} />
-            </div>
-            <div>
-              <div className="brand-title">NEST</div>
-              <div className="brand-subtitle">Tuition & Daycare</div>
-            </div>
+        {/* Pinned Brand Header */}
+        <div className="brand-header">
+          <div className="brand-icon">
+            <Building2 size={24} />
           </div>
+          <div>
+            <div className="brand-title">NEST</div>
+            <div className="brand-subtitle">Tuition & Daycare</div>
+          </div>
+        </div>
 
+        {/* Movable & Scrollable Navigation Tabs Container */}
+        <div className="nav-tile-wrapper">
           <div className="nav-tile-grid">
             {canAccess('parent-portal') && activeRole === 'Parent' && (
               <div className="nav-tile-item">
@@ -240,7 +242,8 @@ export default function App() {
           </div>
         </div>
 
-        <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
+        {/* Pinned RBAC Mode Selector */}
+        <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid var(--border-color)', flexShrink: 0 }}>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <SearchableSelectInput
               label="ACTIVE RBAC MODE:"
