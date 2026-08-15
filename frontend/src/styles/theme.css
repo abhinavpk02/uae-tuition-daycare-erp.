@@ -639,7 +639,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
   }
 }
 
-/* MOBILE BREAKPOINT (<= 768px): OVERLAY SIDEBAR */
+/* MOBILE BREAKPOINT (<= 768px): OVERLAY SIDEBAR WITH 160PX BOTTOM SCROLL CLEARANCE */
 @media (max-width: 768px) {
   html, body {
     height: 100% !important;
@@ -690,9 +690,10 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
     height: 100dvh !important;
     max-height: 100dvh !important;
     background: var(--bg-sidebar) !important;
-    padding: 24px 20px calc(30px + env(safe-area-inset-bottom, 20px)) 20px !important;
+    padding: 24px 20px !important;
     z-index: 99999 !important;
     overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
     flex-direction: column !important;
     justify-content: space-between !important;
     box-sizing: border-box !important;
@@ -704,6 +705,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
     align-items: center !important;
     width: 100% !important;
     margin-bottom: 20px !important;
+    flex-shrink: 0 !important;
   }
 
   .sidebar .mobile-close-btn {
@@ -719,10 +721,12 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square {
     cursor: pointer !important;
   }
 
+  /* 160PX BOTTOM SCROLL CLEARANCE PAST IPHONE BROWSER URL BAR */
   .sidebar .nav-tile-wrapper {
     flex: 1 !important;
     overflow-y: auto !important;
-    padding-bottom: 8rem !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: calc(160px + env(safe-area-inset-bottom, 30px)) !important;
   }
 
   .sidebar .nav-tile-grid {
