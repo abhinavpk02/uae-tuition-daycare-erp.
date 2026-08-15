@@ -5,7 +5,7 @@ import os
 
 from app.core.database import init_db, verify_db_connection
 from app.api import auth, students, staff, attendance, billing_pos, accounting, reports, timetable, assets, roles, v1_endpoints
-from seed_data import seed
+from seed_data import ensure_seeded
 
 app = FastAPI(
     title="UAE Tuition & Daycare ERP API",
@@ -13,53 +13,55 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# STRICT CORS Origins Configuration: Only authorized production portal & local dev
-origins = [
-    "https://daycare-portal.vercel.app",
-    "https://uae-tuition-daycare-erp.vercel.app",
-    "http://localhost:3000"
-]
-
+# Open CORS Allow Origins to support Vercel production, preview deployments, and local dev
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include Routers
-app.include_router(auth.router, prefix="/api")
-app.include_router(students.router, prefix="/api")
-app.include_router(staff.router, prefix="/api")
-app.include_router(attendance.router, prefix="/api")
-app.include_router(billing_pos.router, prefix="/api")
-app.include_router(accounting.router, prefix="/api")
-app.include_router(reports.router, prefix="/api")
-app.include_router(timetable.router, prefix="/api")
-app.include_router(assets.router, prefix="/api")
-app.include_router(roles.router, prefix="/api")
-app.include_router(v1_endpoints.router, prefix="/api")
+# Dual-mount Routers (with /api and without prefix) for universal serverless route matching
+all_routers = [
+    auth.router,
+    students.router,
+    staff.router,
+    attendance.router,
+    billing_pos.router,
+    accounting.router,
+    reports.router,
+    timetable.router,
+    assets.router,
+    roles.router,
+    v1_endpoints.router
+]
+
+for router in all_routers:
+    app.include_router(router, prefix="/api")
+    app.include_router(router)
 
 
 @app.on_event("startup")
 async def startup_event():
-    # 1. Verify DB Connection before accepting traffic
+    print("🚀 Initializing UAE Tuition & Daycare ERP Backend...")
     try:
         await verify_db_connection()
-        print("✔ Production Database connection verified successfully.")
+        print("✔ Remote Turso libSQL Database connection verified.")
     except Exception as e:
-        print(f"⚠ Warning: Initial DB verification check: {e}")
+        print(f"⚠ Warning during DB verification: {e}")
 
-    # 2. Initialize schema / seed if required
-    if not os.path.exists("./erp.db"):
-        print("Database file erp.db not found. Initializing schema...")
-        await init_db()
+    try:
+        await ensure_seeded()
+        print("✔ Database schema & auto-seed check complete.")
+    except Exception as e:
+        print(f"⚠ Warning during schema auto-seed: {e}")
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+@app.get("/health", include_in_schema=False)
 @app.get("/api/health")
 async def health_check():
-    return {"status": "online", "system": "UAE Tuition & Daycare ERP", "environment": "production"}
+    return {"status": "online", "system": "UAE Tuition & Daycare ERP", "environment": "production", "database": "Turso libSQL"}
