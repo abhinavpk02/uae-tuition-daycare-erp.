@@ -9,9 +9,9 @@ const getBaseUrl = () => {
     return envUrl;
   }
 
-  // 2. Strict Production Environment Lock-in (Vercel Deployment Detection)
+  // 2. Production Environment Dynamic Host Lock-in (Vercel Active Deployment)
   if (typeof window !== 'undefined' && window.location && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return 'https://uae-tuition-daycare-erp.vercel.app';
+    return window.location.origin;
   }
 
   // 3. Local Development Fallback
