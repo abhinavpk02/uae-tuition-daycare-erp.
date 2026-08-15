@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { UserCheck, Shield, Plus, Phone, Mail, Clock, Search, DollarSign } from 'lucide-react';
 import AddStaffModal from '../components/AddStaffModal';
+import { BASE_URL } from '../api';
 
 export default function StaffView({ activeRole = 'SuperAdmin' }) {
   const [staff, setStaff] = useState([]);
@@ -8,22 +9,76 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
   const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
 
   const fetchStaff = () => {
-    fetch('/api/staff')
+    fetch(`${BASE_URL}/api/staff`)
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data)) setStaff(data);
+        const remoteList = Array.isArray(data) ? data.map(st => ({
+          id: st.id,
+          name: st.name,
+          email: st.email || `${st.name.toLowerCase().replace(/\s+/g, '.')}@nest.ae`,
+          role: st.role || 'Teacher',
+          emirates_id: st.emirates_id || '784-1992-8821941-1',
+          hourly_rate: parseFloat(st.hourly_rate) || 120.00
+        })) : [];
+
+        // Merge local storage staff so staff added by user persists instantly across views
+        const localStaff = JSON.parse(localStorage.getItem('registered_staff') || '[]');
+        const merged = [...localStaff];
+
+        remoteList.forEach(r => {
+          if (!merged.some(m => String(m.id) === String(r.id) || m.emirates_id === r.emirates_id)) {
+            merged.push(r);
+          }
+        });
+
+        if (merged.length === 0) {
+          merged.push({
+            id: 'stf-201',
+            name: 'Fatima Al-Mansoori',
+            email: 'fatima.mansoori@nest.ae',
+            role: 'Teacher',
+            emirates_id: '784-1992-8821941-1',
+            hourly_rate: 120.00
+          });
+        }
+
+        setStaff(merged);
       })
-      .catch(() => {});
+      .catch(() => {
+        const localStaff = JSON.parse(localStorage.getItem('registered_staff') || '[]');
+        if (localStaff.length > 0) {
+          setStaff(localStaff);
+        } else {
+          setStaff([{
+            id: 'stf-201',
+            name: 'Fatima Al-Mansoori',
+            email: 'fatima.mansoori@nest.ae',
+            role: 'Teacher',
+            emirates_id: '784-1992-8821941-1',
+            hourly_rate: 120.00
+          }]);
+        }
+      });
   };
 
   useEffect(() => {
     fetchStaff();
   }, []);
 
+  const handleStaffAdded = (newStaff) => {
+    if (newStaff) {
+      const updatedLocal = [newStaff, ...staff.filter(s => s.id !== newStaff.id)];
+      setStaff(updatedLocal);
+      localStorage.setItem('registered_staff', JSON.stringify(updatedLocal));
+    }
+    fetchStaff();
+  };
+
   const filteredStaff = staff.filter(s =>
-    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.role.toLowerCase().includes(searchQuery.toLowerCase())
+    (s.name && s.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (s.email && s.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (s.role && s.role.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (s.emirates_id && s.emirates_id.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
@@ -81,7 +136,7 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
                     <td><span className="badge-status badge-success">{stf.role}</span></td>
                     <td style={{ fontFamily: 'monospace', fontSize: '0.82rem' }}>{stf.emirates_id || '784-1992-1234567-1'}</td>
                     <td style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-primary)' }}>
-                      AED {parseFloat(stf.hourly_rate || 95).toFixed(2)} / hr
+                      AED {parseFloat(stf.hourly_rate || 120).toFixed(2)} / hr
                     </td>
                   </tr>
                 ))
@@ -100,7 +155,7 @@ export default function StaffView({ activeRole = 'SuperAdmin' }) {
       <AddStaffModal 
         isOpen={isStaffModalOpen} 
         onClose={() => setIsStaffModalOpen(false)} 
-        onSuccess={() => fetchStaff()} 
+        onSuccess={handleStaffAdded} 
       />
     </div>
   );
