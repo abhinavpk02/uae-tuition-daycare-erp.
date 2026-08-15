@@ -1,25 +1,27 @@
-// API Utility module for UAE Tuition & Daycare ERP
+// Centralized Hardened API Utility Module for UAE Tuition & Daycare ERP
 const getBaseUrl = () => {
-  if (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
+  // 1. Explicit Environment Variable Check (Vite / Next.js / React App)
+  const envUrl = 
+    (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) ||
+    (typeof process !== 'undefined' && process.env && (process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL));
+
+  if (envUrl && envUrl.trim() !== '') {
+    return envUrl;
   }
-  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+
+  // 2. Strict Production Environment Lock-in (Vercel Deployment Detection)
+  if (typeof window !== 'undefined' && window.location && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return 'https://uae-tuition-daycare-erp.vercel.app';
   }
-  if (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) {
-    return process.env.REACT_APP_API_URL;
-  }
-  // Production default target: https://daycare-portal.vercel.app or local port 3000 proxy
-  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-    return 'https://daycare-portal.vercel.app';
-  }
-  return 'http://localhost:3000';
+
+  // 3. Local Development Fallback
+  return 'http://localhost:8000';
 };
 
 export const BASE_URL = getBaseUrl().replace(/\/$/, '');
 
 /**
- * Submits a new student registration to the backend database via POST /api/v1/students
+ * Submits a new student registration to the production backend database via POST /api/v1/students
  * @param {Object} studentData
  * @returns {Promise<Object>} Backend confirmation response
  */

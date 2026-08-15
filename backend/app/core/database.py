@@ -1,5 +1,6 @@
 import os
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy import text
 from app.models.domain import Base
 
 try:
@@ -8,57 +9,40 @@ try:
 except ImportError:
     pass
 
-# Determine Database Connection URL
-TURSO_DB_URL = os.getenv("TURSO_DATABASE_URL")
-TURSO_TOKEN = os.getenv("TURSO_AUTH_TOKEN")
-ENV_DB_URL = os.getenv("DATABASE_URL")
+# Production Database Connection URL Configuration
+RAW_DATABASE_URL = os.getenv("DATABASE_URL")
 
-target_url = None
-
-if os.getenv("VERCEL"):
-    # On Vercel Serverless, default to /tmp/erp.db unless explicit PostgreSQL or supported DB URL is set
-    if ENV_DB_URL and ("postgres" in ENV_DB_URL):
-        target_url = ENV_DB_URL
-    else:
-        target_url = "sqlite+aiosqlite:////tmp/erp.db"
+if RAW_DATABASE_URL:
+    target_url = RAW_DATABASE_URL
+    # Ensure correct async driver scheme
+    if target_url.startswith("postgresql://"):
+        target_url = target_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    elif target_url.startswith("postgres://"):
+        target_url = target_url.replace("postgres://", "postgresql+asyncpg://", 1)
 else:
-    if TURSO_DB_URL:
-        target_url = TURSO_DB_URL
-    elif ENV_DB_URL:
-        target_url = ENV_DB_URL
-    else:
-        target_url = "sqlite+aiosqlite:///./erp.db"
+    # Local Development Fallback
+    target_url = "sqlite+aiosqlite:////tmp/erp.db" if os.getenv("VERCEL") else "sqlite+aiosqlite:///./erp.db"
 
-# 1. Format Turso URLs if applicable
-if target_url.startswith("libsql://"):
-    target_url = target_url.replace("libsql://", "sqlite+libsql://", 1)
-elif target_url.startswith("https://") and "turso.io" in target_url:
-    target_url = target_url.replace("https://", "sqlite+libsql://", 1)
+# Engine configuration with production connection pooling & health checks
+is_sqlite = "sqlite" in target_url
 
-if TURSO_TOKEN and "turso.io" in target_url and "authToken=" not in target_url:
-    delimiter = "&" if "?" in target_url else "?"
-    target_url = f"{target_url}{delimiter}authToken={TURSO_TOKEN}"
+engine_kwargs = {
+    "echo": False,
+    "future": True
+}
 
-# 2. Format PostgreSQL URLs
-if target_url.startswith("postgresql://"):
-    target_url = target_url.replace("postgresql://", "postgresql+asyncpg://", 1)
-elif target_url.startswith("postgres://"):
-    target_url = target_url.replace("postgres://", "postgresql+asyncpg://", 1)
+if is_sqlite:
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
+else:
+    # Production PostgreSQL Connection Pooling Parameters
+    engine_kwargs.update({
+        "pool_size": 5,
+        "max_overflow": 10,
+        "pool_pre_ping": True,  # Actively tests connection health before dispatch
+        "pool_recycle": 300     # Recycles connection pool every 5 mins to prevent stale serverless timeouts
+    })
 
-try:
-    engine = create_async_engine(
-        target_url,
-        echo=False,
-        connect_args={"check_same_thread": False} if "sqlite" in target_url else {}
-    )
-except Exception:
-    # Safe fallback for serverless sandbox
-    target_url = "sqlite+aiosqlite:////tmp/erp.db"
-    engine = create_async_engine(
-        target_url,
-        echo=False,
-        connect_args={"check_same_thread": False}
-    )
+engine = create_async_engine(target_url, **engine_kwargs)
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
@@ -67,6 +51,11 @@ AsyncSessionLocal = async_sessionmaker(
     autocommit=False,
     autoflush=False
 )
+
+async def verify_db_connection():
+    """Startup health check verifying DB ping execution before accepting traffic."""
+    async with engine.begin() as conn:
+        await conn.execute(text("SELECT 1"))
 
 async def init_db():
     async with engine.begin() as conn:
