@@ -308,6 +308,29 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   background: var(--bg-card);
 }
 
+/* UNIFIED 100% OPAQUE MATTE / BLUR SEARCH RESULTS POPOVER */
+.search-results-popover {
+  background: var(--bg-card) !important;
+  opacity: 1 !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid var(--border-highlight) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+  z-index: 99999 !important;
+}
+
+[data-theme="light"] .search-results-popover {
+  background: #FFFFFF !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22), 0 4px 14px rgba(0, 0, 0, 0.1) !important;
+  border: 1.5px solid rgba(5, 150, 105, 0.6) !important;
+}
+
+[data-theme="dark"] .search-results-popover {
+  background: #0D0D0D !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.95), 0 4px 16px rgba(0, 0, 0, 0.8) !important;
+  border: 1.5px solid #FFFFFF !important;
+}
+
 /* MATTE BLACK CARDS */
 .glass-card {
   background: var(--bg-card);

@@ -70,22 +70,20 @@ export default function SearchableSelectInput({ label, placeholder, options = []
       </div>
 
       {isOpen && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          left: 0,
-          right: 0,
-          marginTop: '6px',
-          background: 'var(--bg-card)',
-          opacity: 1,
-          border: '1px solid var(--border-highlight)',
-          borderRadius: '16px',
-          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.5)',
-          zIndex: 9999,
-          padding: '6px',
-          maxHeight: '220px',
-          overflowY: 'auto'
-        }}>
+        <div 
+          className="search-results-popover"
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            marginTop: '6px',
+            borderRadius: '16px',
+            padding: '6px',
+            maxHeight: '240px',
+            overflowY: 'auto'
+          }}
+        >
           {filteredOptions.length > 0 ? (
             filteredOptions.map(opt => (
               <div
