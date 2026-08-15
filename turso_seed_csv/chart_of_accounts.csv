@@ -1,0 +1,10 @@
+id,code,name,type,description
+coa-1000,1000,Cash & Bank Balance,Asset,Primary bank and cash account
+coa-1100,1100,Accounts Receivable,Asset,Student fee receivables
+coa-1200,1200,Inventory Asset,Asset,Physical inventory on hand
+coa-2000,2000,Accounts Payable,Liability,Payables to vendors
+coa-3000,3000,Owner Capital / Equity,Equity,Initial owner capital
+coa-4000,4000,Tuition Fee Revenue,Revenue,Tuition revenue
+coa-4100,4100,Daycare Service Revenue,Revenue,Daycare service billing
+coa-4200,4200,POS Sales Revenue,Revenue,Point of sale item sales
+coa-5000,5000,Staff Payroll Expense,Expense,Teacher and staff salaries

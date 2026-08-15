@@ -1,0 +1,4 @@
+id,email,hash,role,is_active
+usr-admin-001,admin@uaeerp.ae,$2b$12$eImiTXuWVxfM37uY4JANjO5yYVqJ7wJ5YVqJ7wJ5YVqJ7wJ5YVqJ,SuperAdmin,true
+usr-teacher-001,fatima@uaeerp.ae,staff123,Teacher,true
+usr-parent-001,parent@uaeerp.ae,parent123,Parent,true
