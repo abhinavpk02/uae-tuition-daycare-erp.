@@ -41,7 +41,7 @@ export default function CommonTrashWidget() {
 
   return (
     <>
-      {/* Floating Bottom-Right Common Trash Trigger Button */}
+      {/* Floating Bottom-Right Round Outline Trash Trigger Button */}
       <div 
         style={{ 
           position: 'fixed', 
@@ -56,44 +56,42 @@ export default function CommonTrashWidget() {
           onClick={() => setIsOpen(!isOpen)}
           title="Open Common Trash Bin"
           style={{
+            width: '52px',
+            height: '52px',
+            borderRadius: '50%',
             background: 'var(--bg-card)',
             color: 'var(--text-main)',
-            border: '1.5px solid var(--border-color)',
-            borderRadius: '30px',
-            padding: '10px 18px',
+            border: '2px solid var(--border-color)',
             display: 'flex',
             alignItems: 'center',
-            gap: '10px',
+            justifyContent: 'center',
             cursor: 'pointer',
             boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-            transition: 'all 0.25s ease',
-            fontFamily: 'var(--font-heading)'
+            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+            position: 'relative',
+            outline: 'none'
           }}
         >
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <Trash2 size={18} color="#EF4444" />
-            {items.length > 0 && (
-              <span 
-                style={{
-                  position: 'absolute',
-                  top: '-8px',
-                  right: '-10px',
-                  background: '#EF4444',
-                  color: '#FFFFFF',
-                  fontSize: '0.65rem',
-                  fontWeight: 800,
-                  borderRadius: '10px',
-                  padding: '2px 6px',
-                  lineHeight: 1
-                }}
-              >
-                {items.length}
-              </span>
-            )}
-          </div>
-          <span style={{ fontSize: '0.82rem', fontWeight: 700, letterSpacing: '0.02em' }}>
-            Common Trash
-          </span>
+          <Trash2 size={22} color="#EF4444" />
+          {items.length > 0 && (
+            <span 
+              style={{
+                position: 'absolute',
+                top: '-4px',
+                right: '-4px',
+                background: '#EF4444',
+                color: '#FFFFFF',
+                fontSize: '0.65rem',
+                fontWeight: 800,
+                borderRadius: '10px',
+                padding: '2px 6px',
+                lineHeight: 1,
+                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)'
+              }}
+            >
+              {items.length}
+            </span>
+          )}
         </button>
 
         {/* Categorized Common Trash Drawer / Modal */}
@@ -101,7 +99,7 @@ export default function CommonTrashWidget() {
           <div 
             style={{
               position: 'absolute',
-              bottom: '56px',
+              bottom: '64px',
               right: '0',
               width: '380px',
               maxHeight: '520px',
