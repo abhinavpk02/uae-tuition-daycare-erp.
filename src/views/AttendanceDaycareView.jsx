@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Clock, QrCode, CheckCircle2, UserCheck, Calculator, DollarSign, AlertCircle } from 'lucide-react';
-import SearchableEntitySelect from '../components/SearchableEntitySelect';
+import EntitySearchInput from '../components/EntitySearchInput';
+import GuestQuickPay from '../components/GuestQuickPay';
 
 export default function AttendanceDaycareView() {
   const [students, setStudents] = useState([]);
@@ -83,7 +84,7 @@ export default function AttendanceDaycareView() {
 
   const calculateDaycareBilling = (studentId) => {
     setDaycareResult(null);
-    const std = students.find(s => String(s.id) === String(studentId)) || { name: 'Zayed Al-Hashimi' };
+    const std = students.find(s => String(s.id) === String(studentId)) || { name: 'Student' };
     setDaycareResult({
       student_name: std.name,
       total_hours: 12.5,
@@ -94,7 +95,7 @@ export default function AttendanceDaycareView() {
 
   const processStaffPayroll = (staffId) => {
     setPayrollResult(null);
-    const st = staff.find(s => String(s.id) === String(staffId)) || { name: 'Fatima Al-Mansoori', hourly_rate: 120 };
+    const st = staff.find(s => String(s.id) === String(staffId)) || { name: 'Staff Member', hourly_rate: 120 };
     setPayrollResult({
       staff_name: st.name,
       emirates_id: st.emirates_id || '784-1992-8821941-1',
@@ -107,12 +108,12 @@ export default function AttendanceDaycareView() {
     <div className="view-container">
       <div style={{ marginBottom: '24px' }}>
         <h2 style={{ fontFamily: 'Outfit', fontSize: '1.6rem', color: 'var(--text-main)' }}>Attendance Webhook & Daycare Billing Engine</h2>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Real-time scanner check-in/out triggering daycare hourly calculations and staff payroll ledger entries</p>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Real-time scanner check-in/out triggering daycare hourly calculations, guest quick pay, and staff payroll ledger entries</p>
       </div>
 
       <div className="grid-split-responsive" style={{ marginBottom: '28px' }}>
         
-        {/* RFID Scanner Simulator */}
+        {/* RFID Scanner Simulator Card */}
         <div className="glass-card">
           <h3 style={{ fontFamily: 'Outfit', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
             <QrCode size={20} color="var(--accent-primary)" /> RFID / Scanner Terminal Simulator
@@ -144,18 +145,14 @@ export default function AttendanceDaycareView() {
             </div>
           </div>
 
-          {/* STANDARDIZED SEARCHABLE ENTITY SELECT (RFID MODULE) */}
+          {/* STANDARDIZED ANONYMIZED ENTITY SEARCH INPUT */}
           <div className="form-group">
-            <SearchableEntitySelect 
+            <EntitySearchInput 
+              type={scanType === 'Student' ? 'student' : 'staff'}
               label={`Search & Select Registered ${scanType}`}
-              placeholder={`Type name directly to search ${scanType.toLowerCase()}...`}
               data={scanType === 'Student' ? students : staff}
-              formatLabel={(item) => scanType === 'Student' 
-                ? `${item.name} (${item.standard || 'Student'})` 
-                : `${item.name} (AED ${item.hourly_rate || 120}/hr)`
-              }
               value={selectedEntity}
-              onSelect={(item) => setSelectedEntity(item.id)}
+              onSelect={(item) => setSelectedEntity(item.id || item)}
             />
           </div>
 
@@ -170,7 +167,7 @@ export default function AttendanceDaycareView() {
           )}
         </div>
 
-        {/* Automated Engine Triggers */}
+        {/* Automated Engine Triggers Card */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           {/* Module 2: Daycare Monthly Billing Calculator Card */}
@@ -183,12 +180,11 @@ export default function AttendanceDaycareView() {
             </p>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: '180px' }}>
-                <SearchableEntitySelect 
-                  placeholder="Search student name..."
+                <EntitySearchInput 
+                  type="student"
                   data={students}
-                  formatLabel={(s) => `${s.name} (${s.standard || 'Grade 10'}) - 35 AED/hr`}
                   value={selectedBillingStudent}
-                  onSelect={(item) => setSelectedBillingStudent(item.id)}
+                  onSelect={(item) => setSelectedBillingStudent(item.id || item)}
                 />
               </div>
               <button className="btn btn-emerald" onClick={() => calculateDaycareBilling(selectedBillingStudent)}>
@@ -209,12 +205,11 @@ export default function AttendanceDaycareView() {
             </p>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: '180px' }}>
-                <SearchableEntitySelect 
-                  placeholder="Search staff name..."
+                <EntitySearchInput 
+                  type="staff"
                   data={staff}
-                  formatLabel={(st) => `${st.name} (${st.role || 'Teacher'}) - ${st.hourly_rate || 120} AED/hr`}
                   value={selectedPayrollStaff}
-                  onSelect={(item) => setSelectedPayrollStaff(item.id)}
+                  onSelect={(item) => setSelectedPayrollStaff(item.id || item)}
                 />
               </div>
               <button className="btn btn-emerald" onClick={() => processStaffPayroll(selectedPayrollStaff)}>
@@ -223,6 +218,11 @@ export default function AttendanceDaycareView() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* NEW MODULE: GUEST QUICK PAY CARD FOR 1-TIMERS */}
+      <div style={{ marginBottom: '28px' }}>
+        <GuestQuickPay />
       </div>
 
       {/* Engine Results Output */}
