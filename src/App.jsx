@@ -96,13 +96,35 @@ export default function App() {
       <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
         {/* Pinned Brand Header */}
         <div className="brand-header">
-          <div className="brand-icon">
-            <Building2 size={24} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="brand-icon">
+              <Building2 size={24} />
+            </div>
+            <div>
+              <div className="brand-title">NEST</div>
+              <div className="brand-subtitle">Tuition & Daycare</div>
+            </div>
           </div>
-          <div>
-            <div className="brand-title">NEST</div>
-            <div className="brand-subtitle">Tuition & Daycare</div>
-          </div>
+
+          {mobileMenuOpen && (
+            <button 
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                background: 'var(--card-bg-subtle)',
+                border: '1px solid var(--border-color)',
+                color: 'var(--text-main)',
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <X size={20} />
+            </button>
+          )}
         </div>
 
         {/* Movable & Scrollable Navigation Tabs Container */}
