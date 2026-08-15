@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, RotateCcw, X, RefreshCw, Folder } from 'lucide-react';
+import { Trash2, RotateCcw, X } from 'lucide-react';
 import { getTrashBinItems, restoreTrashItem, deleteTrashItemPermanently, emptyAllTrash } from '../utils/trashBin';
 
 export default function CommonTrashWidget() {
@@ -28,7 +28,7 @@ export default function CommonTrashWidget() {
   };
 
   const handleEmptyTrash = () => {
-    if (window.confirm('Are you sure you want to permanently delete all items in Common Trash?')) {
+    if (window.confirm('Are you sure you want to permanently empty all trash items?')) {
       emptyAllTrash();
     }
   };
@@ -41,7 +41,7 @@ export default function CommonTrashWidget() {
 
   return (
     <>
-      {/* Floating Bottom-Right Round Outline Trash Trigger Button */}
+      {/* Floating Bottom-Right Big Bin Round Outline Button */}
       <div 
         style={{ 
           position: 'fixed', 
@@ -54,39 +54,41 @@ export default function CommonTrashWidget() {
       >
         <button
           onClick={() => setIsOpen(!isOpen)}
-          title="Open Common Trash Bin"
+          title="Trash Bin"
           style={{
-            width: '52px',
-            height: '52px',
+            width: '58px',
+            height: '58px',
             borderRadius: '50%',
             background: 'var(--bg-card)',
             color: 'var(--text-main)',
-            border: '2px solid var(--border-color)',
+            border: '2.5px solid var(--border-color)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+            boxShadow: '0 12px 35px rgba(0,0,0,0.6)',
             transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
             outline: 'none'
           }}
         >
-          <Trash2 size={22} color="#EF4444" />
+          {/* Big Bin New Icon */}
+          <Trash2 size={26} color="#EF4444" />
+          
           {items.length > 0 && (
             <span 
               style={{
                 position: 'absolute',
-                top: '-4px',
-                right: '-4px',
+                top: '-2px',
+                right: '-2px',
                 background: '#EF4444',
                 color: '#FFFFFF',
-                fontSize: '0.65rem',
+                fontSize: '0.68rem',
                 fontWeight: 800,
-                borderRadius: '10px',
-                padding: '2px 6px',
+                borderRadius: '12px',
+                padding: '2px 7px',
                 lineHeight: 1,
-                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)'
+                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.5)'
               }}
             >
               {items.length}
@@ -94,39 +96,40 @@ export default function CommonTrashWidget() {
           )}
         </button>
 
-        {/* Categorized Common Trash Drawer / Modal */}
+        {/* Minimal Bin Drawer / Modal */}
         {isOpen && (
           <div 
             style={{
               position: 'absolute',
-              bottom: '64px',
+              bottom: '72px',
               right: '0',
-              width: '380px',
+              width: '360px',
               maxHeight: '520px',
               background: 'var(--bg-card)',
               border: '1.5px solid var(--border-color)',
-              borderRadius: '20px',
+              borderRadius: '22px',
               padding: '18px',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.7)',
+              boxShadow: '0 24px 64px rgba(0, 0, 0, 0.8)',
               display: 'flex',
               flexDirection: 'column',
               zIndex: 10000,
-              backdropFilter: 'blur(20px)'
+              backdropFilter: 'blur(24px)'
             }}
           >
-            {/* Drawer Header */}
+            {/* Minimal Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Trash2 size={18} color="#EF4444" />
-                <h4 style={{ fontFamily: 'Outfit', fontSize: '1rem', color: 'var(--text-main)', margin: 0 }}>
-                  Categorized Common Trash ({items.length})
-                </h4>
+                <Trash2 size={22} color="#EF4444" />
+                <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-main)' }}>
+                  ({items.length})
+                </span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 {items.length > 0 && (
                   <button 
                     onClick={handleEmptyTrash}
-                    style={{ background: 'transparent', border: 'none', color: '#EF4444', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer' }}
+                    style={{ background: 'transparent', border: 'none', color: '#EF4444', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                   >
                     Empty
                   </button>
@@ -198,7 +201,7 @@ export default function CommonTrashWidget() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <button
                           onClick={() => handleRestore(item.trashId)}
-                          title="Restore record to active database"
+                          title="Restore record"
                           style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -235,8 +238,8 @@ export default function CommonTrashWidget() {
                 ))
               ) : (
                 <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '36px 12px', fontSize: '0.82rem' }}>
-                  <Trash2 size={24} color="var(--text-dim)" style={{ marginBottom: '8px' }} />
-                  <div>No deleted items in {selectedCategory === 'All' ? 'trash' : selectedCategory}.</div>
+                  <Trash2 size={26} color="var(--text-dim)" style={{ marginBottom: '8px' }} />
+                  <div>Empty ({selectedCategory})</div>
                 </div>
               )}
             </div>
