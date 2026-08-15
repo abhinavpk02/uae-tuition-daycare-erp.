@@ -256,13 +256,16 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   box-sizing: border-box;
 }
 
-.header-bar {
+/* ALIGNED VIEW HEADER BAR */
+.header-bar, .view-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .header-actions {
@@ -424,6 +427,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  align-items: start;
 }
 
 /* Even 50/50 Responsive Layout Grid (1fr 1fr) */
@@ -434,9 +438,10 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  align-items: start;
 }
 
-/* Tables */
+/* Tables Alignment & Cell Padding */
 .table-responsive-wrapper {
   width: 100%;
   max-width: 100%;
@@ -462,6 +467,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   letter-spacing: 0.06em;
   padding: 12px 16px;
   text-align: left;
+  vertical-align: middle;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -470,16 +476,18 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   border-bottom: 1px solid var(--border-color);
   font-size: 0.88rem;
   color: var(--text-main);
+  vertical-align: middle;
 }
 
 .custom-table tr:hover td {
   background: var(--card-bg-subtle);
 }
 
-/* Modern Minimalist Buttons */
+/* Modern Minimalist Buttons Alignment */
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 10px 18px;
   border-radius: 14px;
@@ -490,6 +498,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: 42px;
   font-family: var(--font-body) !important;
+  box-sizing: border-box;
 }
 
 .btn-emerald {
@@ -522,12 +531,14 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   border-color: var(--border-highlight);
 }
 
-/* Modern Minimalist Inputs & Forms */
+/* Form Controls & Inputs Alignment */
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
   margin-bottom: 16px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-label {
@@ -536,6 +547,9 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .form-input, .form-select {
@@ -547,7 +561,10 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   font-size: 0.88rem;
   outline: none;
   transition: all 0.2s ease;
+  height: 42px;
   min-height: 42px;
+  width: 100%;
+  box-sizing: border-box;
   font-family: var(--font-body) !important;
 }
 
@@ -556,7 +573,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   box-shadow: 0 0 0 3px var(--accent-primary-glow);
 }
 
-/* Badges */
+/* Badges Alignment */
 .badge-status {
   padding: 4px 10px;
   border-radius: 10px;
@@ -564,7 +581,9 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   font-weight: 600;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
+  line-height: 1;
 }
 
 .badge-success {
@@ -607,7 +626,7 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
   cursor: pointer;
 }
 
-/* RESPONSIVE BREAKPOINTS */
+/* RESPONSIVE BREAKPOINTS & FLEX ALIGNMENT */
 @media (max-width: 1024px) {
   .grid-2col-responsive,
   .grid-split-responsive {
@@ -641,7 +660,6 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
     z-index: 1000;
   }
 
-  /* HIDE REDUNDANT SECOND BRAND LOGO IN MOBILE DRAWER MENU */
   .sidebar .brand-header {
     display: none !important;
   }
@@ -666,7 +684,6 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
     box-sizing: border-box !important;
   }
 
-  /* EXECUTIVE KPI CARDS PERFECT 2-COLUMN EQUAL SMARTPHONE GRID */
   .grid-stats-large {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 10px !important;
@@ -707,7 +724,6 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-val-square, .stat-lbl-square, .nav-t
     gap: 12px;
   }
 
-  /* PERFECT FIXED CENTERED ALIGNMENT FOR NOTIFICATION DRAWER ON SMARTPHONES */
   .notif-drawer-popover {
     position: fixed !important;
     top: 75px !important;
