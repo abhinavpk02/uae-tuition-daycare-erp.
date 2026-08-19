@@ -21,9 +21,9 @@ class UserRole(str, enum.Enum):
     Parent = "Parent"
 
 class StudentProgram(str, enum.Enum):
-    Tuition = "Tuition"
-    Daycare = "Daycare"
-    Both = "Both"
+    Tuition = "Tuition Only"
+    Daycare = "Daycare Only"
+    Both = "Tuition & Daycare"
 
 class SubjectTier(str, enum.Enum):
     HS = "HS"      # High School
@@ -121,7 +121,7 @@ class Student(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     dob: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     standard: Mapped[str] = mapped_column(String(50), nullable=False) # e.g. Grade 10, KG 2
-    program: Mapped[StudentProgram] = mapped_column(SQLEnum(StudentProgram), nullable=False, default=StudentProgram.Tuition)
+    program: Mapped[StudentProgram] = mapped_column(SQLEnum(StudentProgram), nullable=False, default=StudentProgram.Both)
 
     parent: Mapped["ProfileParent"] = relationship("ProfileParent", back_populates="students")
     subjects: Mapped[List["Subject"]] = relationship("Subject", secondary=enrollments, back_populates="students")
@@ -181,7 +181,7 @@ class Asset(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     category: Mapped[str] = mapped_column(String(100), nullable=False)
     item_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    value: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, default=0.00)
+    value: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False, default=0.00)
     depreciation_rate: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False, default=0.00) # e.g. 10.00 (%)
 
 
@@ -215,8 +215,8 @@ class LedgerLine(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     entry_id: Mapped[str] = mapped_column(String(36), ForeignKey("journal_entries.id", ondelete="CASCADE"), nullable=False)
     account_id: Mapped[str] = mapped_column(String(36), ForeignKey("chart_of_accounts.id", ondelete="RESTRICT"), nullable=False)
-    debit: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=0.00, nullable=False)
-    credit: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=0.00, nullable=False)
+    debit: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0.00, nullable=False)
+    credit: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0.00, nullable=False)
 
     journal_entry: Mapped["JournalEntry"] = relationship("JournalEntry", back_populates="lines")
     account: Mapped["ChartOfAccounts"] = relationship("ChartOfAccounts", back_populates="ledger_lines")
@@ -256,4 +256,3 @@ class RolePermission(Base):
     manage_students_staff: Mapped[bool] = mapped_column(Boolean, default=True)
     admissions_onboarding: Mapped[bool] = mapped_column(Boolean, default=True)
     operational_details: Mapped[bool] = mapped_column(Boolean, default=True)
-
