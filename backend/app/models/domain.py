@@ -112,7 +112,7 @@ class ProfileStaff(Base):
     timetable_slots: Mapped[List["Timetable"]] = relationship("Timetable", back_populates="staff")
 
 
-# 2. Academic & Daycare
+# 2. Unified Student Profile & Billing Models
 class Student(Base):
     __tablename__ = "students"
 
@@ -122,10 +122,41 @@ class Student(Base):
     dob: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     standard: Mapped[str] = mapped_column(String(50), nullable=False) # e.g. Grade 10, KG 2
     program: Mapped[StudentProgram] = mapped_column(SQLEnum(StudentProgram), nullable=False, default=StudentProgram.Both)
+    
+    # Unified Student Profile Flags for Engine Routing
+    is_tuition_student: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    is_daycare_student: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     parent: Mapped["ProfileParent"] = relationship("ProfileParent", back_populates="students")
     subjects: Mapped[List["Subject"]] = relationship("Subject", secondary=enrollments, back_populates="students")
     invoices: Mapped[List["Invoice"]] = relationship("Invoice", back_populates="student")
+    daycare_sessions: Mapped[List["DaycareSession"]] = relationship("DaycareSession", back_populates="student", cascade="all, delete-orphan")
+    tuition_enrollments: Mapped[List["TuitionEnrollment"]] = relationship("TuitionEnrollment", back_populates="student", cascade="all, delete-orphan")
+
+
+class DaycareSession(Base):
+    __tablename__ = "daycare_sessions"
+
+    session_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    student_id: Mapped[str] = mapped_column(String(36), ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
+    check_in_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    check_out_time: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    hourly_rate: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False, default=Decimal("35.00"))
+    total_calculated_fee: Mapped[Optional[Decimal]] = mapped_column(Numeric(10, 2), nullable=True)
+
+    student: Mapped["Student"] = relationship("Student", back_populates="daycare_sessions")
+
+
+class TuitionEnrollment(Base):
+    __tablename__ = "tuition_enrollments"
+
+    enrollment_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    student_id: Mapped[str] = mapped_column(String(36), ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
+    program_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    monthly_fee: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="Active") # "Active" / "Inactive"
+
+    student: Mapped["Student"] = relationship("Student", back_populates="tuition_enrollments")
 
 
 class Subject(Base):
