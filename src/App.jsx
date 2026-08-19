@@ -15,6 +15,7 @@ import TimetableView from './views/TimetableView';
 import ParentPortalView from './views/ParentPortalView';
 import RBACManagementView from './views/RBACManagementView';
 import AIAssistantView from './views/AIAssistantView';
+import StudentProfileView from './views/StudentProfileView';
 import SearchableSelectInput from './components/SearchableSelectInput';
 import CommonTrashWidget from './components/CommonTrashWidget';
 import NestLogo from './components/NestLogo';
@@ -34,10 +35,19 @@ export default function App() {
   const [theme, setTheme] = useState('light');
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
 
+  // Check URL query parameters for standalone student profile route (e.g. ?student_id=std-101)
+  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const studentIdFromUrl = urlParams ? urlParams.get('student_id') : null;
+
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     document.title = "NESTIN ERP — Tuition & Daycare";
   }, [theme]);
+
+  // If a student_id parameter is passed in the URL (new tab mode), render the standalone StudentProfileView
+  if (studentIdFromUrl) {
+    return <StudentProfileView studentId={studentIdFromUrl} />;
+  }
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');

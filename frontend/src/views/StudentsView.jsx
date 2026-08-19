@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { UserCheck, BookOpen, Plus, ShieldAlert, CheckCircle2, AlertTriangle, DollarSign, Clock, Search, Trash2, Eye } from 'lucide-react';
 import AddStudentModal from '../components/AddStudentModal';
-import StudentProfileDrawer from '../components/StudentProfileDrawer';
 import SwipeableTableRow from '../components/SwipeableTableRow';
 import { addToTrashBin } from '../utils/trashBin';
 import { BASE_URL } from '../api';
@@ -11,10 +10,6 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
 
-  // Student Profile Drawer State
-  const [selectedStudent, setSelectedStudent] = useState(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
   const [subjects] = useState([
     { id: '1', name: 'Advanced Mathematics', tier: 'HSS', monthly_fee: 1200 },
     { id: '2', name: 'Physics & Chemistry Lab', tier: 'HS', monthly_fee: 950 },
@@ -22,8 +17,8 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
   ]);
 
   const defaultStudents = [
-    { id: 'std-101', name: 'Zayed Al-Hashimi', standard: 'Grade 10', program: 'Tuition & Daycare', due_amount: 0.0, attendance_status: 'Present', parent_phone: '+971 50 123 4567', parent_email: 'hashimi@uaeerp.ae' },
-    { id: 'std-102', name: 'Amina Al-Mansoori', standard: 'Grade 11', program: 'Tuition Only', due_amount: 450.0, attendance_status: 'Present', parent_phone: '+971 50 987 6543', parent_email: 'mansoori@uaeerp.ae' }
+    { id: 'std-101', name: 'Zayed Al-Hashimi', standard: 'Grade 10', program: 'Tuition & Daycare', due_amount: 0.0, attendance_status: 'Present' },
+    { id: 'std-102', name: 'Amina Al-Mansoori', standard: 'Grade 11', program: 'Tuition Only', due_amount: 450.0, attendance_status: 'Present' }
   ];
 
   const fetchStudents = () => {
@@ -36,9 +31,7 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
           standard: s.standard || 'Grade 10',
           program: typeof s.program === 'object' ? (s.program.value || 'Tuition & Daycare') : String(s.program || 'Tuition & Daycare'),
           due_amount: s.due_amount || 0.0,
-          attendance_status: s.attendance_status || 'Present',
-          parent_phone: s.parent_phone || '+971 50 123 4567',
-          parent_email: s.parent_email || 'parent@uaeerp.ae'
+          attendance_status: s.attendance_status || 'Present'
         })) : [];
 
         const localStudents = JSON.parse(localStorage.getItem('registered_students') || '[]');
@@ -215,13 +208,15 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
                     </td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {/* INSPECT PROFILE ACTION BUTTON */}
-                        <button 
-                          onClick={() => { setSelectedStudent(std); setIsDrawerOpen(true); }}
-                          className="px-3 py-1 text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 flex items-center gap-1 transition-colors"
+                        {/* INSPECT PROFILE ACTION LINK (Opens in a New Tab) */}
+                        <a 
+                          href={`?student_id=${std.id}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="px-3 py-1 text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 flex items-center gap-1 transition-colors no-underline inline-flex"
                         >
                           <Eye size={12} /> Inspect Profile
-                        </button>
+                        </a>
 
                         {std.due_amount > 0 && (
                           <button 
@@ -293,24 +288,6 @@ export default function StudentsView({ activeRole = 'SuperAdmin' }) {
         onSuccess={handleStudentAdded}
         creatorRole={activeRole}
       />
-
-      {/* STUDENT PROFILE DRAWER & BACKDROP OVERLAY */}
-      {isDrawerOpen && (
-        <>
-          {/* Backdrop Overlay */}
-          <div 
-            className="fixed inset-0 bg-slate-900/50 z-40 transition-opacity" 
-            onClick={() => setIsDrawerOpen(false)}
-          ></div>
-          
-          {/* Drawer Component */}
-          <StudentProfileDrawer 
-            student={selectedStudent} 
-            onClose={() => setIsDrawerOpen(false)} 
-            onSettleDue={handleSettleDue}
-          />
-        </>
-      )}
     </div>
   );
 }
